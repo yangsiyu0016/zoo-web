@@ -63,7 +63,8 @@
         },
         methods:{
             currentChange(page){
-                alert(page);
+                this.currentPage = page;
+                this.loadWarehouse();
             },
             deleteWarehouse(){
               this.$message.info("删除请联系统管理员");
