@@ -26,7 +26,38 @@
                             </el-select>
                         </el-form-item>
                     </el-col>
+                    <el-col :span="8" v-show="oi.id||oi.codeGeneratorType=='SELF'">
+                        <el-form-item label="单号" prop="code" :required="oi.codeGeneratorType=='SELF'">
+                            <el-input v-model="oi.code"></el-input>
+                        </el-form-item>
+                    </el-col>
                 </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="8">
+                        <el-form-item label="仓库" prop="warehouse.id">
+                            <el-select v-model="oi.warehouse" value-key="id" placeholder="选择仓库">
+                                <el-option
+                                        v-for="(item,i) in warehouses"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item">
+
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-card>
+            <el-card shadow="hover">
+                <div slot="header">
+                    <span style="float: left;">产品清单</span>
+                </div>
+                <div>
+                    <el-button type="primary" size="mini" icon="el-icon-plus"
+                               style="float: left" v-show="!oi.processInstanceId"   @click="showAddSkuView">
+                        添加产品
+                    </el-button>
+                </div>
             </el-card>
         </el-form>
     </div>
@@ -35,14 +66,40 @@
 <script>
     export default {
         name: "OpeningInventoryForm",
+        mounted(){
+            this.loadWarehouses();
+        },
+        methods:{
+            showAddSkuView(){
+
+            },
+            loadWarehouses(){
+                this.getRequest('/erp/warehouse/all').then((resp)=>{
+                    this.warehouses = resp.data;
+                })
+            }
+        },
         data(){
+            let checkCode = (rule,value,callback)=>{
+                if(this.oi.code===""&&this.oi.codeGeneratorType=='SELF'){
+                    callback(new Error("必填：单号"));
+                }else{
+                    callback();
+                }
+            };
             return{
+                warehouses:[],
                 oi:{
                     initDate:'',
-                    codeGeneratorType:"AUTO"
+                    codeGeneratorType:"AUTO",
+                    code:'',
+                    processInstanceId:'',
+                    warehouse:{}
                 },
                 rules:{
-
+                    initDate:[{required: true, message: '必填:单据日期', trigger: 'blur'}],
+                    "warehouse.id":[{required: true, message: '必选:仓库', trigger: 'blur'}],
+                    code:[{validator:checkCode}]
                 },
                 //日期选择器
                 pickerOptions: {

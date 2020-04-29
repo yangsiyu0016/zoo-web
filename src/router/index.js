@@ -101,6 +101,11 @@ export const asyncRouterMap = [{
             name:"list",
             component:()=>import("@/views/erp/purchase/List"),
             meta:{title:"采购订单"}
+        },{
+            path:"supplier",
+            name:"supplier",
+            component:()=>import("@/views/erp/purchase/Supplier"),
+            meta:{title:"供应商管理"}
         }]
     },{
         path:"sell",
