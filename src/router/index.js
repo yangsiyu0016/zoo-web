@@ -81,6 +81,11 @@ export const asyncRouterMap = [{
         component:()=>import("@/views/erp/stock/index"),
         meta:{title:"库存管理"},
         children: [{
+            path:"oi",
+            name:"oi",
+            component:()=>import("@/views/erp/stock/oi/index"),
+            meta:{title:"期初单据"}
+        },{
             path:"warehouse",
             name:"warehouse",
             component:()=>import("@/views/erp/stock/warehouse/index"),

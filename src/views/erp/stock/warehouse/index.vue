@@ -74,7 +74,7 @@
                 this.loadWarehouse();
             },
             loadWarehouse(){
-                var _this = this;
+                let _this = this;
                 this.tablLoading = true;
                 this.getRequest("/erp/warehouse/page?page="+this.currentPage+
                     "&size=10").then(resp=>{
