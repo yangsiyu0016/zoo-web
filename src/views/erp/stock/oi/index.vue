@@ -19,6 +19,11 @@
                     <el-table-column prop="cuser.realName" align="left"  label="创建人" ></el-table-column>
                     <el-table-column prop="ctime" align="left"  label="创建日期" ></el-table-column>
                     <el-table-column prop="etime" align="left"  label="完成日期" ></el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button @click="showEditOiView(scope.row)" size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
                 <div style="display: flex;justify-content: space-between;margin: 2px">
                     <el-pagination
@@ -32,7 +37,7 @@
             </el-main>
         </el-container>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
-            <opening-inventory-form></opening-inventory-form>
+            <opening-inventory-form :isEdit="isEdit" :oldOi="oldOi" @close="closeWin" @callback="callback"></opening-inventory-form>
         </el-dialog>
     </div>
 </template>
@@ -46,8 +51,18 @@
             this.loadData();
         },
         methods:{
+            callback(){
+                this.dialogVisible = false;
+                this.loadData();
+            },
+            closeWin(){
+                this.dialogVisible = false;
+            },
+            //翻译状态码
             statusFormat(row,column){
-
+                if(row.status=="WTJ"){
+                    return "未提交";
+                }
             },
             loadData(){
                 this.getRequest('/oi/page?page='+this.currentPage+"&size=10").then((resp)=>{
@@ -55,7 +70,27 @@
                     this.totalCount = resp.data.count;
                 })
             },
+            //显示修改视图
+            showEditOiView(row){
+                this.getRequest("/oi/getOiById?id="+row.id).then((resp)=>{
+                    this.isEdit = true;
+                    this.oldOi=resp.data;
+                    this.dialogTitle="编辑单据";
+                    this.dialogVisible = true;
+                })
+
+            },
+            //显示添加视图
             showAddOiView(){
+                this.isEdit = false;
+                this.oldOi = {
+                    initDate:'',
+                    codeGeneratorType:"AUTO",
+                    code:'',
+                    processInstanceId:'',
+                    warehouse:{},
+                    details:[]
+                };
                 this.dialogTitle="添加单据";
                 this.dialogVisible = true;
             }
@@ -66,7 +101,9 @@
                 totalCount:-1,
                 dialogVisible:false,
                 dialogTitle:'',
-                ois:[]
+                ois:[],
+                oldOi:{},
+                isEdit:false
             }
         }
     }
