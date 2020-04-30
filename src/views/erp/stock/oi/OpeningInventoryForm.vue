@@ -79,6 +79,7 @@
             </el-card>
             <el-card shadow="hover">
                 <el-button @click="saveOi" size="mini" type="primary">保存</el-button>
+                <el-button @click="saveAndStart" size="mini" type="warning">保存并启动流程</el-button>
                 <el-button @click="cancel" size="mini" type="info">取消</el-button>
             </el-card>
         </el-form>
@@ -116,6 +117,10 @@
             }
         },
         methods:{
+            //保存并启动流程
+            saveAndStart(){
+                this.$message.info("暂时不实现");
+            },
             //保存期初订单
             saveOi(){
                 this.$refs["oiForm"].validate((valid)=>{
@@ -195,12 +200,29 @@
             },
             //更新产品
             editDetail(detail){
-                this.oi.details.some((item,i)=>{
-                    if(item==this.oldDetail){
-                        this.oi.details.splice(i,1,detail);
-                    }
-                })
-                this.detailDialogVisible = false;
+                if(this.isEdit){
+                    this.putNoEnCodeRequest('/oi/detail/update',detail).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("更新成功");
+                            this.oi.details.some((item,i)=>{
+                                if(item==this.oldDetail){
+                                    this.oi.details.splice(i,1,detail);
+                                }
+                            })
+                            this.detailDialogVisible = false;
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                }else {
+                    this.oi.details.some((item,i)=>{
+                        if(item==this.oldDetail){
+                            this.oi.details.splice(i,1,detail);
+                        }
+                    })
+                    this.detailDialogVisible = false;
+                }
+
             },
             //添加产品
             addDetail(detail){
