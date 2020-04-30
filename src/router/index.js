@@ -58,6 +58,11 @@ export const asyncRouterMap = [{
             import("@/views/system/Menu"),
         meta: { title: "菜单管理"},
     },{
+        path:'flow',
+        name:'flow',
+        component:()=>import("@/views/system/flow/index"),
+        meta:{title:"流程管理"}
+    },{
         path:"base",
         name:"base",
         component:()=>import("@/views/system/base/index"),
