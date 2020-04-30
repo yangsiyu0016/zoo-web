@@ -50,6 +50,11 @@ export const asyncRouterMap = [{
             name: 'user',
             component: () => import("@/views/system/rbac/User"),
             meta: {title: "用户管理"}
+        },{
+            path:'position',
+            name:'position',
+            component:()=>import("@/views/system/rbac/Position"),
+            meta:{title:"职位管理"}
         }]
     },{
         path: "menu",
@@ -57,6 +62,11 @@ export const asyncRouterMap = [{
         component: () =>
             import("@/views/system/Menu"),
         meta: { title: "菜单管理"},
+    },{
+        path:'flow',
+        name:'flow',
+        component:()=>import("@/views/system/flow/index"),
+        meta:{title:"流程管理"}
     },{
         path:"base",
         name:"base",

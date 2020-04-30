@@ -15,12 +15,17 @@
                     <el-table-column prop="code" align="left"  label="单号" ></el-table-column>
                     <el-table-column prop="initDate" align="left"  label="下单日期"  ></el-table-column>
                     <el-table-column prop="warehouse.name" align="left"  label="仓库" ></el-table-column>
-                    <el-table-column prop="status" align="left"  label="状态" :formatter="statusFormat" ></el-table-column>
+                    <el-table-column  align="left"  label="状态" >
+                        <template slot-scope="scope">
+                            <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="cuser.realName" align="left"  label="创建人" ></el-table-column>
                     <el-table-column prop="ctime" align="left"  label="创建日期" ></el-table-column>
                     <el-table-column prop="etime" align="left"  label="完成日期" ></el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
+                            <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
                             <el-button @click="showEditOiView(scope.row)" size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                         </template>
                     </el-table-column>
@@ -51,6 +56,23 @@
             this.loadData();
         },
         methods:{
+            startFlow(row){
+                this.$confirm("确定要启动审批流程吗？","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.postRequest('/oi/startFlow?id='+row.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("启动成功");
+                            this.loadData();
+
+                        }else{
+                            this.$message.error("启动失败");
+                        }
+                    })
+                })
+            },
             callback(){
                 this.dialogVisible = false;
                 this.loadData();
