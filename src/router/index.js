@@ -33,51 +33,15 @@ export const asyncRouterMap = [{
     path: "/home",
     component: Layout,
     meta: { title: "首页", icon: "el-icon-menu" }
-},
-{
-    path: "/system",
-    component: Layout,
-    //redirect: "/system/Menu",
-    name: "system",
-    meta: { title: "系统管理", icon: "el-icon-tickets"},
-    children: [{
-        path:"rbac",
-        name:"rbac",
-        component:()=> import("@/views/system/rbac/index"),
-        meta:{title:'组织机构'},
-        children: [{
-            path: 'user',
-            name: 'user',
-            component: () => import("@/views/system/rbac/User"),
-            meta: {title: "用户管理"}
-        },{
-            path:'position',
-            name:'position',
-            component:()=>import("@/views/system/rbac/Position"),
-            meta:{title:"职位管理"}
-        }]
-    },{
-        path: "menu",
-        name: "menu",
-        component: () =>
-            import("@/views/system/Menu"),
-        meta: { title: "菜单管理"},
-    },{
-        path:'flow',
-        name:'flow',
-        component:()=>import("@/views/system/flow/index"),
-        meta:{title:"流程管理"}
-    },{
-        path:"base",
-        name:"base",
-        component:()=>import("@/views/system/base/index"),
-        meta:{title:"基本设置"},
-        children: [{
-            path:'area',
-            name:"area",
-            component:()=>import("@/views/system/base/Area"),
-            meta:{title:"区域管理"}
-        }]
+}, {
+    path:"/task",
+    component:Layout,
+    meta:{title:'待办任务',icon:'el-icon-tickets'},
+    children:[{
+        path:'oiTask',
+        name:'oiTask',
+        component:()=>import("@/views/oa/task/OpeningInventoryTask"),
+        meta:{title:"期初待办"}
     }]
 },
 {
@@ -86,6 +50,11 @@ export const asyncRouterMap = [{
     name:'erp',
     meta:{title:'ERP',icon:'el-icon-tickets'},
     children:[{
+        path:"queryStock",
+        name:"queryStock",
+        component:()=>import("@/views/erp/stock/Stock"),
+        meta:{title:'库存查询'}
+    },{
         path:"stock",
         name:"stock",
         component:()=>import("@/views/erp/stock/index"),
@@ -158,6 +127,52 @@ export const asyncRouterMap = [{
             name:'spec',
             component:()=>import("@/views/erp/product/spec/index"),
             meta:{title:"规格参数"}
+        }]
+    }]
+},
+{
+    path: "/system",
+    component: Layout,
+    //redirect: "/system/Menu",
+    name: "system",
+    meta: { title: "系统管理", icon: "el-icon-tickets"},
+    children: [{
+        path:"rbac",
+        name:"rbac",
+        component:()=> import("@/views/system/rbac/index"),
+        meta:{title:'组织机构'},
+        children: [{
+            path: 'user',
+            name: 'user',
+            component: () => import("@/views/system/rbac/User"),
+            meta: {title: "用户管理"}
+        },{
+            path:'position',
+            name:'position',
+            component:()=>import("@/views/system/rbac/Position"),
+            meta:{title:"职位管理"}
+        }]
+    },{
+        path: "menu",
+        name: "menu",
+        component: () =>
+            import("@/views/system/Menu"),
+        meta: { title: "菜单管理"},
+    },{
+        path:'flow',
+        name:'flow',
+        component:()=>import("@/views/system/flow/index"),
+        meta:{title:"流程管理"}
+    },{
+        path:"base",
+        name:"base",
+        component:()=>import("@/views/system/base/index"),
+        meta:{title:"基本设置"},
+        children: [{
+            path:'area',
+            name:"area",
+            component:()=>import("@/views/system/base/Area"),
+            meta:{title:"区域管理"}
         }]
     }]
 }
