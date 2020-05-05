@@ -67,13 +67,13 @@
                 <div slot="header" class="clearfix">
                     <span style="float: left;">联系人</span>
                 </div>
-                <linkman-list :supplierId="supplier.id" :linkmans="supplier.contacts"></linkman-list>
+                <contact :supplierId="supplier.id" :contacts="supplier.contacts"></contact>
             </el-card>
             <el-card>
                 <div slot="header" class="clearfix">
                     <span style="float: left;">供货地址</span>
                 </div>
-                <receiving-list :supplierId="supplier.id" :receivings="supplier.supplyAddress"></receiving-list>
+                <supplyAddress :supplierId="supplier.id" :supplyAddresses="supplier.supplyAddresses"></supplyAddress>
             </el-card>
             <el-card>
                 <el-button @click="saveSupplier('supplierForm')" type="primary" size="mini" >保存</el-button>
@@ -95,7 +95,7 @@
 
     export default {
         name: "SupplierForm",
-        comments: {UserDialog, Contact, SupplyAddress},
+        components: {UserDialog, Contact, SupplyAddress},
         props: {
             oldSupplier: {
                 type: Object,
@@ -132,7 +132,7 @@
                                 }
                             })
                         }else {
-                            this.postNoEnCodeRequest('/erp/supplier/update', this.supplier).then((resp) => {
+                            this.postNoEnCodeRequest('/erp/supplier/add', this.supplier).then((resp) => {
                                 if (resp.data.status == '200') {
                                     this.$message.success('保存成功');
                                     this.$emit("editSuccess");
