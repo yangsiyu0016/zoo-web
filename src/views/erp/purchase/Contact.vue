@@ -26,8 +26,7 @@
             </el-table-column>
         </el-table>
         <el-dialog title="添加联系人" :visible.sync="contactDialogVisible" :append-to-body="true" :close-on-click-modal="false">
-            <contact-form :isEdit="isEdit" @editCo
-                          ntact="editContact" :oldContact="oldContact" @addContact="addContact"></contact-form>
+            <contact-form :isEdit="isEdit" @editContact="editContact" :oldContact="oldContact" @addContact="addContact"></contact-form>
         </el-dialog>
     </div>
 </template>
