@@ -25,8 +25,8 @@
                 </template>
             </el-table-column>
         </el-table>
-        <el-dialog title="添加联系人" :visible.sync="ContactDialogVisible" :append-to-body="true" :close-on-click-modal="false">
-            <linkman-form :isEdit="isEdit" @editLinkman="editContact" :oldContact="oldContact" @addContact="addContact"></linkman-form>
+        <el-dialog title="添加联系人" :visible.sync="contactDialogVisible" :append-to-body="true" :close-on-click-modal="false">
+            <contact-form :isEdit="isEdit" @editLinkman="editContact" :oldContact="oldContact" @addContact="addContact"></contact-form>
         </el-dialog>
     </div>
 </template>
@@ -41,7 +41,7 @@
                 type: Array,
                 default: () => {}
             },
-            suppilerId: {
+            supplierId: {
                 type: String,
                 default: ''
             }
@@ -81,7 +81,8 @@
                 }
             },
             addContact(contact){
-                if(this.suppilerId){
+                alert(111)
+                if(this.supplierId){
                     Object.assign(contact,{supplierId: this.supplierId});
                     this.postNoEnCodeRequest('/erp/contact/addContact', contact).then((resp) => {
                         if(resp.data.status == '200') {

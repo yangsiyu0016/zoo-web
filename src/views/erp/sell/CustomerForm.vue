@@ -67,7 +67,7 @@
                 <div slot="header" class="clearfix">
                     <span style="float: left;">联系人</span>
                 </div>
-                <linkman-list :customerId="customer.id" :linkmans="customer.linkmans"></linkman-list>
+                    <linkman-list :customerId="customer.id" :linkmans="customer.linkmans"></linkman-list>
             </el-card>
             <el-card>
                 <div slot="header" class="clearfix">
@@ -123,6 +123,7 @@
                     if(valid){
                         if(this.isEdit){
                             this.putNoEnCodeRequest('/crm/customer/updateCustomer',this.customer).then((resp)=>{
+                                console.log(resp.data)
                                 if(resp.data.status=="200"){
                                     this.$message.success("更新成功");
                                     this.$emit("editSuccess");

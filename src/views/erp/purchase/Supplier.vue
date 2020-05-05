@@ -31,6 +31,16 @@
                         </template>
                     </el-table-column>
                 </el-table>
+                <div style="display: flex;justify-content: space-between;margin: 2px">
+                    <el-pagination
+                            background
+                            :page-size="10"
+                            @current-change="currentChange"
+                            :current-page="currentPage"
+                            layout="prev,pager,next"
+                            :total="totalCount">
+                    </el-pagination>
+                </div>
             </el-main>
         </el-container>
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" width="80%">
@@ -60,6 +70,10 @@
             }
         },
         methods: {
+            currentChange(page){
+                this.currentPage = page;
+                this.loadSupplier();
+            },
             //s删除功能
             deleteSupplier(supplier){
                 console.log(supplier.id);
