@@ -83,11 +83,12 @@
                 })
             },
             addSupplyAddress(supplyAddress) {
+                console.log(supplyAddress)
                 if (this.supplierId) {
                     Object.assign(supplyAddress, {supplierId: this.supplierId});
                     this.postNoEnCodeRequest("/erp/supplyAddress/addSupplyAddress", supplyAddress).then((resp) => {
                         if (resp.data.status == '200'){
-                            supplyAddress = resp.data.SupplyAddress;
+                            supplyAddress = resp.data.supplyAddress;
                             this.supplyAddresses.push(supplyAddress);
                             this.dialogVisible = false;
                             this.$message.success("添加成功");

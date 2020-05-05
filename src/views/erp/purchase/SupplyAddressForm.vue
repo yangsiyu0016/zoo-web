@@ -54,6 +54,7 @@
         },
         methods: {
             submitForm(formName) {
+                console.log(this.supplyAddress)
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         if (this.isEdit) {
