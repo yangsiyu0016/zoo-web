@@ -20,7 +20,7 @@
             </el-table>
             <el-divider></el-divider>
             <div slot="footer" class="dialog-footer">
-                <el-button size="mini" type="info" @click="closeWin">关闭</el-button>
+                <el-button size="mini" type="info" @click="closeWin" >关闭</el-button>
             </div>
         </el-dialog>
     </div>
