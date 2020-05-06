@@ -71,7 +71,7 @@
             </el-card>
             <el-card>
                 <div slot="header" class="clearfix">
-                    <span style="float: left;">供货地址</span>
+                    <span style="float: left;">开户信息</span>
                 </div>
                 <supplierAccount :supplierId="supplier.id" :supplierAccounts="supplier.supplierAccounts"></supplierAccount>
             </el-card>

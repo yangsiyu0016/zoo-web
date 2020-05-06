@@ -4,7 +4,7 @@
             <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
                     <el-button type="primary" size="mini" icon="el-icon-plus"
-                               @click="showAddSellView">
+                               @click="showAddPurchaseView">
                         添加订单
                     </el-button>
                 </div>
@@ -14,14 +14,14 @@
                     <el-table-column type="index" width="30px"></el-table-column>
                     <el-table-column prop="code" label="单号"></el-table-column>
                     <el-table-column prop="initDate" label="下单日期"></el-table-column>
-                    <el-table-column prop="customer.name" label="供应商"></el-table-column>
+                    <el-table-column prop="supplier.supplierName" label="供应商"></el-table-column>
                     <el-table-column prop="cuser.realName" label="创建人"></el-table-column>
                     <el-table-column prop="ctime" label="创建时间"></el-table-column>
                     <el-table-column prop="etime" label="完成时间"></el-table-column>
                     <el-table-column
                             label="操作">
                         <template slot-scope="scope">
-                            <el-button  type="primary" @click="showEditSellView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button  type="primary" @click="showEditPurchaseView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                             <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
@@ -37,7 +37,7 @@
 
         </el-container>
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" width="77%">
-            <purchase-form></purchase-form>
+            <purchase-form :isEdit="isEdit" :oldPurchase="oldPurchase" @close="closeWin" @callback="callback"></purchase-form>
         </el-dialog>
     </div>
 </template>
@@ -47,10 +47,51 @@
     export default {
         name: "List",
         components: {PurchaseForm},
+        mounted(){
+            this.loadPurchases();
+        },
         methods:{
-            showAddSellView(){
+            callback(){
+                this.dialogVisible = false;
+                this.loadPurchases();
+            },
+            closeWin(){
+                this.dialogVisible = false;
+            },
+            showEditPurchaseView(row){
+                this.isEdit = true;
+                this.getRequest('/erp/purchase/'+row.id).then((resp)=>{
+                    if(resp&&resp.data){
+                        this.oldPurchase = resp.data;
+                        this.dialogTitle = "编辑订单";
+                        this.dialogVisible = true;
+                    }else{
+                        this.$message.error("获取订单失败");
+                    }
+                })
+            },
+            showAddPurchaseView(){
+                this.isEdit = false;
+                this.oldPurchase={
+                    initDate:'',
+                    codeGeneratorType:"AUTO",
+                    code:'',
+                    supplier:{
+                        supplierName:''
+                    },
+                    supplierAccount:{
+
+                    },
+                    details:[]
+                },
                 this.dialogTitle = "添加订单";
                 this.dialogVisible = true;
+            },
+            loadPurchases(){
+                this.getRequest('/erp/purchase/page?page='+this.currentPage+"&size=10").then((resp)=>{
+                    this.purchases = resp.data.purchases;
+                    this.totalCount = resp.data.count;
+                })
             }
         },
         data(){
@@ -59,7 +100,9 @@
                 currentPage:1,
                 totalCount:-1,
                 dialogVisible:false,
-                dialogTitle:''
+                dialogTitle:'',
+                oldPurchase:{},
+                isEdit:false
             }
         }
     }

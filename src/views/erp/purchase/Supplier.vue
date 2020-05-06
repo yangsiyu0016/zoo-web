@@ -24,6 +24,7 @@
                         <el-table-column prop="city.name" label="城市"></el-table-column>
                         <el-table-column prop="county.name" label="地区"></el-table-column>
                     </el-table-column>
+                    <el-table-column prop="supplierAddress" label="详细地址"></el-table-column>
                     <el-table-column prop="owner.realName" label="拥有人"></el-table-column>
                     <el-table-column prop="systemUser.realName" label="创建人"></el-table-column>
                     <el-table-column prop="createTime" label="创建时间"></el-table-column>
@@ -117,7 +118,7 @@
                         realName: ''
                     },
                     contacts: [],
-                    supplyAddresses: []
+                    supplierAccounts:[]
                 };
                 this.isEdit = false;
                 this.dialogTitle = '新增供货商';

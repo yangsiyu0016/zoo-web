@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-dialog :title="title" :visible.sync="visible" :append-to-body="true" :show-close="false" :close-on-click-modal="false" width="77%">
-            <el-table :data="suppliers" size="mini" style="width:100%">
+            <el-table :data="suppliers" size="mini" style="width:100%"  @row-dblclick="rowDblclick">
                 <el-table-column type="index" width="50"></el-table-column>
                 <el-table-column prop="gtime" label="获取时间"></el-table-column>
                 <el-table-column prop="supplierName" label="名称"></el-table-column>
@@ -38,6 +38,10 @@
             this.loadSupplier();
         },
         methods:{
+            //列表双击事件
+            rowDblclick(row){
+                this.$emit("callback",row);
+            },
             //加载供应商
             loadSupplier() {
                 this.getRequest('/erp/supplier/page?page=' + this.currentPage + '&size=10').then((resp) => {

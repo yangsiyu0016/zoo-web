@@ -48,9 +48,9 @@
         },
         methods: {
             deleteContact(row){
-                this.contact.some((item, i) => {
+                this.contacts.some((item, i) => {
                     if (item == row) {
-                        this.contact.splice(i, 1);
+                        this.contacts.splice(i, 1);
                         return true;
                     }
                 })
@@ -101,6 +101,7 @@
             },
 
             showEditContactView(row) {
+                console.log(row);
                 this.isEdit = true;
                 this.oldContact = row;
                 this.contactDialogVisible = true;
@@ -111,7 +112,7 @@
                 this.oldContact = {
                     name: '',
                     supplyCall: '',
-                    sex: '1',
+                    sex: 1,
                     position: '',
                     telephone: '',
                     callphone: '',

@@ -1,10 +1,17 @@
 <template>
     <div>
-        <el-form ref="supplierAccountForm" :model="supplierAccount" :rules="rules" label-width="120px">
+        <el-form type="mini" ref="supplierAccountForm" :model="supplierAccount" :rules="rules" label-width="120px">
+            <el-form-item prop="type" label="类型:">
+                <el-select size="mini" v-model="supplierAccount.type">
+                    <el-option v-for="(item,i) in types" :key="i" :label="item.name" :value="item.value">
+
+                    </el-option>
+                </el-select>
+            </el-form-item>
             <el-form-item prop="bankNumber" label="开户账号:">
                 <el-input size="mini" v-model="supplierAccount.bankNumber"></el-input>
             </el-form-item>
-            <el-form-item prop="bankName" label="开户名称:">
+            <el-form-item prop="bankName" label="开户银行:">
                 <el-input size="mini" v-model="supplierAccount.bankName"></el-input>
             </el-form-item>
             <el-form-item prop="accountName" label="开户人:">
@@ -46,10 +53,18 @@
         },
         data() {
             return {
+                types:[{
+                    name:'对公',
+                    value:'PUBLIC'
+                },{
+                    name:'个人',
+                    value:'PERSONAL'
+                }],
                 supplierAccount: {
                     bankNumber: '',
                     bankName: '',
-                    accountName: ''
+                    accountName: '',
+                    type:'PUBLIC'
                 },
 
                 props: {

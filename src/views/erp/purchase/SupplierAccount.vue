@@ -3,8 +3,14 @@
         <el-button @click="showAddSupplierAccountView" size="mini" type="primary"  style="float: left">添加供货信息</el-button>
         <el-table :data="supplierAccounts">
             <el-table-column type="index" width="30"></el-table-column>
+            <el-table-column label="类型" prop="type">
+                <template slot-scope="scope">
+                    <el-tag size="mini" v-if="scope.row.type=='PUBLIC'" type="warning">对公</el-tag>
+                    <el-tag size="mini" v-else type="success">个人</el-tag>
+                </template>
+            </el-table-column>
             <el-table-column prop="bankNumber" label="开户账号"></el-table-column>
-            <el-table-column prop="bankName" label="开户名称"></el-table-column>
+            <el-table-column prop="bankName" label="开户银行"></el-table-column>
             <el-table-column prop="accountName" label="开户人"></el-table-column>
             <el-table-column
                     label="操作">
@@ -75,7 +81,8 @@
                 this.oldSupplierAccount = {
                     bankNumber: '',
                     bankName: '',
-                    accountName: ''
+                    accountName: '',
+                    type:'PUBLIC'
                 };
                 this.dialogVisible = true;
                 this.dialogTitle = '添加开户信息';
@@ -135,6 +142,7 @@
                         }
                     })
                 }else {
+                    console.log(this.supplierAccounts);
                     this.supplierAccounts.push(supplierAccount);
                     this.dialogVisible = false;
                 }
