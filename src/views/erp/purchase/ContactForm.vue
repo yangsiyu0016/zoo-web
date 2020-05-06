@@ -131,7 +131,7 @@
                 contact: {
                     name: '',
                     supplyCall: '',
-                    sex: '1',
+                    sex: 1,
                     position: '',
                     telephone: '',
                     callphone: '',
