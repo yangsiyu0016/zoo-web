@@ -11,7 +11,11 @@
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
                 <el-table :data="suppliers" size="mini" style="width:100%">
-                    <el-table-column type="index" width="50"></el-table-column>
+                    <el-table-column type="index"  width="50">
+                        <template scope="scope">
+                            <span>{{(currentPage - 1) * 10 + scope.$index + 1}}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="gtime" label="获取时间"></el-table-column>
                     <el-table-column prop="supplierName" label="名称"></el-table-column>
                     <el-table-column label="区域">
@@ -70,6 +74,10 @@
             }
         },
         methods: {
+            indexMethod(index) {
+
+                return index * 2;
+            },
             currentChange(page){
                 this.currentPage = page;
                 this.loadSupplier();

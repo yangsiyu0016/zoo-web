@@ -73,7 +73,7 @@
                 <div slot="header" class="clearfix">
                     <span style="float: left;">供货地址</span>
                 </div>
-                <supplyAddress :supplierId="supplier.id" :supplyAddresses="supplier.supplyAddresses"></supplyAddress>
+                <supplierAccount :supplierId="supplier.id" :supplierAccounts="supplier.supplierAccounts"></supplierAccount>
             </el-card>
             <el-card>
                 <el-button @click="saveSupplier('supplierForm')" type="primary" size="mini" >保存</el-button>
@@ -90,12 +90,12 @@
 <script>
     import UserDialog from "@/components/dialog/UserDialog";
     import Contact from "@/views/erp/purchase/Contact";
-    import SupplyAddress from "@/views/erp/purchase/SupplyAddress";
+    import SupplierAccount from "@/views/erp/purchase/SupplierAccount";
     import {getRequest} from "@/utils/api";
 
     export default {
         name: "SupplierForm",
-        components: {UserDialog, Contact, SupplyAddress},
+        components: {UserDialog, Contact, SupplierAccount},
         props: {
             oldSupplier: {
                 type: Object,
@@ -204,7 +204,7 @@
                         realName: ''
                     },
                     contacts: [],
-                    supplyAddresses: []
+                    supplierAccounts: []
                 },
                 //日期选择器
                 pickerOptions: {
