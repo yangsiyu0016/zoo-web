@@ -10,7 +10,7 @@
                 </div>
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
-                <el-table :data="sells"  size="mini" style="width:100%">
+                <el-table :data="sells"  size="mini" style="width:100%" @row-dblclick="dblclick">
                     <el-table-column type="index" width="30px"></el-table-column>
                     <el-table-column prop="code" label="单号"></el-table-column>
                     <el-table-column prop="initDate" label="下单日期"></el-table-column>
@@ -29,6 +29,7 @@
                     <el-table-column
                             label="操作">
                         <template slot-scope="scope">
+                            <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
                             <el-button  type="primary" @click="showEditSellView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                             <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
@@ -46,20 +47,40 @@
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false"  width="77%">
             <sell-form :isEdit="isEdit" :oldSell="oldSell" @close="closeWin" @callback="callback"></sell-form>
         </el-dialog>
-
+        <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
+            <sell-details :sell="currentSell"></sell-details>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import SellForm from "@/views/erp/sell/SellForm";
+    import SellDetails from "@/views/erp/sell/SellDetails";
 
     export default {
         name: "List",
-        components: {SellForm},
+        components: {SellDetails, SellForm},
         mounted(){
             this.loadSells();
         },
         methods:{
+            //列表双击事件
+            dblclick(row){
+                this.getRequest('/erp/sell/'+row.id).then((resp)=>{
+                    if(resp&&resp.data){
+                        this.currentSell = resp.data;
+                        this.detailsDialogVisible = true;
+                        this.detailsDialogTitle="订单查看";
+                    }else{
+                        this.$message.error("获取订单失败");
+                    }
+                })
+
+            },
+            //显示订单详情
+            showDetails(row){
+                this.dblclick(row);
+            },
             callback(){
                 this.dialogVisible = false;
                 this.loadSells();
@@ -109,8 +130,10 @@
                 dialogTitle:'',
                 dialogVisible:false,
                 isEdit:false,
-                oldSell:[]
-
+                oldSell:[],
+                currentSell:[],
+                detailsDialogVisible:false,
+                detailsDialogTitle:''
             }
         }
     }

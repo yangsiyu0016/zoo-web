@@ -69,7 +69,6 @@
                 })
             },
             getDuration(row){
-                console.log(row);
                 let time = row.stateTime*60*1000;
                 let days    = time / 1000 / 60 / 60 / 24;
                 let daysRound = Math.floor(days);
