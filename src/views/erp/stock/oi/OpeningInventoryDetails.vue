@@ -38,6 +38,7 @@
             </div>
         </el-card>
         <el-card>
+            <el-button @click="destroyOi" size="mini" type="danger" v-show="canDestroy">作废</el-button>
             <el-button @click="close" size="mini" type="info">关闭</el-button>
         </el-card>
     </div>
@@ -50,11 +51,24 @@
             oi:{
                 type:Object,
                 default:()=>{}
+            },
+            canDestroy: {
+                type: Boolean,
+                default: false
             }
         },
         methods:{
             close(){
                 this.$emit("close");
+            },
+            destroyOi() {
+                this.$confirm('确定作废此订单吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: "warning"
+                }).then(() => {
+                    this.postRequest('/oi/destroy?id=' + this.oi.id);
+                })
             }
         }
     }
