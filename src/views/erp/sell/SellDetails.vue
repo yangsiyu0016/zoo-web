@@ -29,6 +29,10 @@
                     </el-row>
                 </div>
             </el-card>
+            <el-card>
+                <el-button @click="destroySell" size="mini" type="danger" v-show="canDestroy">作废</el-button>
+                <el-button @click="close" size="mini" type="info">关闭</el-button>
+            </el-card>
         </el-from>
     </div>
 </template>
@@ -40,10 +44,32 @@
             sell:{
                 type:Object,
                 default:()=>{}
+            },
+            canDestroy: {
+                type: Boolean,
+                default: false
             }
         },
         data(){
             return{
+            }
+        },
+        mounted() {
+
+        },
+        methods: {
+            destroySell() {
+                this.$confirm('确定作废该订单吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: "warning"
+                }).then(() => {
+                    this.postRequest('/erp/sell/destroy?id=' + this.sell.id);
+                })
+            },
+            //关闭
+            close(){
+                this.$emit("close");
             }
         }
     }
