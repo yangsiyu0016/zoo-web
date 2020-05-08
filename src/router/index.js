@@ -38,6 +38,11 @@ export const asyncRouterMap = [{
     component:Layout,
     meta:{title:'待办任务',icon:'el-icon-tickets'},
     children:[{
+        path:'purchaseTask',
+        name:'purchaseTask',
+        component:()=>import("@/views/oa/task/PurchaseTask"),
+        meta:{title:"采购待办"}
+    },{
         path:'oiTask',
         name:'oiTask',
         component:()=>import("@/views/oa/task/OpeningInventoryTask"),
@@ -69,6 +74,17 @@ export const asyncRouterMap = [{
             name:"warehouse",
             component:()=>import("@/views/erp/stock/warehouse/index"),
             meta:{title:"仓库设置"}
+        }]
+    },{
+        path:'order',
+        name:'order',
+        component:()=>import("@/views/erp/order/index"),
+        meta:{title:'订单查看'},
+        children:[{
+            path:"allpurchase",
+            name:"allpurchase",
+            component:()=>import("@/views/erp/order/AllPurchase"),
+            meta:{title:'采购订单'}
         }]
     },{
         path:"purchase",
@@ -169,6 +185,11 @@ export const asyncRouterMap = [{
         component:()=>import("@/views/system/base/index"),
         meta:{title:"基本设置"},
         children: [{
+            path:'logistics',
+            name:'logistics',
+            component:()=>import("@/views/system/base/Logistics"),
+            meta:{title:"物流信息管理"}
+        },{
             path:'area',
             name:"area",
             component:()=>import("@/views/system/base/Area"),

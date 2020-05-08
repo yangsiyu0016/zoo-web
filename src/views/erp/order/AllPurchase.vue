@@ -3,10 +3,7 @@
         <el-container>
             <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                    <el-button type="primary" size="mini" icon="el-icon-plus"
-                               @click="showAddPurchaseView">
-                        添加订单
-                    </el-button>
+
                 </div>
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
@@ -31,9 +28,7 @@
                             label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" type="primary" @click="showEditPurchaseView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" @click="deletePurchase" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+
                         </template>
                     </el-table-column>
                 </el-table>
@@ -47,31 +42,32 @@
             </el-main>
 
         </el-container>
-        <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" width="77%">
-            <purchase-form :isEdit="isEdit" :oldPurchase="oldPurchase" @close="closeWin" @callback="callback"></purchase-form>
-        </el-dialog>
         <el-dialog :visible.sync="detailDialogVisible" :title="detailDialogTitle" :close-on-click-modal="false" width="77%">
-            <purchase-details @close="closeDetailDialog" :purchase="currentPurchase"></purchase-details>
+            <purchase-details @callback="callback" :canDestroy="canDestroy" @close="closeDetailDialog" :purchase="currentPurchase"></purchase-details>
         </el-dialog>
     </div>
 </template>
 
 <script>
-    import PurchaseForm from "@/views/erp/purchase/PurchaseForm";
     import PurchaseDetails from "@/views/erp/purchase/PurchaseDetails";
     export default {
         name: "List",
-        components: {PurchaseDetails, PurchaseForm},
+        components: {PurchaseDetails},
         mounted(){
             this.loadPurchases();
         },
         methods:{
+            callback(){
+                this.detailDialogVisible = false;
+                this.loadPurchases();
+            },
             //关闭查看界面
             closeDetailDialog(){
                 this.detailDialogVisible = false;
             },
             //查看订单
             showDetails(row){
+                this.canDestroy = true;
                 this.getRequest('/erp/purchase/'+row.id).then((resp)=>{
                     if(resp&&resp.data){
                         this.currentPurchase = resp.data;
@@ -86,64 +82,8 @@
             rowDblclick(row){
                 this.showDetails(row);
             },
-            //启动流程
-            startFlow(row){
-                this.$confirm("确定要启动审批流程吗？","提示",{
-                    confirmButtonText:"确定",
-                    cancelButtonText:"取消",
-                    type:'warning'
-                }).then(()=>{
-                    this.postRequest('/erp/purchase/startFlow?id='+row.id).then((resp)=>{
-                        console.log(resp);
-                        if(resp&&resp.data.status==200){
-                            this.$message.success("启动成功");
-                            //this.loadData();
 
-                        }else{
-                            this.$message.error(resp.data.msg);
-                        }
-                    })
-                })
-            },
-            deletePurchase(){
-                this.$message.info("暂时未实现");
-            },
-            callback(){
-                this.dialogVisible = false;
-                this.loadPurchases();
-            },
-            closeWin(){
-                this.dialogVisible = false;
-            },
-            showEditPurchaseView(row){
-                this.isEdit = true;
-                this.getRequest('/erp/purchase/'+row.id).then((resp)=>{
-                    if(resp&&resp.data){
-                        this.oldPurchase = resp.data;
-                        this.dialogTitle = "编辑订单";
-                        this.dialogVisible = true;
-                    }else{
-                        this.$message.error("获取订单失败");
-                    }
-                })
-            },
-            showAddPurchaseView(){
-                this.isEdit = false;
-                this.oldPurchase={
-                    initDate:'',
-                    codeGeneratorType:"AUTO",
-                    code:'',
-                    supplier:{
-                        supplierName:''
-                    },
-                    supplierAccount:{
 
-                    },
-                    details:[]
-                },
-                this.dialogTitle = "添加订单";
-                this.dialogVisible = true;
-            },
             loadPurchases(){
                 this.getRequest('/erp/purchase/page?page='+this.currentPage+"&size=10").then((resp)=>{
                     this.purchases = resp.data.purchases;
@@ -156,13 +96,10 @@
                 purchases:[],
                 currentPage:1,
                 totalCount:-1,
-                dialogVisible:false,
-                dialogTitle:'',
-                oldPurchase:{},
-                isEdit:false,
                 detailDialogVisible:false,
                 detailDialogTitle:'',
-                currentPurchase:{}
+                currentPurchase:{},
+                canDestroy:false
             }
         }
     }

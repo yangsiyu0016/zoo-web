@@ -33,7 +33,7 @@
                         </el-col>
                         <el-col :span="8" v-show="purchase.id||purchase.codeGeneratorType=='SELF'">
                             <el-form-item label="单号:" prop="code" :required="purchase.codeGeneratorType=='SELF'">
-                                <el-input disabled="isEdit" size="mini" v-model="purchase.code"></el-input>
+                                <el-input :disabled="isEdit" size="mini" v-model="purchase.code"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -138,24 +138,79 @@
             }
         },
         methods:{
+            //删除产品
             deleteDetail(row){
-                this.purchase.details.some((item,i)=>{
-                    if(item==row){
-                        this.purchase.details.splice(i,1);
-                    }
-                })
+                if(this.isEdit){
+                    this.$confirm("确定要删除吗?","提示",{
+                        confirmButtonText:"确定",
+                        cancelButtonText:'取消',
+                        type:'warning'
+                    }).then(()=>{
+                        this.deleteRequest('/erp/purchase/detail/'+row.id).then((resp)=>{
+                            if(resp&&resp.data.status=="200"){
+                                this.$message.success("删除成功");
+                                this.purchase.details.some((item,i)=>{
+                                    if(item==row){
+                                        this.purchase.details.splice(i,1);
+                                        return true;
+                                    }
+                                })
+                            }else{
+                                this.$message.error("删除失败");
+                            }
+                        })
+                    })
+                }else{
+                    this.purchase.details.some((item,i)=>{
+                        if(item==row){
+                            this.purchase.details.splice(i,1);
+                        }
+                    })
+                }
+
             },
             editDetail(row){
                 if(this.detailIsEdit){//修改
-                    this.purchase.details.some((item,i)=>{
-                        if(item==this.oldDetail){
-                            this.purchase.details.splice(i,1,row);
-                            this.detailDialogVisible = false;
-                        }
-                    })
+                    if(this.isEdit){
+                        this.putNoEnCodeRequest("/erp/purchase/detail/update",row).then((resp)=>{
+                            if(resp&&resp.data.status=="200"){
+                                this.$message.success("更新成功");
+                                this.purchase.details.some((item,i)=>{
+                                    if(item==this.oldDetail){
+                                        this.purchase.details.splice(i,1,row);
+                                        this.detailDialogVisible = false;
+                                    }
+                                })
+                            }else{
+                                this.$message.error(resp.data.msg);
+                            }
+                        })
+                    }else{
+                        this.purchase.details.some((item,i)=>{
+                            if(item==this.oldDetail){
+                                this.purchase.details.splice(i,1,row);
+                                this.detailDialogVisible = false;
+                            }
+                        })
+                    }
+
                 }else{//新增
-                    this.purchase.details.push(row);
-                    this.detailDialogVisible = false;
+                    if(this.isEdit){
+                        Object.assign(row,{purchaseId:this.purchase.id});
+                        this.postNoEnCodeRequest('/erp/purchase/detail/add',row).then((resp)=>{
+                            if(resp&&resp.data.status==200){
+                                this.$message.success("添加成功");
+                                this.purchase.details.push(row);
+                                this.detailDialogVisible = false;
+                            }else{
+                                this.$message.error(resp.data.msg);
+                            }
+                        })
+                    }else{
+                        this.purchase.details.push(row);
+                        this.detailDialogVisible = false;
+                    }
+
                 }
 
             },
@@ -207,14 +262,26 @@
             savePurchase(){
                 this.$refs['purchaseForm'].validate((valid)=>{
                     if(valid){
-                        this.postNoEnCodeRequest('/erp/purchase/addPurchase',this.purchase).then((resp)=>{
-                            if(resp&&resp.data.status=="200"){
-                                this.$message.success("保存成功");
-                                this.$emit("callback");
-                            }else{
-                                this.$message.error(resp.data.msg);
-                            }
-                        })
+                        if(this.isEdit){//更新
+                            this.putNoEnCodeRequest('/erp/purchase/updatePurchase',this.purchase).then((resp)=>{
+                                if(resp&&resp.data.status=="200"){
+                                    this.$message.success("更新成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
+                        }else{//新增
+                            this.postNoEnCodeRequest('/erp/purchase/addPurchase',this.purchase).then((resp)=>{
+                                if(resp&&resp.data.status=="200"){
+                                    this.$message.success("保存成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
+                        }
+
                     }else{
                         return false;
                     }
