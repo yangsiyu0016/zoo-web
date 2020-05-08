@@ -56,8 +56,9 @@
                     <!--特有参数的待选项，需要判断是否有options，如果没有，展示文本框，让用户自己输入-->
                     <v-card-text class="px-5">
                         <div v-for="i in spec.options.length+1" :key="i" class="layout row px-5">
-                            <v-text-field :placeholder="'新的' + spec.name + ':'" class="flex xs10" auto-grow
-                                          v-model="spec.options[i-1]" v-bind:value="i" single-line hide-details/>
+                            <el-input :placeholder="'新的' + spec.name + ':'" class="flex xs10"
+                                      v-model="spec.options[i-1]" v-bind:value="i" single-line hide-details></el-input>
+
                             <v-btn @click="spec.options.splice(i-1,1)" v-if="i <= spec.options.length" icon>
                                 <i class="el-icon-delete"/>
                             </v-btn>

@@ -27,7 +27,7 @@
                                 label="操作">
                             <template slot-scope="scope">
                                 <el-button @click="showEditExpressView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                                <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button @click="deleteExpress(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -48,8 +48,8 @@
                 </div>
             </el-main>
         </el-container>
-        <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" @close="onClose">
-            <logistics-form></logistics-form>
+        <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false">
+            <logistics-form :isEdit="isEdit" :oldExpress="oldExpress"  @close="onClose" @callback="callback"></logistics-form>
         </el-dialog>
     </div>
 </template>
@@ -63,6 +63,13 @@
             this.loadExpresses();
         },
         methods:{
+            deleteExpress(){
+                this.$message.error("正在开发中……");
+            },
+            callback(){
+                this.dialogVisible = false;
+                this.loadExpresses();
+            },
             onClose(){
                 this.dialogVisible = false;
             },
@@ -71,9 +78,17 @@
                 this.loadExpresses();
             },
             showEditExpressView(row){
-                this.isEdit = true;
-                this.oldExpress = row;
-                this.dialogVisible = true;
+                this.getRequest('/system/express/getExpressById?id='+row.id).then((resp)=>{
+                    if(resp&&resp.data){
+                        this.isEdit = true;
+
+                        this.oldExpress = resp.data;
+                        this.dialogVisible = true;
+                    }else{
+                        this.$message.error("获取数据失败");
+                    }
+                })
+
             },
             showAddExpressView(){
                 this.isEdit = false;
