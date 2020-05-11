@@ -45,6 +45,7 @@
                         <el-table-column prop="warehouse.name" label="入库仓库"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
+                        <el-table-column label="未入库数量" prop="notInNumber"></el-table-column>
                         <el-table-column label="价格" prop="price"  width="300"></el-table-column>
                         <el-table-column label="总额" prop="totalMoney" ></el-table-column>
                     </el-table>
@@ -59,6 +60,15 @@
                         <el-table-column type="expand">
                             <template slot-scope="props">
                                 <el-table size="mini" :data="props.row.details">
+                                    <el-table-column type="expand">
+                                        <template slot-scope="props">
+                                            <el-table :data="props.row.cdgas">
+                                                <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
+                                                <el-table-column label="数量" prop="number"></el-table-column>
+
+                                            </el-table>
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column type="index"></el-table-column>
                                     <el-table-column label="产品名称" prop="productSku.product.name" ></el-table-column>
                                     <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
@@ -75,9 +85,10 @@
                         <el-table-column label="创建时间" prop="ctime"></el-table-column>
                         <el-table-column label="操作">
                             <template slot-scope="scope">
-                                <el-button v-show="handleVisible&&task.taskKey==='purchaseinbound'"  type="primary" @click="inbound(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">收货</el-button>
-                                <el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'"  type="primary" @click="showEditCostView(scope.row)"  style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                                <el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'" type="danger"  @click="deleteCost(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button v-show="handleVisible&&task.taskKey==='purchaseinbound'&&!scope.row.finished"  type="primary" @click="inbound(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">收货</el-button>
+                                <el-tag size="mini" type="success" v-show="scope.row.finished">收货完成</el-tag>
+                                <el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'&&!scope.row.finished"  type="primary" @click="showEditCostView(scope.row)"  style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                                <el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'&&!scope.row.finished" type="danger"  @click="deleteCost(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -100,7 +111,7 @@
             <purchase-logistics-form :purchase="currentPurchase" @close="closeLogisticsDialog" @callback="callback"></purchase-logistics-form>
         </el-dialog>
         <el-dialog :visible.sync="inboundDialogVisible" :title="inboundDialogTitle" :close-on-click-modal="false" :append-to-body="true">
-            <inbound-set></inbound-set>
+            <inbound-set @closeInbound="closeInbound" :oldCost="oldCost" @inboundCallback="inboundCallback"></inbound-set>
         </el-dialog>
     </div>
 </template>
@@ -142,13 +153,24 @@
             }
         },
         methods:{
+            inboundCallback(){
+                this.closeInbound();
+                this.loadDetails();
+                this.loadCost(this.purchase.id);
+
+            },
+            closeInbound(){
+                this.inboundDialogVisible = false;
+            },
             //收货
             inbound(row){
+                this.oldCost = row;
                 this.inboundDialogTitle="收货";
                 this.inboundDialogVisible = true;
             },
             //删除物流信息
             deleteCost(row){
+
                 this.$confirm("确定要删除吗?","提示",{
                     confirmButtonText:"确定",
                     cancelButtonText:"取消",
@@ -222,6 +244,18 @@
                         }else{
                             this.$message.error("有产品未发货");
                         }
+                    }else if(this.task.taskKey==="purchaseinbound"){
+                        let can = true;
+                        this.purchase.details.forEach((item)=>{
+                            if(item.notInNumber>0){
+                                can = false;
+                            }
+                        })
+                        if(can){
+                            this.doComponent();
+                        }else{
+                            this.$message.error("有产品未收货");
+                        }
                     }else{
                         this.doComponent();
                     }
@@ -271,7 +305,8 @@
                 logisticsDialogTitle:'',
                 currentPurchase:{},
                 inboundDialogVisible:false,
-                inboundDialogTitle:''
+                inboundDialogTitle:'',
+                oldCost:{}
             }
         }
     }

@@ -53,6 +53,49 @@
                 </div>
             </el-card>
             <el-card shadow="hover">
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">物流信息</span>
+                </div>
+                <div>
+                    <el-table :data="costs" size="mini">
+                        <el-table-column type="expand">
+                            <template slot-scope="props">
+                                <el-table size="mini" :data="props.row.details">
+                                    <el-table-column type="expand">
+                                        <template slot-scope="props">
+                                            <el-table :data="props.row.cdgas">
+                                                <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
+                                                <el-table-column label="数量" prop="number"></el-table-column>
+
+                                            </el-table>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column type="index"></el-table-column>
+                                    <el-table-column label="产品名称" prop="productSku.product.name" ></el-table-column>
+                                    <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
+                                    <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400"  ></el-table-column>
+                                    <el-table-column label="数量" prop="number"></el-table-column>
+                                    <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
+                                    <el-table-column label="未收货数量" prop="noutInNumber"></el-table-column>
+                                </el-table>
+                            </template>
+                        </el-table-column>
+                        <el-table-column type="index" width="80px"></el-table-column>
+                        <el-table-column label="物流名称" prop="express.name"></el-table-column>
+                        <el-table-column label="单号" prop="logisticsNumber"></el-table-column>
+                        <el-table-column label="运费" prop="money"></el-table-column>
+                        <el-table-column label="联系方式" prop="express.phone"></el-table-column>
+                        <el-table-column label="创建时间" prop="ctime"></el-table-column>
+                        <el-table-column label="操作">
+                            <template slot-scope="scope">
+                                <el-tag size="mini" type="info" v-show="!scope.row.finished">等待收货</el-tag>
+                                <el-tag size="mini" type="success" v-show="scope.row.finished">收货完成</el-tag>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
+            <el-card shadow="hover">
                 <div slot="header">
                     <span style="float: left;">审批步骤</span>
                 </div>
@@ -89,7 +132,27 @@
                 default: false
             }
         },
-        methods:{
+        watch:{
+            purchase:{
+                handler(val){
+                    this.loadCost();
+                },
+                deep:true,
+                immediate:true
+            }
+        },
+        mounted(){
+            this.loadCost();
+        },
+        methods:{//加载物流信息
+            loadCost(){
+
+                this.getRequest('/erp/cost/getCostByForeignKey?foreignKey='+this.purchase.id).then((resp)=>{
+                    this.costs = resp.data;
+
+                })
+            },
+
             destroyPurchase() {
                 this.$confirm("确定作废此订单吗?","提示",{
                     confirmButtonText:"确定",
@@ -114,7 +177,8 @@
         },
         data(){
             return{
-                historyTasks:[]
+                historyTasks:[],
+                costs:[]
             }
         }
     }

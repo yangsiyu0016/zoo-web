@@ -97,6 +97,17 @@ export const asyncRouterMap = [{
             meta: {title: "期初订单"}
         }]
     },{
+        path:'cw',
+        name:'cw',
+        component:()=>import("@/views/erp/cw/index"),
+        meta:{title:'财务模块'},
+        children:[{
+            path:'journalAccount',
+            name:'journalAccount',
+            component:()=>import("@/views/erp/cw/journalAccount/List"),
+            meta:{title:"库存变动明细"}
+        }]
+    },{
         path:"purchase",
         name:"purchase",
         component:()=> import("@/views/erp/purchase/index"),
