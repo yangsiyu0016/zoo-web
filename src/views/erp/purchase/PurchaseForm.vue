@@ -116,7 +116,7 @@
                                 label="操作" width="120">
                             <template slot-scope="scope">
                                 <el-button type="primary"  @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
-                                <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button type="danger"  @click="deleteAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -168,6 +168,28 @@
             }
         },
         methods:{
+            deleteAnnex(row) {
+                this.$confirm('确定删除该附件吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消'
+                }).then(()=>{
+                    this.postNoEnCodeRequest('/annex/delete', row).then(resp => {
+                        if (resp.data.status == '200') {
+                            this.$message.success('删除成功');
+                            this.purchase.annexs.some((item, i) => {
+                                if (item == row) {
+                                    this.purchase.annexs.splice(i, 1);
+                                    return true;
+                                }
+                            })
+                        }else if (resp.data.status == '000') {
+                            this.$message.error(resp.data.msg);
+                        }else {
+                            this.$message.error('删除失败')
+                        }
+                    })
+                })
+            },
             addAnnex(data) {
                 this.annex.id = data.id;
                 this.annex.title = data.title;
