@@ -38,6 +38,11 @@ export const asyncRouterMap = [{
     component:Layout,
     meta:{title:'待办任务',icon:'el-icon-tickets'},
     children:[{
+        path:'sellTask',
+        name:'sellTask',
+        component:()=>import("@/views/oa/task/SellTask"),
+        meta:{title:"销售待办"}
+    },{
         path:'purchaseTask',
         name:'purchaseTask',
         component:()=>import("@/views/oa/task/PurchaseTask"),

@@ -18,9 +18,10 @@
                     <el-table-column  label="状态">
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
-                            <el-tag v-else-if="scope.row.status=='ZGSH'" type="warning" size="mini" effect="dark">仓库主管审核</el-tag>
-                            <el-tag v-else-if="scope.row.status=='CWSH'" type="danger" size="mini" effect="dark">财务审核</el-tag>
-                            <el-tag v-else-if="scope.row.status=='FINISHED'" type="success" size="mini" effect="dark">流程完成</el-tag>
+                            <el-tag v-if="scope.row.status=='CWSH'" type="warning" size="mini" effect="dark">财务审核</el-tag>
+                            <el-tag v-if="scope.row.status=='OUT'"  color="#7b1fa2" size="mini" effect="dark">出库中...</el-tag>
+                            <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
+                            <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="cuser.realName" label="创建人"></el-table-column>
@@ -30,8 +31,9 @@
                             label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                            <el-button  type="primary" @click="showEditSellView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditSellView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -48,7 +50,7 @@
             <sell-form :isEdit="isEdit" :oldSell="oldSell" @close="closeWin" @callback="callback"></sell-form>
         </el-dialog>
         <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
-            <sell-details :sell="currentSell"></sell-details>
+            <sell-details @close="closeDetailDialog" :sell="currentSell"></sell-details>
         </el-dialog>
     </div>
 </template>
@@ -64,6 +66,23 @@
             this.loadSells();
         },
         methods:{
+            startFlow(row){
+                this.$confirm("确定要启动审批流程吗？","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.postRequest('/erp/sell/startFlow?id='+row.id).then((resp)=>{
+                        if(resp&&resp.data.status==200){
+                            this.$message.success("启动成功");
+                            this.loadSells();
+
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                })
+            },
             //列表双击事件
             dblclick(row){
                 this.getRequest('/erp/sell/'+row.id).then((resp)=>{
@@ -76,6 +95,9 @@
                     }
                 })
 
+            },
+            closeDetailDialog(){
+                this.detailsDialogVisible = false;
             },
             //显示订单详情
             showDetails(row){

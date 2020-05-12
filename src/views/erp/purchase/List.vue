@@ -95,10 +95,9 @@
                     type:'warning'
                 }).then(()=>{
                     this.postRequest('/erp/purchase/startFlow?id='+row.id).then((resp)=>{
-                        console.log(resp);
                         if(resp&&resp.data.status==200){
                             this.$message.success("启动成功");
-                            //this.loadData();
+                            this.loadData();
 
                         }else{
                             this.$message.error(resp.data.msg);

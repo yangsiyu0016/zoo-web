@@ -142,9 +142,10 @@
             }
         },
         mounted(){
-            this.loadCost();
+            //this.loadCost();
         },
-        methods:{//加载物流信息
+        methods:{
+            //加载物流信息
             loadCost(){
 
                 this.getRequest('/erp/cost/getCostByForeignKey?foreignKey='+this.purchase.id).then((resp)=>{
