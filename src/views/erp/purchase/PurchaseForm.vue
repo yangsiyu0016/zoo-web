@@ -96,6 +96,32 @@
                     </el-table>
                 </div>
             </el-card>
+            <el-card>
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">附件列表</span>
+                </div>
+                <div>
+                    <el-button type="primary" size="mini" icon="el-icon-plus"
+                               style="float: left"    @click="showAddAnnexView">
+                        添加附件
+                    </el-button>
+                    <el-table
+                            :data="purchase.annexs"
+                            size="mini"
+                            style="width:100%">
+                        <el-table-column label="附件名称" prop="title" ></el-table-column>
+                        <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
+                        <el-table-column
+                                label="操作" width="120">
+                            <template slot-scope="scope">
+                                <el-button type="primary"  @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                                <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
             <el-card shadow="hover">
                 <el-form-item>
                     <el-button @click="savePurchase" type="primary">保存</el-button>
@@ -108,15 +134,19 @@
         <el-dialog :visible.sync="detailDialogVisible" :title="detailDialogTitle" :close-on-click-modal="false" @close="closeDetailDialog" :append-to-body="true">
             <purchase-detail-form :isEdit="detailIsEdit" @close="closeDetailDialog" :oldDetail="oldDetail" @callback="editDetail"></purchase-detail-form>
         </el-dialog>
+        <el-dialog :visible.sync="uploadDialogVisible" :title="uploadDialogTitle" :close-on-click-modal="false" :append-to-body="true">
+            <annex-upload-form @close="closeUploadForm" :purchaseId="purchase.id" @addAnnex="addAnnex"></annex-upload-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import SupplierDialog from "@/components/dialog/SupplierDialog";
     import PurchaseDetailForm from "@/views/erp/purchase/PurchaseDetailForm";
+    import AnnexUploadForm from "@/components/dialog/AnnexUploadForm";
     export default {
         name: "PurchaseForm",
-        components: {PurchaseDetailForm, SupplierDialog},
+        components: {PurchaseDetailForm, SupplierDialog, AnnexUploadForm},
         props:{
             oldPurchase:{
                 type:Object,
@@ -138,6 +168,19 @@
             }
         },
         methods:{
+            addAnnex(data) {
+                this.annex.id = data.id;
+                this.annex.title = data.title;
+                this.annex.url = data.url;
+                this.annex.utime = data.utime;
+                console.log(this.annex);
+                this.purchase.annexs.push(this.annex);
+                console.log(this.purchase.annexs);
+            },
+            downloadAnnex(row) {
+                console.log(row.title);
+                window.open(row.url + "?title=" + row.title);
+            },
             //删除产品
             deleteDetail(row){
                 if(this.isEdit){
@@ -217,11 +260,19 @@
             closeDetailDialog(){
                 this.detailDialogVisible = false;
             },
+            closeUploadForm(){
+                this.uploadDialogVisible = false;
+            },
             showEditSkuView(row){
                 this.detailIsEdit = true;
                 this.oldDetail = row;
                 this.detailDialogVisible = true;
                 this.detailDialogTitle = "编辑产品";
+            },
+
+            showAddAnnexView(){
+              this.uploadDialogVisible = true;
+              this.uploadDialogTitle = '添加附件'
             },
 
             //显示添加产品界面
@@ -297,6 +348,13 @@
         data(){
             return{
                 accounts:[],
+                annex:{
+                    id: '',
+                    title: '',
+                    url: '',
+                    utime: '',
+
+                },
                 purchase:{
                     initDate:'',
                     codeGeneratorType:"AUTO",
@@ -307,7 +365,8 @@
                     supplierAccount:{
 
                     },
-                    details:[]
+                    details:[],
+                    annexs:[]
                 },
                 rules:{
                     initDate:[{required:true,message:'选择日期',trigger:'blue'}],
@@ -319,6 +378,8 @@
                 detailDialogTitle:'',
                 oldDetail:{},
                 detailIsEdit:false,
+                uploadDialogVisible: false,
+                uploadDialogTitle: '',
                 //日期选择器
                 pickerOptions: {
                     disabledDate(time) {

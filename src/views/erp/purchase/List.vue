@@ -140,7 +140,8 @@
                     supplierAccount:{
 
                     },
-                    details:[]
+                    details:[],
+                    annexs:[]
                 },
                 this.dialogTitle = "添加订单";
                 this.dialogVisible = true;
@@ -159,7 +160,9 @@
                 totalCount:-1,
                 dialogVisible:false,
                 dialogTitle:'',
-                oldPurchase:{},
+                oldPurchase:{
+                    annexs:[]
+                },
                 isEdit:false,
                 detailDialogVisible:false,
                 detailDialogTitle:'',
