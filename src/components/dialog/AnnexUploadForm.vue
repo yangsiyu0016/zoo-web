@@ -7,6 +7,8 @@
                         class="upload-demo"
                         :auto-upload="false"
                         action="http://192.168.1.177:8081/annex/upload"
+                        accept=".pdf,.PDF"
+                        :before-upload="beforeUpload"
                         :file-list="fileList"
                         :multiple="false"
                         :on-success="upFile"
@@ -36,6 +38,26 @@
             }
         },
         methods: {
+            beforeUpload(file) {
+                let fileType = file.name.substring(file.name.lastIndexOf('.') + 1);
+                const isPdf = fileType === 'PDF' || fileType === 'pdf';
+                if (!isPdf) {
+                    this.$message({
+                        message: '附件格式只支持 pdf / PDF 格式',
+                        type: 'warning'
+                    })
+                    return false;
+                }
+                const isLt10 = file.size/1024/1024 < 10;
+                if (!isLt10) {
+                    this.$message({
+                        message:'附件最大只支持10M',
+                        type: 'warning'
+                    })
+                    return false;
+                }
+                return isPdf || isLt10;
+            },
 
             uploadDeployment(){
 
