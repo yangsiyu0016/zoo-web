@@ -70,6 +70,16 @@ export const asyncRouterMap = [{
         component:()=>import("@/views/erp/stock/index"),
         meta:{title:"库存管理"},
         children: [{
+            path:"outbound",
+            name:"outbound",
+            component:()=>import("@/views/erp/stock/outbound/List"),
+            meta:{title:"出库单"}
+        },{
+            path:"inbound",
+            name:"inbound",
+            component:()=>import("@/views/erp/stock/inbound/List"),
+            meta:{title:"入库单"}
+        },{
             path:"oi",
             name:"oi",
             component:()=>import("@/views/erp/stock/oi/index"),
