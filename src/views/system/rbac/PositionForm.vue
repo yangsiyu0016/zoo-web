@@ -43,7 +43,14 @@
                 this.$refs['positionForm'].validate((valid)=>{
                     if(valid){
                         if(this.isEdit){
-
+                            this.putNoEnCodeRequest('/position/update',this.position).then((resp)=>{
+                                if(resp&&resp.data.status=="200"){
+                                    this.$message.success("更新成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
                         }else{
                             this.postNoEnCodeRequest('/position/add',this.position).then((resp)=>{
                                 if(resp&&resp.data.status=="200"){

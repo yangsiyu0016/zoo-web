@@ -14,6 +14,13 @@
                     <el-table-column type="index" width="30"></el-table-column>
                     <el-table-column prop="name" align="left"  label="名称" ></el-table-column>
                     <el-table-column prop="code" align="left"  label="编码"></el-table-column>
+                    <el-table-column
+                            label="操作">
+                        <template slot-scope="scope">
+                            <el-button @click="showEditPositionView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
                 <div style="display: flex;justify-content: space-between;margin: 2px"><el-pagination
                         background
@@ -49,6 +56,12 @@
             //关闭编辑窗口
             closeWin(){
                 this.dialogVisible = false;
+            },
+            showEditPositionView(row){
+                this.isEdit = true;
+                this.oldPosition = row;
+                this.dialogTitle="编辑职位";
+                this.dialogVisible = true;
             },
             //添加职位
             showAddPositionView(){

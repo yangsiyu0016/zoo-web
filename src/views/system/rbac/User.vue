@@ -61,7 +61,8 @@
         methods:{
             //保存成功后调用
             callback(){
-
+                this.closeWin();
+                this.loadUsers();
             },
             //关闭窗口
             closeWin(){
