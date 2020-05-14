@@ -203,6 +203,11 @@ export const asyncRouterMap = [{
             name:'position',
             component:()=>import("@/views/system/rbac/Position"),
             meta:{title:"职位管理"}
+        },{
+            path:'company',
+            name:'company',
+            component:()=>import("@/views/system/rbac/Company"),
+            meta:{title:'公司管理'}
         }]
     },{
         path: "menu",
@@ -230,6 +235,11 @@ export const asyncRouterMap = [{
             name:"area",
             component:()=>import("@/views/system/base/Area"),
             meta:{title:"区域管理"}
+        },{
+            path:'companyType',
+            name:'companyType',
+            component:()=>import("@/views/system/base/CompanyType"),
+            meta:{title:"公司类型"}
         }]
     }]
 }
