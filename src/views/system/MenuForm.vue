@@ -51,6 +51,10 @@
     export default {
         name: "MenuForm",
         props:{
+            isEdit:{
+                type:Boolean,
+                default:false
+            },
             oldMenu:{
                 type:Object,
                 default:()=>{}
@@ -60,14 +64,26 @@
             saveMenu(){
                 this.$refs["menuForm"].validate((valid)=>{
                     if(valid){
-                        this.postRequest('/menu/addMenu',this.menu).then(resp=>{
-                            if(resp&&resp.status==201){
-                                this.$message.success("保存成功");
-                                this.$emit("closeDialog");
-                            }else{
-                                this.$message.error("保存失败");
-                            }
-                        })
+                        if(this.isEdit){
+                            this.putNoEnCodeRequest('/menu/update',this.menu).then(resp=>{
+                                if(resp&&resp.status=="200"){
+                                    this.$message.success("更新成功");
+                                    this.$emit("closeDialog");
+                                }else{
+                                    this.$message.error("更新失败");
+                                }
+                            })
+                        }else{
+                            this.postNoEnCodeRequest('/menu/addMenu',this.menu).then(resp=>{
+                                if(resp&&resp.status=="200"){
+                                    this.$message.success("保存成功");
+                                    this.$emit("closeDialog");
+                                }else{
+                                    this.$message.error("保存失败");
+                                }
+                            })
+                        }
+
                     }else{
                         return;
                     }
@@ -89,7 +105,7 @@
                     type:'NORMAL'
                 },
                 rules:{
-                    name:[{required: true, message: '必填:姓名', trigger: 'blur'}],
+                    name:[{required: true, message: '必填:名称', trigger: 'blur'}],
                     title:[{required: true, message: '必填:title', trigger: 'blur'}],
                     path:[{required: true, message: '必填:path', trigger: 'blur'}],
                     component:[{required: true, message: '必填:组件', trigger: 'blur'}]

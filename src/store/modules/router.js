@@ -1,12 +1,43 @@
 import {asyncRouterMap,commontRouterMap} from "@/router";
-export function filterAsyncRoutes(routes){
+function hasPermission(allowPath,route){
+
+    //console.log(allowPath instanceof  Array)
+
+    let flag = false;
+    if(allowPath){
+        if(allowPath instanceof  Array){
+            allowPath.forEach((item)=>{
+                if(item==route.path){
+                    flag = true;
+                }
+            })
+        }else{
+            let allowPathArray = allowPath.split(",");
+            allowPathArray.forEach((item)=>{
+                if(item==route.path){
+                    flag = true;
+                }
+            })
+        }
+
+    }else{
+        flag = false;
+    }
+
+    return flag;
+
+}
+export function filterAsyncRoutes(routes,allowPath){
+
     const res=[];
     routes.forEach(route=>{
         const tmp = {...route}
-        if(tmp.children){
-            tmp.children =filterAsyncRoutes(tmp.children)
+        if(hasPermission(allowPath,tmp)){
+            if(tmp.children){
+                tmp.children =filterAsyncRoutes(tmp.children,allowPath)
+            }
+            res.push(tmp);
         }
-        res.push(tmp);
     })
     return res;
 }
@@ -26,10 +57,10 @@ const router={
         getrouters:state=>state.routers
     },
     actions:{
-        GenerateRoutes({commit}){
+        GenerateRoutes({commit},data){
             return new Promise(resolve => {
-
-                let accessedRoutes = filterAsyncRoutes(asyncRouterMap);
+                const allowPath = data;
+                let accessedRoutes = filterAsyncRoutes(asyncRouterMap,allowPath);
                 commit("SET_ROUTES",accessedRoutes);
                 resolve();
 

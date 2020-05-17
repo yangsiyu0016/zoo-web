@@ -28,8 +28,11 @@
                     _this.loading = false;
                     if(resp&&resp.status==200){
                         let data = resp.data;
-                        _this.$store.commit('SET_USER', data);
+                        _this.$store.commit('SET_USER', data.user);
+                        _this.$store.commit('SET_ALLOWPATH',data.allowPath);
                         _this.$router.replace({path:'/'});
+                    }else{
+                        _this.$message.error("登录失败");
                     }
                 })
             }

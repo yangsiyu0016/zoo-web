@@ -128,8 +128,8 @@ export const asyncRouterMap = [{
         component:()=> import("@/views/erp/purchase/index"),
         meta:{title:"采购管理"},
         children:[{
-            path:"list",
-            name:"list",
+            path:"purchaselist",
+            name:"purchaselist",
             component:()=>import("@/views/erp/purchase/List"),
             meta:{title:"采购订单"}
         },{
@@ -144,8 +144,8 @@ export const asyncRouterMap = [{
         component:()=> import("@/views/erp/sell/index"),
         meta:{title:"销售管理"},
         children:[{
-            path:'list',
-            name:"list",
+            path:'selllist',
+            name:"selllist",
             component:()=>import("@/views/erp/sell/List"),
             meta:{title:"销售订单"}
         },{

@@ -30,7 +30,7 @@
                                 label="操作">
                             <template slot-scope="scope">
                                 <el-button @click="showEditTypeView(scope.row)"  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                                <el-button  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">可访问资源</el-button>
+                                <el-button @click="showResourceView(scope.row)"  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">可访问资源</el-button>
                                 <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
@@ -50,18 +50,31 @@
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false">
             <company-type-form :isEdit="isEdit" :oldType="oldType" @close="closeDialog" @callback="callback"></company-type-form>
         </el-dialog>
+        <el-dialog :title="resourceDialogTitle" :visible.sync="resourceDialogVisible" :close-on-click-modal="false">
+            <resource-tree :typeId="typeId" @close="closeResourceDialog"></resource-tree>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import CompanyTypeForm from "@/views/system/base/CompanyTypeForm";
+    import ResourceTree from "@/views/system/base/ResourceTree";
     export default {
         name: "CompanyType",
-        components: {CompanyTypeForm},
+        components: {ResourceTree, CompanyTypeForm},
         mounted(){
             this.loadTypes();
         },
         methods:{
+            closeResourceDialog(){
+                this.typeId='';
+                this.resourceDialogVisible = false;
+            },
+            showResourceView(row){
+                this.typeId=row.id;
+                this.resourceDialogTitle="可访问资源设置";
+                this.resourceDialogVisible = true;
+            },
             callback(){
                 this.closeDialog();
                 this.loadTypes();
@@ -86,7 +99,6 @@
             },
             loadTypes(){
                 let _this = this;
-                //this.tablLoading = true;
                 this.getRequest("/company/type/page?page="+this.currentPage+
                     "&size=10").then(resp=>{
                     if(resp&&resp.status==200){
@@ -105,7 +117,10 @@
                 dialogVisible:false,
                 dialogTitle:'',
                 isEdit:false,
-                oldType:{}
+                oldType:{},
+                resourceDialogTitle:'',
+                resourceDialogVisible:false,
+                typeId:''
             }
         }
     }

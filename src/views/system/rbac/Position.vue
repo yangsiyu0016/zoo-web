@@ -18,6 +18,7 @@
                             label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showEditPositionView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button @click="showMenuView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">权限设置</el-button>
                             <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
@@ -36,18 +37,31 @@
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false">
             <position-form :isEdit="isEdit" :oldPosition="oldPosition" @close="closeWin" @callback="callback"></position-form>
         </el-dialog>
+        <el-dialog :title="resourceDialogTitle" :visible.sync="resourceDialogVisible" :close-on-click-modal="false">
+            <resource-tree :positionId="positionId" @close="closeResourceDialog"></resource-tree>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import PositionForm from "@/views/system/rbac/PositionForm";
+    import ResourceTree from "@/views/system/rbac/ResourceTree";
     export default {
         name: "Position",
-        components: {PositionForm},
+        components: {ResourceTree, PositionForm},
         mounted(){
             this.loadPosition();
         },
         methods:{
+            closeResourceDialog(){
+                this.resourceDialogVisible = false;
+                this.positionId='';
+            },
+            showMenuView(row){
+                this.positionId=row.id;
+                this.resourceDialogTitle="可访问资源";
+                this.resourceDialogVisible = true;
+            },
             //保存成功后调用
             callback(){
                 this.loadPosition();
@@ -93,7 +107,10 @@
                 dialogTitle:'',
                 dialogVisible:false,
                 isEdit:false,
-                oldPosition:{}
+                oldPosition:{},
+                resourceDialogTitle:'',
+                resourceDialogVisible:false,
+                positionId:''
             }
         }
     }

@@ -36,7 +36,7 @@
         </el-container>
 
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <menu-form :oldMenu="oldMenu" @closeDialog="closeDialog"></menu-form>
+            <menu-form :isEdit="isEdit" :oldMenu="oldMenu" @closeDialog="closeDialog"></menu-form>
         </el-dialog>
     </div>
 </template>
@@ -76,12 +76,14 @@
                 this.loadMenu();
             },
             showEditMenuView(data){
+                this.isEdit = true;
                 this.oldMenu ={...data} ;
                 this.dialogVisible = true;
 
 
             },
             showAddMenuView(id){
+                this.isEdit = false;
                 if(id){
                     this.dialogTitle="添加子级菜单"
                 }else{
@@ -108,7 +110,8 @@
                 },
                 menus:[],
                 dialogVisible:false,
-                oldMenu:{}
+                oldMenu:{},
+                isEdit:false
             }
         }
     }
