@@ -3,7 +3,7 @@
         <el-container>
             <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
 
-                <div><el-button  style="float: left" size="mini" type="primary">添加国家</el-button></div>
+                <div><el-button @click="showAddTopView()"  style="float: left" size="mini" type="primary">添加国家</el-button></div>
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
                 <el-tree :load="loadData" lazy  :props="props" :expand-on-click-node="false">
@@ -67,6 +67,12 @@
             },
             closeWin(){
                 this.dialogVisible = false;
+            },
+            showAddTopView(){
+                this.isEdit = false;
+                this.currentNode = null;
+                this.dialogTitle="添加";
+                this.dialogVisible = true;
             },
             showAddAreaView(node){
                 this.isEdit = false;

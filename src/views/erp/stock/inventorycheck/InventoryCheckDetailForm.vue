@@ -1,6 +1,12 @@
 <template>
     <div>
         <el-form ref="detailForm" size="mini" :rules="rules" :model="detail" label-width="120px">
+            <el-form-item label="类型" prop="type">
+                <el-select style="float: left" v-model="detail.type">
+                    <el-option value="LOSSES" label="盘亏"></el-option>
+                    <el-option value="OVERFLOW" label="盘盈"></el-option>
+                </el-select>
+            </el-form-item>
             <el-form-item label="产品:" prop="productSku.product.name">
                 <el-input size="mini" class="input-with-select" style="width: 50%"  disabled v-model="detail.productSku.product.name"  >
                     <el-button size="mini" slot="append" icon="el-icon-search" @click="selectProduct" ></el-button>
@@ -26,20 +32,20 @@
 <script>
     import ProductDialog from "@/components/dialog/ProductDialog";
     export default {
-        name: "OpeningInventoryDetailForm",
+        name: "InventoryCheckDetailForm",
         components: {ProductDialog},
         props:{
+            isEdit:{
+              type:Boolean,
+              defalut:false
+            },
             warehouseId:{
                 type:String,
-                default:''
+                defalut:''
             },
             oldDetail:{
                 type:Object,
-                default: ()=>{}
-            },
-            isEdit:{
-                type:Boolean,
-                default:false
+                defalut: ()=>{}
             }
         },
         watch:{
@@ -53,6 +59,7 @@
             oldDetail:{
                 handler(val){
                     this.detail = JSON.parse(JSON.stringify(val));
+
                 },
                 deep:true,
                 immediate:true
@@ -62,23 +69,14 @@
             //this.loadGoodsAllocation();
         },
         methods:{
-            //填充产品信息
+            closeWin(){},
             dblclick(row){
-               this.detail.productSku = row;
-               this.productDialogVisible = false;
-            },
-            //加载货位信息
-            loadGoodsAllocation(){
-                this.getRequest('/warehouse/ga/getGaByWarehouseId?warehouseId='+this.warehouseId).then((resp)=>{
-
-                    this.goodsAllocations = resp.data;
-                })
-            },
-            //关闭产品选择窗口
-            closeWin(){
+                this.detail.productSku = row;
                 this.productDialogVisible = false;
             },
-            //保存产品
+            cancel(){
+                this.$emit("close");
+            },
             saveDetail(){
                 this.$refs["detailForm"].validate((valid)=>{//验证表单
                     if(valid){
@@ -93,12 +91,16 @@
                     }
                 })
             },
-            cancel(){
-                this.$emit("close");
-            },
             selectProduct(){
                 this.productDialogVisible = true;
-            }
+            },
+            //加载货位信息
+            loadGoodsAllocation(){
+                this.getRequest('/warehouse/ga/getGaByWarehouseId?warehouseId='+this.warehouseId).then((resp)=>{
+
+                    this.goodsAllocations = resp.data;
+                })
+            },
         },
         data(){
             let checkNumber = (rule,value,callback)=>{
@@ -116,23 +118,23 @@
                 }
             };
             return{
-                productDialogTitle:'选择产品',
-                productDialogVisible:false,
                 goodsAllocations:[],
-                detail:{
-                    number:0,
-                    goodsAllocation:{},
-                    productSku:{
-                        product:{
-                            name:''
-                        }
-                    }
-                },
                 rules:{
                     'productSku.product.name':[{required:true,message:"请选择产品",trigger:'blur'}],
                     'goodsAllocation.id':[{required:true,message:"请选择货位",trigger:'blur'}],
                     number:[{required:true,validator:checkNumber,trigger:'blur'}]
-                }
+                },
+                detail:{
+                    productSku:{
+                        product:{
+                            name:''
+                        }
+                    },
+                    goodsAllocation:{},
+                    number:0,
+                    type:'LOSSES'
+                },
+                productDialogVisible:false
             }
         }
     }

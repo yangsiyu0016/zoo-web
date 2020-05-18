@@ -80,6 +80,11 @@ export const asyncRouterMap = [{
             component:()=>import("@/views/erp/stock/inbound/List"),
             meta:{title:"入库单"}
         },{
+            path:'inventorycheck',
+            name:'inventorycheck',
+            component:()=>import("@/views/erp/stock/inventorycheck/List"),
+            meta:{title:"盘点单"}
+        },{
             path:"oi",
             name:"oi",
             component:()=>import("@/views/erp/stock/oi/index"),
