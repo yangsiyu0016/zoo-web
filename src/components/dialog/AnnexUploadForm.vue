@@ -6,7 +6,7 @@
                         ref="upload"
                         class="upload-demo"
                         :auto-upload="false"
-                        action="http://192.168.1.177:8081/annex/upload"
+                        action="http://192.168.1.237:8081/annex/upload"
                         accept=".pdf,.PDF"
                         :before-upload="beforeUpload"
                         :file-list="fileList"
@@ -64,11 +64,12 @@
                 this.$refs.upload.submit();
             },
             upFile(res){
-                if(res){
+
+                if(res&&res.status=="200"){
                     this.$emit('addAnnex', res.annex);
                     this.$message({type:res,message:'上传成功'});
                 }else {
-                    this.$message({type:res,message:'上传失败'});
+                    this.$message({type:res,message:res.msg});
                     let _this = this;
                     setTimeout(function() {
                         _this.$refs.upload.clearFiles();
