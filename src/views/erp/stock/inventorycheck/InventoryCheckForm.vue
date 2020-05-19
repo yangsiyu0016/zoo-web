@@ -33,7 +33,7 @@
                         </el-col>
                         <el-col :span="8" v-show="inventoryCheck.id||inventoryCheck.codeGeneratorType=='SELF'">
                             <el-form-item label="单号:" prop="code" :required="inventoryCheck.codeGeneratorType=='SELF'">
-                                <el-input size="mini" v-model="inventoryCheck.code"></el-input>
+                                <el-input :disabled="isEdit" size="mini" v-model="inventoryCheck.code"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -135,17 +135,17 @@
             //删除产品
             deleteDetail(row){
                 if(this.isEdit){
-                    /*this.$confirm('此操作将永久删除，是否继续？','提示',{
+                    this.$confirm('此操作将永久删除，是否继续？','提示',{
                         confirmButtonText:'确定',
                         cancelButtonText:'取消',
                         type:'warning'
                     }).then(()=>{
-                        this.deleteRequest('/oi/detail/'+row.id).then((resp)=>{
+                        this.deleteRequest('/inventoryCheck/detail/'+row.id).then((resp)=>{
                             if(resp&&resp.data.status=="200"){
                                 this.$message.success("删除成功");
-                                this.oi.details.some((item,i)=>{
+                                this.inventoryCheck.details.some((item,i)=>{
                                     if(item==row){
-                                        this.oi.details.splice(i,1);
+                                        this.inventoryCheck.details.splice(i,1);
                                         return true;
                                     }
                                 })
@@ -153,7 +153,7 @@
                                 this.$message.error("删除失败");
                             }
                         })
-                    })*/
+                    })
                 }else{
                     this.inventoryCheck.details.some((item,i)=>{
                         if(item==row){
@@ -192,19 +192,19 @@
             },//更新产品
             editDetail(detail){
                 if(this.isEdit){
-                    /*this.putNoEnCodeRequest('/oi/detail/update',detail).then((resp)=>{
+                    this.putNoEnCodeRequest('/inventoryCheck/detail/update',detail).then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$message.success("更新成功");
-                            this.oi.details.some((item,i)=>{
+                            this.inventoryCheck.details.some((item,i)=>{
                                 if(item==this.oldDetail){
-                                    this.oi.details.splice(i,1,detail);
+                                    this.inventoryCheck.details.splice(i,1,detail);
                                 }
                             })
-                            this.detailDialogVisible = false;
+                            this.dialogVisible = false;
                         }else{
                             this.$message.error(resp.data.msg);
                         }
-                    })*/
+                    })
                 }else {
                     this.inventoryCheck.details.some((item,i)=>{
                         if(item==this.oldDetail){
@@ -219,16 +219,16 @@
             addDetail(detail){
                 //判断订单是修改还是新增
                 if(this.isEdit){
-                    /*Object.assign(detail,{openingInventoryId:this.oi.id});
-                    this.postNoEnCodeRequest('/oi/detail/add',detail).then((resp)=>{
+                    Object.assign(detail,{panDianId:this.inventoryCheck.id});
+                    this.postNoEnCodeRequest('/inventoryCheck/detail/add',detail).then((resp)=>{
                         if(resp&&resp.status==200){
                             this.$message.success("添加成功");
-                            this.oi.details.push(resp.data.detail);
-                            this.detailDialogVisible = false;
+                            this.inventoryCheck.details.push(resp.data.detail);
+                            this.dialogVisible = false;
                         }else{
                             this.$message.error(resp.msg);
                         }
-                    });*/
+                    });
                 }else{
                     this.inventoryCheck.details.push(detail);
                     this.dialogVisible = false;
@@ -263,7 +263,14 @@
                 this.$refs['checkForm'].validate((valid)=>{
                     if(valid){
                         if(this.isEdit){
-
+                            this.putNoEnCodeRequest('/inventoryCheck/update',this.inventoryCheck).then((resp)=>{
+                                if(resp&&resp.data.status=="200"){
+                                    this.$message.success("更新成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
                         }else{
                             let length = this.inventoryCheck.details.length;
                             if(length>0){

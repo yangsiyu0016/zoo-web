@@ -31,7 +31,7 @@
                         <template slot-scope="scope">
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditSellView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditCheckView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
@@ -48,18 +48,25 @@
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
             <inventory-check-form :isEdit="isEdit" :oldCheck="oldCheck" @close="closeDialog" @callback="callback"></inventory-check-form>
         </el-dialog>
+        <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
+            <inventory-check-details :currentCheck="currentCheck" @close="closeDetailsDialog"></inventory-check-details>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import InventoryCheckForm from "@/views/erp/stock/inventorycheck/InventoryCheckForm";
+    import InventoryCheckDetails from "@/views/erp/stock/inventorycheck/InventoryCheckDetails";
     export default {
         name: "List",
-        components: {InventoryCheckForm},
+        components: {InventoryCheckDetails, InventoryCheckForm},
         mounted(){
             this.initData();
         },
         methods:{
+            closeDetailsDialog(){
+                this.detailsDialogVisible = false;
+            },
             callback(){
                 this.closeDialog();
                 this.initData();
@@ -67,8 +74,19 @@
             closeDialog(){
                 this.dialogVisible = false;
             },
+            showDetails(row){
+                this.dblclick(row);
+            },
             dblclick(row){
-
+                this.getRequest('/inventoryCheck/getIcById?id='+row.id).then((resp)=>{
+                    if(resp&&resp.data){
+                        this.detailsDialogTitle="订单查看";
+                        this.detailsDialogVisible = true;
+                        this.currentCheck = resp.data;
+                    }else{
+                        this.$message.error("获取订单失败");
+                    }
+                })
             },
             initData(){
                 this.getRequest('/inventoryCheck/page?page='+this.currentPage+'&size=10').then((resp)=>{
@@ -79,6 +97,19 @@
                         this.$message.error("获取数据失败");
                     }
                 })
+            },
+            showEditCheckView(row){
+                this.isEdit = true;
+                this.getRequest('/inventoryCheck/getIcById?id='+row.id).then((resp)=>{
+                    if(resp&&resp.data){
+                        this.dialogTitle="编辑盘点单";
+                        this.dialogVisible = true;
+                        this.oldCheck = resp.data;
+                    }else{
+                        this.$message.error("获取数据失败");
+                    }
+                })
+
             },
             showAddCheckView(){
                 this.isEdit = false;
@@ -103,7 +134,10 @@
                 dialogTitle:'',
                 dialogVisible:false,
                 oldCheck:{},
-                isEdit:false
+                isEdit:false,
+                detailsDialogTitle:'',
+                detailsDialogVisible : false,
+                currentCheck:{}
             }
         }
     }
