@@ -17,8 +17,9 @@
                     <el-table-column  label="状态">
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
-                            <el-tag v-if="scope.row.status=='CWSH'" type="warning" size="mini" effect="dark">财务审核</el-tag>
-                            <el-tag v-if="scope.row.status=='OUT'"  color="#7b1fa2" size="mini" effect="dark">出库中...</el-tag>
+                            <el-tag v-if="scope.row.status=='ZGSH'"  color="#7b1fa2" size="mini" effect="dark">仓库主管人员审核</el-tag>
+                            <el-tag v-if="scope.row.status=='CW'" type="warning" size="mini" effect="dark">财务记账</el-tag>
+
                             <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
                             <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                         </template>
@@ -64,6 +65,23 @@
             this.initData();
         },
         methods:{
+            startFlow(row){
+                this.$confirm("确定要启动审批流程吗？","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.postRequest('/inventoryCheck/startFlow?id='+row.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("启动成功");
+                            this.initData();
+
+                        }else{
+                            this.$message.error("启动失败");
+                        }
+                    })
+                })
+            },
             closeDetailsDialog(){
                 this.detailsDialogVisible = false;
             },

@@ -2,7 +2,14 @@
     <div>
         <el-table :data="journalAccounts" v-loading="tableLoading" size="mini" style="width:100%">
             <el-table-column type="index" width="50"></el-table-column>
-            <el-table-column prop="type" align="left"  label="类型" ></el-table-column>
+            <el-table-column prop="type" align="left"  label="类型" >
+                <template slot-scope="scope">
+                    <el-tag v-if="scope.row.type=='QC'" type="info" size="mini" effect="dark">期初</el-tag>
+                    <el-tag v-if="scope.row.type=='PURCHASE'"  color="#7b1fa2" size="mini" effect="dark">采购</el-tag>
+                    <el-tag v-if="scope.row.type=='SELL'" type="warning" size="mini" effect="dark">销售</el-tag>
+                    <el-tag v-if="scope.row.type=='LOSSES'" type="success" size="mini" effect="dark">盘亏</el-tag>
+                </template>
+            </el-table-column>
             <el-table-column prop="orderCode" align="left"  label="单号" width="180" ></el-table-column>
             <el-table-column prop="stock.warehouse.name" align="left" label="仓库"></el-table-column>
             <el-table-column prop="stock.productSku.product.name" align="left" label="产品名称"></el-table-column>

@@ -82,6 +82,7 @@
                         <el-table-column label="产品名称" prop="productSku.product.name" ></el-table-column>
                         <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400"  ></el-table-column>
                         <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
+                        <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column
                                 label="操作" width="120">
