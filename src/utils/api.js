@@ -9,8 +9,9 @@ axios.interceptors.response.use(data=>{
         Message.error({message:"没有访问权限，需要进行身份认证"});
     }
 })
+
 let base = 'http://192.168.1.237:8081'
-//let base = 'http://59.110.67.115:8081'
+
 export const postRequest = (url, params) => {
     return axios({
         method: 'post',
