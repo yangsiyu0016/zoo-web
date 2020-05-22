@@ -120,6 +120,11 @@ export const asyncRouterMap = [{
             name: "allOpeningInventory",
             component:()=>import("@/views/erp/order/AllOpeningInventory"),
             meta: {title: "期初订单"}
+        },{
+            path: "allInventoryCheck",
+            name: "allInventoryCheck",
+            component: ()=>import("@/views/erp/order/AllInventoryCheck"),
+            meta: {title: "盘点单"}
         }]
     },{
         path:'cw',
