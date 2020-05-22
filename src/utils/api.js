@@ -10,7 +10,7 @@ axios.interceptors.response.use(data=>{
     }
 })
 let base = 'http://192.168.1.237:8081'
-
+//let base = 'http://59.110.67.115:8081'
 export const postRequest = (url, params) => {
     return axios({
         method: 'post',
@@ -32,6 +32,7 @@ export const getRequest=(url)=>{
         url:base+url
     })
 }
+
 export const deleteRequest = (url) => {
     return axios({
         method: 'delete',
