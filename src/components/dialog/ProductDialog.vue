@@ -8,12 +8,13 @@
             </div>
             <el-table :data="skus" size="mini" @row-dblclick="dblclick">
                 <el-table-column type="index" width="30"></el-table-column>
-                <el-table-column prop="code" align="left"  label="产品编号" width="200" fixed ></el-table-column>
-                <el-table-column prop="product.name" align="left"  label="产品名称" fixed ></el-table-column>
+                <el-table-column prop="code" align="left"  label="产品编号" width="200"  ></el-table-column>
+                <el-table-column prop="product.name" align="left"  label="产品名称"  ></el-table-column>
+                <el-table-column prop="product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
+                <el-table-column prop="ownSpec" align="left"  label="特殊规格参数" width="400"  ></el-table-column>
                 <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
                 <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
-                <el-table-column prop="product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                <el-table-column prop="ownSpec" align="left"  label="特殊规格参数" width="400" fixed ></el-table-column>
+
                 <el-table-column prop="product.productDetail.packageList" align="left" label="包装清单"></el-table-column>
                 <el-table-column prop="product.productDetail.afterService" align="left" label="售后服务"></el-table-column>
                 <el-table-column prop="product.productDetail.description" align="left" width="500" label="描述"></el-table-column>
