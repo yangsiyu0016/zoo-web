@@ -53,6 +53,7 @@
         </el-card>
         <el-card shadow="hover">
             <el-button v-show="handleVisible" @click="handle" type="primary" size="mini">办理</el-button>
+            <el-button v-show="rejectVisible" @click="reject" type="primary" size="mini">驳回</el-button>
             <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
             <el-button @click="close" type="info" size="mini">关闭</el-button>
         </el-card>
@@ -67,6 +68,10 @@
             task:{
                 type:Object,
                 default:()=>{}
+            },
+            rejectVisible:{
+                type:Boolean,
+                default: false
             }
         },
         watch:{
@@ -92,7 +97,9 @@
                 immediate:true
             }
         },
+
         methods:{
+
             //成本价格更新
             priceChange(row){
                 console.log(row);
@@ -105,6 +112,16 @@
                     row.totalMoney='';
                 }
 
+            },
+            //驳回
+            reject(){
+                this.$confirm("确定要驳回任务嘛？将此任务返回至上一审批人！", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: 'warning'
+                }).then(()=> {
+                    this.doReject();
+                })
             },
             //办理
             handle(){
@@ -140,7 +157,7 @@
             },
             //完成任务
             doComponent(){
-                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment).then((resp)=>{
+                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE").then((resp)=>{
                     if(resp&&resp.data.status=="200"){
                         this.$emit("close");
                         this.$emit("refresh");
@@ -151,6 +168,21 @@
 
                 })
             },
+            //驳回任务
+            doReject(){
+
+                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                    if(resp&&resp.data.status=="200"){
+                        this.$emit("close");
+                        this.$emit("refresh");
+                        this.$message.success(resp.data.msg);
+                    }else{
+                        this.$message.error(resp.data.msg);
+                    }
+
+                })
+            },
+
             //签收
             claim() {
                 this.$confirm("签收后只能由签收人处理该任务，确定要签收吗？","提示",{
@@ -162,6 +194,9 @@
                         if(resp.data.status==200){
                             this.claimVisible = false;
                             this.handleVisible = true;
+                            if(this.check.status === 'CW') {
+                                this.rejectVisible = true;
+                            }
                             this.$emit("refresh");
                         }
                     })
@@ -180,8 +215,8 @@
                 },
                 claimVisible:false,
                 handleVisible:false,
-                comment:''
-
+                comment:'',
+                idea: ''
             }
         }
     }
