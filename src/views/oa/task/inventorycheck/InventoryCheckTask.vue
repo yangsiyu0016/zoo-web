@@ -27,7 +27,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
-            <inventory-check-task-details :task="currentTask" @close="closeDetailsDialog" @refresh="refresh"></inventory-check-task-details>
+            <inventory-check-task-details :task="currentTask" @close="closeDetailsDialog" @refresh="refresh" :rejectVisible="rejectVisible"></inventory-check-task-details>
         </el-dialog>
     </div>
 </template>
@@ -53,6 +53,10 @@
                     if(resp&&resp.status==200){
                         this.currentTask = resp.data;
                         this.dialogVisible = true;
+                        if (this.currentTask.taskKey === 'inventorycheckkg') {
+                            this.rejectVisible = true;
+                            console.log(this.rejectVisible)
+                        }
                         this.dialogTitle="任务办理";
                     }else{
                         this.$message.error("获取任务失败");
@@ -87,7 +91,8 @@
                 tasks:[],
                 currentTask:[],
                 dialogVisible:false,
-                dialogTitle:''
+                dialogTitle:'',
+                rejectVisible: false
             }
         }
     }
