@@ -15,7 +15,25 @@
 <script>
     export default {
         name: "AreaForm",
-
+        props:{
+            oldNode:{
+                type:Object,
+                default:()=>{}
+            },
+            isEdit:{
+                type:Boolean,
+                default:false
+            }
+        },
+        watch:{
+            oldNode:{
+                handler(val){
+                    this.are = JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
+            }
+        },
         methods:{
             saveArea(){
                 this.$refs["areaForm"].validate((valid)=>{

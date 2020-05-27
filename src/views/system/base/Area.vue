@@ -6,7 +6,7 @@
                 <div><el-button @click="showAddTopView()"  style="float: left" size="mini" type="primary">添加国家</el-button></div>
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
-                <el-tree :load="loadData" lazy  :props="props" :expand-on-click-node="false">
+                <el-tree ref="tree" :load="loadData" lazy  :props="props" :expand-on-click-node="false" node-key="id">
                     <span class="custom-tree-node" slot-scope="{node}">
                         <span>{{node.label}}</span>
                         <span style="padding-right: 0px">
@@ -20,7 +20,7 @@
         </el-container>
 
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <area-form @callback="callback" @close="closeWin"></area-form>
+            <area-form :isEdit="isEdit" :oldNode="oldNode" @callback="callback" @close="closeWin"></area-form>
         </el-dialog>
     </div>
 </template>
@@ -39,7 +39,8 @@
                 dialogTitle:'',
                 dialogVisible:false,
                 currnetNode:{},
-                isEdit:false
+                isEdit:false,
+                oldNode:{}
             }
         },
         mounted:function(){
@@ -57,8 +58,18 @@
                     this.postNoEnCodeRequest('/area/addArea',area).then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$message.success("保存成功");
-                            this.currentNode.append(resp.data.area);
-                            this.currentNode.expanded = true;
+
+                            let tree = this.$refs['tree'];
+                            if(this.currentNode){
+                                tree.append(resp.data.area,this.currentNode.key);
+                                tree.getNode(this.currentNode.key).expanded = true;
+                                this.closeWin();
+                            }else{
+                                this.closeWin();
+                                this.$message.info("请手动刷新一下页面");
+                            }
+                            //this.currentNode.append(resp.data.area);
+                            //this.currentNode.expanded = true;
                         }else{
                             this.$message.error(resp.data.msg);
                         }
@@ -71,12 +82,15 @@
             showAddTopView(){
                 this.isEdit = false;
                 this.currentNode = null;
+                this.oldeNode={};
+
                 this.dialogTitle="添加";
                 this.dialogVisible = true;
             },
             showAddAreaView(node){
                 this.isEdit = false;
                 this.currentNode = node;
+                this.oldeNode={};
                 this.dialogTitle="添加";
                 this.dialogVisible = true;
             },
