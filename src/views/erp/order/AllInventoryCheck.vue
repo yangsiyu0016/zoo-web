@@ -25,9 +25,6 @@
                             label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditCheckView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -41,7 +38,7 @@
             </el-main>
         </el-container>
         <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
-            <inventory-check-details :currentCheck="currentCheck" @close="closeDetailsDialog" @showDetails="showDetails"></inventory-check-details>
+            <inventory-check-details :currentCheck="currentCheck" @callback="callback" @close="closeDetailsDialog" @showDetails="showDetails" :isReception="isReception"></inventory-check-details>
         </el-dialog>
     </div>
 </template>
@@ -61,13 +58,18 @@
                 currentCheck: {},
                 detailsDialogTitle: '',
                 detailsDialogVisible: false,
-
+                isReception: false
             }
         },
         mounted(){
             this.initData();
         },
         methods: {
+
+            callback(){
+                this.closeDetailsDialog();
+                this.initData();
+            },
             //加载分页数据
             initData(){
                 this.getRequest('/inventoryCheck/page?page='+this.currentPage+'&size=10').then((resp)=>{
@@ -86,6 +88,8 @@
                         this.detailsDialogTitle="订单查看";
                         this.detailsDialogVisible = true;
                         this.currentCheck = resp.data;
+
+                        this.isReception = false;
                     }else{
                         this.$message.error("获取订单失败");
                     }

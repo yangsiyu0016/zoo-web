@@ -19,7 +19,7 @@
                             <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
                             <el-tag v-if="scope.row.status=='ZGSH'"  color="#7b1fa2" size="mini" effect="dark">仓库主管人员审核</el-tag>
                             <el-tag v-if="scope.row.status=='CW'" type="warning" size="mini" effect="dark">财务记账</el-tag>
-
+                            <el-tag v-if="scope.row.status=='REJECT'" type="primary" size="mini" effect="dark">订单调整</el-tag>
                             <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
                             <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                         </template>
@@ -32,7 +32,7 @@
                         <template slot-scope="scope">
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditCheckView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button v-show="scope.row.status=='WTJ' || scope.row.status=='REJECT'"  type="primary" @click="showEditCheckView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
@@ -50,7 +50,7 @@
             <inventory-check-form :isEdit="isEdit" :oldCheck="oldCheck" @close="closeDialog" @callback="callback"></inventory-check-form>
         </el-dialog>
         <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
-            <inventory-check-details :currentCheck="currentCheck" @close="closeDetailsDialog"></inventory-check-details>
+            <inventory-check-details :currentCheck="currentCheck" @close="closeDetailsDialog" @callback="callbackDatails" :isReception="isReception"></inventory-check-details>
         </el-dialog>
     </div>
 </template>
@@ -65,6 +65,12 @@
             this.initData();
         },
         methods:{
+
+            callbackDatails(){
+                this.closeDetailsDialog();
+                this.initData();
+            },
+
             startFlow(row){
                 this.$confirm("确定要启动审批流程吗？","提示",{
                     confirmButtonText:"确定",
@@ -97,14 +103,21 @@
             },
             dblclick(row){
                 this.getRequest('/inventoryCheck/getIcById?id='+row.id).then((resp)=>{
+
                     if(resp&&resp.data){
                         this.detailsDialogTitle="订单查看";
                         this.detailsDialogVisible = true;
                         this.currentCheck = resp.data;
+                        if (resp.data.isClaimed !== 'Y' && resp.data.status !== 'WTJ') {
+                            this.isReception = true;
+                        }else {
+                            this.isReception = false;
+                        }
                     }else{
                         this.$message.error("获取订单失败");
                     }
-                })
+                });
+
             },
             initData(){
                 this.getRequest('/inventoryCheck/page?page='+this.currentPage+'&size=10').then((resp)=>{
@@ -115,6 +128,7 @@
                         this.$message.error("获取数据失败");
                     }
                 })
+
             },
             showEditCheckView(row){
                 this.isEdit = true;
@@ -155,7 +169,8 @@
                 isEdit:false,
                 detailsDialogTitle:'',
                 detailsDialogVisible : false,
-                currentCheck:{}
+                currentCheck:{},
+                isReception: false
             }
         }
     }
