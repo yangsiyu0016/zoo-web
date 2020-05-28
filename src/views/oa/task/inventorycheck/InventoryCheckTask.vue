@@ -27,7 +27,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
-            <inventory-check-task-details :task="currentTask" @close="closeDetailsDialog" @refresh="refresh" :rejectVisible="rejectVisible"></inventory-check-task-details>
+            <inventory-check-task-details :task="currentTask" @close="closeDetailsDialog" @refresh="refresh" :rejectVisible="rejectVisible" :canEdit="canEdit"></inventory-check-task-details>
         </el-dialog>
     </div>
 </template>
@@ -51,11 +51,18 @@
             showDetailView(row){
                 this.getRequest('/flow/task/getInventoryCheckTaskById?taskId='+row.id).then((resp)=>{
                     if(resp&&resp.status==200){
+
                         this.currentTask = resp.data;
                         this.dialogVisible = true;
-                        if (this.currentTask.taskKey === 'inventorycheckkg') {
+                        if (this.currentTask.taskKey === 'inventorycheckckzg' && row.assigneeName != null) {
                             this.rejectVisible = true;
-                            console.log(this.rejectVisible)
+                        }else {
+                            this.rejectVisible = false;
+                        }
+                        if (this.currentTask.taskKey === 'inventorycheckreject') {
+                            this.canEdit = true;
+                        }else {
+                            this.canEdit = false;
                         }
                         this.dialogTitle="任务办理";
                     }else{
@@ -92,7 +99,8 @@
                 currentTask:[],
                 dialogVisible:false,
                 dialogTitle:'',
-                rejectVisible: false
+                rejectVisible: false,
+                canEdit: false,
             }
         }
     }

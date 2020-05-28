@@ -63,7 +63,7 @@
             </el-card>
 
             <el-card shadow="hover">
-                <el-button @click="destroySell" size="mini" type="danger" v-show="canDestroy">作废</el-button>
+                <el-button @click="resetInventoryCheckDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
                 <el-button @click="close" size="mini" type="info">关闭</el-button>
             </el-card>
         </el-form>
@@ -77,6 +77,10 @@
             currentCheck:{
                 type:Object,
                 default:()=>{}
+            },
+            isReception: {
+                type: Boolean,
+                default: false
             }
         },
         watch:{
@@ -89,6 +93,19 @@
             }
         },
         methods:{
+            resetInventoryCheckDetail() {
+                this.$confirm('确定取回该订单吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: "warning"
+                }).then(() => {
+                    this.getRequest('/inventoryCheck/reset?id=' + this.check.id).then(resp => {
+                        this.$emit("callback");
+                    });
+
+                })
+
+            },
             close(){
                 this.$emit("close");
             },
