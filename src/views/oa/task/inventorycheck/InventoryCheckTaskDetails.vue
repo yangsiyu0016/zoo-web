@@ -52,18 +52,25 @@
             <el-input type="textarea" v-model="comment"></el-input>
         </el-card>
         <el-card shadow="hover">
-            <el-button v-show="handleVisible" @click="handle" type="primary" size="mini">办理</el-button>
-            <el-button v-show="rejectVisible" @click="reject" type="primary" size="mini">驳回</el-button>
+            <el-button v-show="handleVisible && check.status !== 'REJECT'" @click="handle" type="primary" size="mini">通过</el-button>
+            <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini">驳回</el-button>
             <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
+            <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
+            <el-button v-show="check.status=='REJECT'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
+            <el-button v-show="check.status=='REJECT'" type="primary" size="mini" @click="destory">作废</el-button>
             <el-button @click="close" type="info" size="mini">关闭</el-button>
         </el-card>
-
+        <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <inventory-check-form :isEdit="isEdit" :oldCheck="oldCheck" @close="closeDialog" @callback="editCallback"></inventory-check-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
+    import InventoryCheckForm from "@/views/erp/stock/inventorycheck/InventoryCheckForm";
     export default {
         name: "InventoryCheckTaskDetails",
+        components:{InventoryCheckForm},
         props:{
             task:{
                 type:Object,
@@ -71,6 +78,10 @@
             },
             rejectVisible:{
                 type:Boolean,
+                default: false
+            },
+            canEdit: {
+                type: Boolean,
                 default: false
             }
         },
@@ -95,14 +106,59 @@
                 },
                 deep:true,
                 immediate:true
-            }
+            },
+
         },
 
         methods:{
+            reload() {
+
+            },
+            closeDialog(){
+                this.editDialogVisible = false;
+            },
+            editCallback() {
+                this.closeDialog();
+            },
+            //重新提交
+            reSubmit(){
+                this.handle();
+            },
+            //作废
+            destory(){
+                this.$confirm("确定要作废该任务嘛？", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: 'warning'
+                }).then(()=> {
+                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE&id=" + this.check.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$emit("close");
+                            this.$emit("refresh");
+                            this.$message.success(resp.data.msg);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+
+                    })
+                })
+            },
+
+            edit() {
+                this.isEdit = true;
+                this.getRequest('/inventoryCheck/getIcById?id='+this.check.id).then((resp)=>{
+                    if(resp&&resp.data){
+                        this.editDialogTitle="编辑盘点单";
+                        this.editDialogVisible = true;
+                        this.oldCheck = resp.data;
+                    }else{
+                        this.$message.error("获取数据失败");
+                    }
+                })
+            },
 
             //成本价格更新
             priceChange(row){
-                console.log(row);
                 if(row.costPrice){
                     let m = 0,s1=row.costPrice.toString(),s2=row.number.toString();
                     try{m+=s1.split(".")[1].length}catch(e){}
@@ -115,7 +171,7 @@
             },
             //驳回
             reject(){
-                this.$confirm("确定要驳回任务嘛？将此任务返回至上一审批人！", "提示", {
+                this.$confirm("确定要驳回任务嘛？将此任务返回至创建人！", "提示", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
                     type: 'warning'
@@ -130,7 +186,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(()=>{
-                    if(this.task.taskKey==='inventorycheckkg'){
+                    if(this.task.taskKey==='inventorycheckckzg'){
                         let can = true;
                         this.check.details.forEach((item)=>{
                             if(!item.costPrice||item.costPrice<=0){
@@ -171,7 +227,7 @@
             //驳回任务
             doReject(){
 
-                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                this.postRequest('/flow/task/reject?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
                     if(resp&&resp.data.status=="200"){
                         this.$emit("close");
                         this.$emit("refresh");
@@ -196,7 +252,10 @@
                             this.handleVisible = true;
 
                             if(this.check.status === 'ZGSH') {
-                                this.rejectVisible = true;
+                                this.rejectFlag = true;
+                            }
+                            if(this.check.status === 'REJECT') {
+                                this.editVisible = true;
                             }
                             this.$emit("refresh");
                         }
@@ -217,7 +276,13 @@
                 claimVisible:false,
                 handleVisible:false,
                 comment:'',
-                idea: ''
+                idea: '',
+                editDialogTitle: '',
+                editDialogVisible: false,
+                isEdit: false,
+                rejectFlag: false,
+                editVisible: false,
+                oldCheck:{}
             }
         }
     }
