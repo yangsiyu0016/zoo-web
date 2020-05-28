@@ -236,7 +236,7 @@
             },
             //完成任务
             doComponent(){
-                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment).then((resp)=>{
+                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment+ "&idea=AGREE").then((resp)=>{
                     this.$emit("close");
                     this.$emit("refresh");
                 })
