@@ -53,9 +53,9 @@
                     if(resp&&resp.status==200){
                         this.currentTask = resp.data;
                         this.dialogVisible = true;
-                        if (this.currentTask.taskKey === 'inventorycheckkg') {
+                        if (this.currentTask.taskKey === 'inventorycheckckzg') {
                             this.rejectVisible = true;
-                            console.log(this.rejectVisible)
+                            //console.log(this.rejectVisible)
                         }
                         this.dialogTitle="任务办理";
                     }else{

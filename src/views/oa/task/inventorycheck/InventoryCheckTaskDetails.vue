@@ -194,7 +194,8 @@
                         if(resp.data.status==200){
                             this.claimVisible = false;
                             this.handleVisible = true;
-                            if(this.check.status === 'CW') {
+
+                            if(this.check.status === 'ZGSH') {
                                 this.rejectVisible = true;
                             }
                             this.$emit("refresh");
