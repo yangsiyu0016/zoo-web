@@ -32,7 +32,7 @@
                         <template slot-scope="scope">
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                            <el-button v-show="scope.row.status=='WTJ' || scope.row.status=='REJECT'"  type="primary" @click="showEditCheckView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditCheckView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
@@ -103,12 +103,12 @@
             },
             dblclick(row){
                 this.getRequest('/inventoryCheck/getIcById?id='+row.id).then((resp)=>{
-
+                    console.log(resp.data)
                     if(resp&&resp.data){
                         this.detailsDialogTitle="订单查看";
                         this.detailsDialogVisible = true;
                         this.currentCheck = resp.data;
-                        if (resp.data.isClaimed !== 'Y' && resp.data.status !== 'WTJ') {
+                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
                             this.isReception = true;
                         }else {
                             this.isReception = false;

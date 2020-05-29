@@ -96,18 +96,18 @@
                 </div>
             </el-card>
             <el-card shadow="hover">
-                <div slot="header">
-                    <span style="float: left;">审批步骤</span>
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">审批流程</span>
                 </div>
                 <div>
-                    <el-table :data="historyTasks" size="mini">
-                        <el-table-column type="index"></el-table-column>
-                        <el-table-column label="任务名称"></el-table-column>
-                        <el-table-column label="审批人"></el-table-column>
-                        <el-table-column label="审批意见"></el-table-column>
-                        <el-table-column label="开始时间"></el-table-column>
-                        <el-table-column label="结束时间"></el-table-column>
-                        <el-table-column label="停留时间"></el-table-column>
+                    <el-table :data="histories">
+                        <el-table-column type="index" width="80px"></el-table-column>
+                        <el-table-column label="节点名称" prop="actName"></el-table-column>
+                        <el-table-column label="意见" prop="message"></el-table-column>
+                        <el-table-column label="办理人" prop="assigneeName"></el-table-column>
+                        <el-table-column label="开始时间" prop="stime"></el-table-column>
+                        <el-table-column label="结束时间" prop="etime"></el-table-column>
+                        <el-table-column label="用时" prop="duration"></el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -136,6 +136,7 @@
             purchase:{
                 handler(val){
                     this.loadCost();
+                    this.loadHistory()
                 },
                 deep:true,
                 immediate:true
@@ -145,6 +146,12 @@
             //this.loadCost();
         },
         methods:{
+            //加载审批过程
+            loadHistory(){
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.purchase.processInstanceId).then((resp)=>{
+                    this.histories = resp.data;
+                })
+            },
             //加载物流信息
             loadCost(){
 
@@ -178,7 +185,7 @@
         },
         data(){
             return{
-                historyTasks:[],
+                histories:[],
                 costs:[]
             }
         }
