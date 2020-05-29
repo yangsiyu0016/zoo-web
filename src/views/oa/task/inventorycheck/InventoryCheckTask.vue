@@ -54,6 +54,7 @@
 
                         this.currentTask = resp.data;
                         this.dialogVisible = true;
+
                         if (this.currentTask.taskKey === 'inventorycheckckzg' && row.assigneeName != null) {
                             this.rejectVisible = true;
                         }else {
