@@ -57,12 +57,22 @@
             <el-button @click="destroyOi" size="mini" type="danger" v-show="canDestroy">作废</el-button>
             <el-button @click="close" size="mini" type="info">关闭</el-button>
         </el-card>
+        <div v-show="false">
+            <vue-easy-print table-show ref="easyPrint" style="width: 65%">
+                <template slot-scope="func">
+                    <opening-inventory-print-formwork :getChineseNumber="func.getChineseNumber" :oldOi="oi"></opening-inventory-print-formwork>
+                </template>
+            </vue-easy-print>
+        </div>
     </div>
 </template>
 
 <script>
+    import vueEasyPrint from "vue-easy-print";
+    import OpeningInventoryPrintFormwork from "@/views/erp/order/OpeningInventoryPrintFormwork";
     export default {
         name: "OpeningInventoryDetails",
+        components:{vueEasyPrint,OpeningInventoryPrintFormwork },
         props:{
             oi:{
                 type:Object,
@@ -73,10 +83,16 @@
                 default: false
             }
         },
+
         mounted() {
           this.loadHistory();
         },
         methods:{
+            //打印
+            print(){
+
+                this.$refs.easyPrint.print();
+            },
             //加载审批过程
             loadHistory(){
                 this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.oi.processInstanceId).then((resp)=>{
