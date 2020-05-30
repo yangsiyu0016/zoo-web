@@ -142,8 +142,7 @@
             oldCheck:{
                 handler(val){
                     this.check = JSON.parse(JSON.stringify(val));
-                    console.log(this.check.details)
-                    this.loadHistory();
+                   /* this.loadHistory();*/
                 },
                 deep:true,
                 immediate:true

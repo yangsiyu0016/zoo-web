@@ -90,7 +90,7 @@
                 <el-button @click="close" size="mini" type="info">关闭</el-button>
             </el-card>
         </el-form>
-        <div v-show="true">
+        <div v-show="false">
             <vue-easy-print table-show ref="easyPrint" style="width: 65%">
                 <template slot-scope="func">
                     <inventory-check-print-formwork :getChineseNumber="func.getChineseNumber" :oldCheck="oldCheck"></inventory-check-print-formwork>
