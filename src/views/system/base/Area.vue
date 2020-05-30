@@ -11,8 +11,8 @@
                         <span>{{node.label}}</span>
                         <span style="padding-right: 0px">
                             <el-button @click="showAddAreaView(node)" type="primary" size="mini">添加下级区域</el-button>
+                            <el-button @click="showEditAreaView(node)" type="success" size="mini">编辑</el-button>
                             <i class="el-icon-delete">删除</i>
-                            <i class="el-icon-edit">修改</i>
                         </span>
                     </span>
                 </el-tree>
@@ -82,15 +82,27 @@
             showAddTopView(){
                 this.isEdit = false;
                 this.currentNode = null;
-                this.oldeNode={};
+                this.oldNode={
+                    name:''
+                };
 
                 this.dialogTitle="添加";
+                this.dialogVisible = true;
+            },
+            showEditAreaView(node){
+
+                this.isEdit = true;
+                this.currentNode = node;
+                this.oldNode=node.data;
+                this.dialogTitle="编辑";
                 this.dialogVisible = true;
             },
             showAddAreaView(node){
                 this.isEdit = false;
                 this.currentNode = node;
-                this.oldeNode={};
+                this.oldNode={
+                    name:''
+                };
                 this.dialogTitle="添加";
                 this.dialogVisible = true;
             },

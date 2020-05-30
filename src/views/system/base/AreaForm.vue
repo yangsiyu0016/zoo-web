@@ -28,7 +28,7 @@
         watch:{
             oldNode:{
                 handler(val){
-                    this.are = JSON.parse(JSON.stringify(val));
+                    this.area = JSON.parse(JSON.stringify(val));
                 },
                 deep:true,
                 immediate:true

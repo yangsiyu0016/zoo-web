@@ -28,7 +28,8 @@
                             background
                             :page-size="10"
                             :current-page="currentPage"
-                            layout="prev,pager,next"
+                            layout="total,prev,pager,next"
+                            @current-change="currentChange"
                             :total="totalCount">
                     </el-pagination>
                 </div>
@@ -49,6 +50,10 @@
             this.loadProducts();
         },
         methods:{
+            currentChange(page){
+                this.currentPage = page;
+                this.loadProducts();
+            },
             showAddProductView(){
                 this.dialogVisible = true;
                 this.dialogTitle = "新增产品";
