@@ -1,5 +1,13 @@
 <template>
     <div>
+        <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+            <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                <el-button type="primary" size="mini" icon="el-icon-printer"
+                           @click="print">
+                    打印
+                </el-button>
+            </div>
+        </el-header>
         <el-form label-width="120px">
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
@@ -96,18 +104,18 @@
                 </div>
             </el-card>
             <el-card shadow="hover">
-                <div slot="header">
-                    <span style="float: left;">审批步骤</span>
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">审批流程</span>
                 </div>
                 <div>
-                    <el-table :data="historyTasks" size="mini">
-                        <el-table-column type="index"></el-table-column>
-                        <el-table-column label="任务名称"></el-table-column>
-                        <el-table-column label="审批人"></el-table-column>
-                        <el-table-column label="审批意见"></el-table-column>
-                        <el-table-column label="开始时间"></el-table-column>
-                        <el-table-column label="结束时间"></el-table-column>
-                        <el-table-column label="停留时间"></el-table-column>
+                    <el-table :data="histories">
+                        <el-table-column type="index" width="80px"></el-table-column>
+                        <el-table-column label="节点名称" prop="actName"></el-table-column>
+                        <el-table-column label="意见" prop="message"></el-table-column>
+                        <el-table-column label="办理人" prop="assigneeName"></el-table-column>
+                        <el-table-column label="开始时间" prop="stime"></el-table-column>
+                        <el-table-column label="结束时间" prop="etime"></el-table-column>
+                        <el-table-column label="用时" prop="duration"></el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -116,12 +124,22 @@
                 <el-button @click="close" size="mini" type="info">关闭</el-button>
             </el-card>
         </el-form>
+        <div v-show="false">
+            <vue-easy-print table-show ref="easyPrint" style="width: 65%">
+                <template slot-scope="func">
+                    <purchase-print-formwork :getChineseNumber="func.getChineseNumber" :oldPurchase="purchase" :oldCosts="costs"></purchase-print-formwork>
+                </template>
+            </vue-easy-print>
+        </div>
     </div>
 </template>
 
 <script>
+    import vueEasyPrint from "vue-easy-print";
+    import PurchasePrintFormwork from "@/views/erp/order/PurchasePrintFormwork";
     export default {
         name: "PurchaseDetails",
+        components:{vueEasyPrint, PurchasePrintFormwork},
         props:{
             purchase:{
                 type:Object,
@@ -136,6 +154,7 @@
             purchase:{
                 handler(val){
                     this.loadCost();
+                    this.loadHistory()
                 },
                 deep:true,
                 immediate:true
@@ -145,6 +164,17 @@
             //this.loadCost();
         },
         methods:{
+            //打印
+            print(){
+
+                this.$refs.easyPrint.print();
+            },
+            //加载审批过程
+            loadHistory(){
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.purchase.processInstanceId).then((resp)=>{
+                    this.histories = resp.data;
+                })
+            },
             //加载物流信息
             loadCost(){
 
@@ -178,7 +208,7 @@
         },
         data(){
             return{
-                historyTasks:[],
+                histories:[],
                 costs:[]
             }
         }

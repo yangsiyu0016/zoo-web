@@ -13,7 +13,7 @@
                             <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
                             <el-tag v-if="scope.row.status=='ZGSH'"  color="#7b1fa2" size="mini" effect="dark">仓库主管人员审核</el-tag>
                             <el-tag v-if="scope.row.status=='CW'" type="warning" size="mini" effect="dark">财务记账</el-tag>
-
+                            <el-tag v-if="scope.row.status=='REJECT'" type="primary" size="mini" effect="dark">订单调整</el-tag>
                             <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
                             <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                         </template>

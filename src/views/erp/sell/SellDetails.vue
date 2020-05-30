@@ -1,5 +1,13 @@
 <template>
     <div>
+        <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+            <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                <el-button type="primary" size="mini" icon="el-icon-printer"
+                           @click="print">
+                    打印
+                </el-button>
+            </div>
+        </el-header>
         <el-form label-width="120px">
             <el-card shadow="hover" >
                 <div slot="header" class="clearfix">
@@ -121,12 +129,22 @@
             </el-card>
 
         </el-form>
+        <div v-show="false">
+            <vue-easy-print table-show ref="easyPrint" style="width: 65%">
+                <template slot-scope="func">
+                    <sell-print-formwork :getChineseNumber="func.getChineseNumber" :oldSell="oldSell" :oldCosts="oldCosts"></sell-print-formwork>
+                </template>
+            </vue-easy-print>
+        </div>
     </div>
 </template>
 
 <script>
+    import vueEasyPrint from "vue-easy-print";
+    import SellPrintFormwork from "@/views/erp/order/SellPrintFormwork";
     export default {
         name: "SellDetails",
+        components:{vueEasyPrint, SellPrintFormwork },
         props:{
             sell:{
                 type:Object,
@@ -142,6 +160,7 @@
                 handler(val){
                     this.loadCost();
                     this.loadHistory();
+                    this.oldSell = JSON.parse(JSON.stringify(val));
                 },
                 deep:true,
                 immediate:true
@@ -150,13 +169,20 @@
         data(){
             return{
                 costs:[],
-                histories:[]
+                histories:[],
+                oldSell:{},
+                oldCosts:[]
             }
         },
         mounted() {
 
         },
         methods: {
+            //打印
+            print(){
+
+                this.$refs.easyPrint.print();
+            },
             //加载审批过程
             loadHistory(){
                 this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.sell.processInstanceId).then((resp)=>{
@@ -168,7 +194,7 @@
 
                 this.getRequest('/erp/cost/getCostByForeignKey?foreignKey='+this.sell.id).then((resp)=>{
                     this.costs = resp.data;
-
+                    this.oldCosts= this.costs;
                 })
             },
             destroySell() {

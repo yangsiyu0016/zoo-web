@@ -37,16 +37,42 @@
                 </el-table>
             </div>
         </el-card>
+        <el-card shadow="hover">
+            <div slot="header" class="clearfix">
+                <span style="float: left;">审批流程</span>
+            </div>
+            <div>
+                <el-table :data="histories">
+                    <el-table-column type="index" width="80px"></el-table-column>
+                    <el-table-column label="节点名称" prop="actName"></el-table-column>
+                    <el-table-column label="意见" prop="message"></el-table-column>
+                    <el-table-column label="办理人" prop="assigneeName"></el-table-column>
+                    <el-table-column label="开始时间" prop="stime"></el-table-column>
+                    <el-table-column label="结束时间" prop="etime"></el-table-column>
+                    <el-table-column label="用时" prop="duration"></el-table-column>
+                </el-table>
+            </div>
+        </el-card>
         <el-card>
             <el-button @click="destroyOi" size="mini" type="danger" v-show="canDestroy">作废</el-button>
             <el-button @click="close" size="mini" type="info">关闭</el-button>
         </el-card>
+        <div v-show="false">
+            <vue-easy-print table-show ref="easyPrint" style="width: 65%">
+                <template slot-scope="func">
+                    <opening-inventory-print-formwork :getChineseNumber="func.getChineseNumber" :oldOi="oi"></opening-inventory-print-formwork>
+                </template>
+            </vue-easy-print>
+        </div>
     </div>
 </template>
 
 <script>
+    import vueEasyPrint from "vue-easy-print";
+    import OpeningInventoryPrintFormwork from "@/views/erp/order/OpeningInventoryPrintFormwork";
     export default {
         name: "OpeningInventoryDetails",
+        components:{vueEasyPrint,OpeningInventoryPrintFormwork },
         props:{
             oi:{
                 type:Object,
@@ -57,7 +83,22 @@
                 default: false
             }
         },
+
+        mounted() {
+          this.loadHistory();
+        },
         methods:{
+            //打印
+            print(){
+
+                this.$refs.easyPrint.print();
+            },
+            //加载审批过程
+            loadHistory(){
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.oi.processInstanceId).then((resp)=>{
+                    this.histories = resp.data;
+                })
+            },
             close(){
                 this.$emit("close");
             },
@@ -69,6 +110,11 @@
                 }).then(() => {
                     this.postRequest('/oi/destroy?id=' + this.oi.id);
                 })
+            }
+        },
+        data() {
+            return {
+                histories:[]
             }
         }
     }
