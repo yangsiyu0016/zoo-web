@@ -50,7 +50,7 @@
             <sell-form :isEdit="isEdit" :oldSell="oldSell" @close="closeWin" @callback="callback"></sell-form>
         </el-dialog>
         <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
-            <sell-details @close="closeDetailDialog" :sell="currentSell"></sell-details>
+            <sell-details @close="closeDetailDialog" :sell="currentSell" :isReception="isReception" @callback="callbackDetails"></sell-details>
         </el-dialog>
     </div>
 </template>
@@ -90,6 +90,11 @@
                         this.currentSell = resp.data;
                         this.detailsDialogVisible = true;
                         this.detailsDialogTitle="订单查看";
+                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
+                            this.isReception = true;
+                        }else {
+                            this.isReception = false;
+                        }
                     }else{
                         this.$message.error("获取订单失败");
                     }
@@ -105,6 +110,10 @@
             },
             callback(){
                 this.dialogVisible = false;
+                this.loadSells();
+            },
+            callbackDetails() {
+                this.detailsDialogVisible = false;
                 this.loadSells();
             },
             //关闭编辑窗口
@@ -155,7 +164,8 @@
                 oldSell:[],
                 currentSell:[],
                 detailsDialogVisible:false,
-                detailsDialogTitle:''
+                detailsDialogTitle:'',
+                isReception: false
             }
         }
     }

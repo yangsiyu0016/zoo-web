@@ -103,7 +103,6 @@
             },
             dblclick(row){
                 this.getRequest('/inventoryCheck/getIcById?id='+row.id).then((resp)=>{
-                    console.log(resp.data)
                     if(resp&&resp.data){
                         this.detailsDialogTitle="订单查看";
                         this.detailsDialogVisible = true;

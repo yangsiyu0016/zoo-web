@@ -100,30 +100,44 @@
             </el-card>
             <el-card shadow="hover">
                 <el-button v-show="handleVisible&&task.taskKey==='selloutbound'" size="mini" @click="addLogistics" type="primary">添加物流信息</el-button>
-                <el-button v-show="handleVisible" @click="handle" type="primary" size="mini">办理</el-button>
+                <el-button v-show="handleVisible && sell.status !== 'REJECT'" @click="handle" type="primary" size="mini">通过</el-button>
+                <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini">驳回</el-button>
                 <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
+                <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
+                <el-button v-show="sell.status=='REJECT'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
+                <el-button v-show="sell.status=='REJECT'" type="primary" size="mini" @click="destory">作废</el-button>
                 <el-button @click="close" type="info" size="mini">关闭</el-button>
             </el-card>
         </el-form>
         <el-dialog :visible.sync="logisticsDialogVisible" :title="logisticsDialogTitle" :close-on-click-modal="false" :append-to-body="true" >
             <sell-logistics-form @close="closeLogisticsDialog" @callback="callback" :sell="currentSell"></sell-logistics-form>
         </el-dialog>
-
+        <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <sell-form :isEdit="isEdit" :oldSell="sell" @close="closeDialog" @callback="editCallback"></sell-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
 
     import SellLogisticsForm from "@/views/oa/task/SellLogisticsForm";
+    import SellForm from "../../erp/sell/SellForm";
     export default {
         name: "SellTaskDetails",
-        components: {SellLogisticsForm},
+        components: {SellForm, SellLogisticsForm},
         props:{
             task:{
                 type:Object,
                 default:()=>{}
+            },
+            rejectVisible:{
+                type:Boolean,
+                default: false
+            },
+            canEdit: {
+                type: Boolean,
+                default: false
             }
-
         },
         watch:{
             task:{
@@ -149,7 +163,71 @@
             }
         },
         methods:{
+            closeDialog() {
+                this.editDialogVisible = false;
+            },
+            editCallback() {
+                this.closeDialog();
+            },
+            reSubmit() {
+                this.handle();
+            },
+            //作废
+            destory(){
+                this.$confirm("确定要作废该任务嘛？", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: 'warning'
+                }).then(()=> {
+                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE&id=" + this.sell.id + '&code=XS').then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$emit("close");
+                            this.$emit("refresh");
+                            this.$message.success(resp.data.msg);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
 
+                    })
+                })
+            },
+            //调整订单
+            edit() {
+                this.isEdit = true;
+                this.getRequest('/erp/sell/'+this.sell.id).then((resp)=>{
+                    if(resp&&resp.data){
+                        this.editDialogTitle="编辑盘点单";
+                        this.editDialogVisible = true;
+                        this.sell = resp.data;
+                    }else{
+                        this.$message.error("获取数据失败");
+                    }
+                })
+            },
+            //驳回
+            reject(){
+                this.$confirm("确定要驳回任务嘛？将此任务返回至创建人！", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: 'warning'
+                }).then(()=> {
+                    this.doReject();
+                })
+            },
+            //驳回任务
+            doReject(){
+
+                this.postRequest('/flow/task/reject?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                    if(resp&&resp.data.status=="200"){
+                        this.$emit("close");
+                        this.$emit("refresh");
+                        this.$message.success(resp.data.msg);
+                    }else{
+                        this.$message.error(resp.data.msg);
+                    }
+
+                })
+            },
             //删除物流信息
             deleteCost(row){
 
@@ -252,6 +330,12 @@
                         if(resp.data.status==200){
                             this.claimVisible = false;
                             this.handleVisible = true;
+                            if(this.sell.status === 'CWSH') {
+                                this.rejectFlag = true;
+                            }
+                            if(this.sell.status === 'REJECT') {
+                                this.editVisible = true;
+                            }
                             this.$emit("refresh");
                         }
                     })
@@ -275,7 +359,12 @@
                 logisticsDialogVisible:false,
                 logisticsDialogTitle:'',
                 currentSell:{},
-                oldCost:{}
+                oldCost:{},
+                editDialogTitle: '',
+                editDialogVisible: false,
+                isEdit: false,
+                rejectFlag: false,
+                editVisible: false,
             }
         }
     }

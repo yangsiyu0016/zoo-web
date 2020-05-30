@@ -111,9 +111,6 @@
         },
 
         methods:{
-            reload() {
-
-            },
             closeDialog(){
                 this.editDialogVisible = false;
             },
@@ -131,7 +128,7 @@
                     cancelButtonText: "取消",
                     type: 'warning'
                 }).then(()=> {
-                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE&id=" + this.check.id).then((resp)=>{
+                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE&id=" + this.check.id + '&code=PD').then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$emit("close");
                             this.$emit("refresh");
