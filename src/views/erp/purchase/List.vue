@@ -41,6 +41,7 @@
                 <el-pagination
                         background
                         :page-size="10"
+                        @current-change="currentChange"
                         :current-page="currentPage"
                         layout="prev,pager,next"
                         :total="totalCount">
@@ -52,7 +53,7 @@
             <purchase-form :isEdit="isEdit" :oldPurchase="oldPurchase" @close="closeWin" @callback="callback"></purchase-form>
         </el-dialog>
         <el-dialog :visible.sync="detailDialogVisible" :title="detailDialogTitle" :close-on-click-modal="false" width="77%">
-            <purchase-details @close="closeDetailDialog" :purchase="currentPurchase"></purchase-details>
+            <purchase-details @close="closeDetailDialog" :purchase="currentPurchase" :isReception="isReception" @callback="detailsCallback"></purchase-details>
         </el-dialog>
     </div>
 </template>
@@ -71,18 +72,31 @@
             closeDetailDialog(){
                 this.detailDialogVisible = false;
             },
+            detailsCallback() {
+                this.detailDialogVisible = false;
+                this.loadPurchases();
+            },
             //查看订单
             showDetails(row){
                 this.getRequest('/erp/purchase/'+row.id).then((resp)=>{
                     if(resp&&resp.data){
                         this.currentPurchase = resp.data;
                         this.detailDialogVisible = true;
+                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
+                            this.isReception = true;
+                        }else {
+                            this.isReception = false;
+                        }
                         this.detailDialogTitle="订单查看";
                     }else{
                         this.$message.error("获取订单信息失败");
                     }
                 })
 
+            },
+            currentChange(page){
+                this.currentPage = page;
+                this.loadPurchases();
             },
             rowDblclick(row){
                 this.showDetails(row);
@@ -165,7 +179,8 @@
                 isEdit:false,
                 detailDialogVisible:false,
                 detailDialogTitle:'',
-                currentPurchase:{}
+                currentPurchase:{},
+                isReception: false
             }
         }
     }

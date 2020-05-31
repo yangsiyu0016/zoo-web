@@ -128,7 +128,7 @@
                     cancelButtonText: "取消",
                     type: 'warning'
                 }).then(()=> {
-                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE&id=" + this.check.id + '&code=PD').then((resp)=>{
+                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE&id=" + this.check.id + '&code=PD').then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$emit("close");
                             this.$emit("refresh");
@@ -248,10 +248,10 @@
                             this.claimVisible = false;
                             this.handleVisible = true;
 
-                            if(this.check.status === 'ZGSH') {
+                            if(this.purchase.status === 'ZGSH' || this.purchase.status === 'CWSH') {
                                 this.rejectFlag = true;
                             }
-                            if(this.check.status === 'REJECT') {
+                            if(this.purchase.status === 'REJECT') {
                                 this.editVisible = true;
                             }
                             this.$emit("refresh");

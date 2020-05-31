@@ -27,7 +27,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
-            <opening-inventory-task-details :task="currentTask" @close="closeWin" @refresh="refresh"></opening-inventory-task-details>
+            <opening-inventory-task-details :task="currentTask" @close="closeWin" @refresh="refresh" :rejectVisible="rejectVisible" :canEdit="canEdit"></opening-inventory-task-details>
         </el-dialog>
     </div>
 </template>
@@ -55,6 +55,16 @@
                    if(resp&&resp.status==200){
                        this.currentTask = resp.data;
                        this.dialogVisible = true;
+                       if (this.currentTask.taskKey === 'openinginventoryckzg' && row.assigneeName != null) {
+                           this.rejectVisible = true;
+                       }else {
+                           this.rejectVisible = false;
+                       }
+                       if (this.currentTask.taskKey === 'oireject') {
+                           this.canEdit = true;
+                       }else {
+                           this.canEdit = false;
+                       }
                        this.dialogTitle="任务办理";
                    }else{
                        this.$message.error("获取任务失败");
@@ -91,7 +101,9 @@
                 dialogVisible:false,
                 currentTask:{
 
-                }
+                },
+                rejectVisible: false,
+                canEdit: false
             }
         }
     }

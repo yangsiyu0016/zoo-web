@@ -79,7 +79,7 @@
             </el-card>
             <el-card shadow="hover">
                 <el-button @click="saveOi" size="mini" type="primary">保存</el-button>
-                <el-button @click="saveAndStart" size="mini" type="warning">保存并启动流程</el-button>
+                <el-button @click="saveAndStart" size="mini" type="warning" v-show="oi.status !== 'REJECT'">保存并启动流程</el-button>
                 <el-button @click="cancel" size="mini" type="info">取消</el-button>
             </el-card>
         </el-form>

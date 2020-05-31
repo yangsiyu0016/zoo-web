@@ -102,8 +102,12 @@
             </el-card>
             <el-card shadow="hover">
                 <el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'" size="mini" @click="addLogistics" type="primary">添加物流信息</el-button>
-                <el-button v-show="handleVisible" @click="handle" type="primary" size="mini">办理</el-button>
+                <el-button v-show="handleVisible && purchase.status !== 'REJECT'" @click="handle" type="primary" size="mini">通过</el-button>
+                <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini">驳回</el-button>
                 <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
+                <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
+                <el-button v-show="purchase.status=='REJECT'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
+                <el-button v-show="purchase.status=='REJECT'" type="primary" size="mini" @click="destory">作废</el-button>
                 <el-button @click="close" type="info" size="mini">关闭</el-button>
             </el-card>
         </el-form>
@@ -113,19 +117,32 @@
         <el-dialog :visible.sync="inboundDialogVisible" :title="inboundDialogTitle" :close-on-click-modal="false" :append-to-body="true">
             <inbound-set @closeInbound="closeInbound" :oldCost="oldCost" @inboundCallback="inboundCallback"></inbound-set>
         </el-dialog>
+        <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <purchase-form :isEdit="isEdit" :oldPurchase="purchase" @close="closeWin" @callback="editCallback"></purchase-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import PurchaseLogisticsForm from "@/views/oa/task/PurchaseLogisticsForm";
     import InboundSet from "@/views/oa/task/InboundSet";
+    import PurchaseForm from "@/views/erp/purchase/PurchaseForm";
     export default {
         name: "PurchaseTaskDetails",
-        components: {InboundSet, PurchaseLogisticsForm},
+        components: {InboundSet, PurchaseLogisticsForm, PurchaseForm},
         props:{
             task:{
                 type:Object,
                 default:()=>{}
+            },
+
+            rejectVisible:{
+                type:Boolean,
+                default: false
+            },
+            canEdit: {
+                type: Boolean,
+                default: false
             }
 
         },
@@ -153,6 +170,24 @@
             }
         },
         methods:{
+            edit() {
+                this.isEdit = true;
+                this.getRequest('/erp/purchase/'+this.purchase.id).then((resp)=>{
+                    if(resp&&resp.data){
+                        this.purchase = resp.data;
+                        this.dialogTitle = "编辑订单";
+                        this.dialogVisible = true;
+                    }else{
+                        this.$message.error("获取订单失败");
+                    }
+                })
+            },
+            editCallback() {
+                this.closeWin();
+            },
+             closeWin() {
+                this.dialogVisible = false;
+            },
             inboundCallback(){
                 this.closeInbound();
                 this.loadDetails();
@@ -225,6 +260,53 @@
 
                 })
             },
+            //重新提交
+            reSubmit(){
+                this.handle();
+            },
+            //作废
+            destory(){
+                this.$confirm("确定要作废该任务嘛？", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: 'warning'
+                }).then(()=> {
+                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE&id=" + this.purchase.id + '&code=CG').then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$emit("close");
+                            this.$emit("refresh");
+                            this.$message.success(resp.data.msg);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+
+                    })
+                })
+            },
+            //驳回
+            reject(){
+                this.$confirm("确定要驳回任务嘛？将此任务返回至创建人！", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: 'warning'
+                }).then(()=> {
+                    this.doReject();
+                })
+            },
+            //驳回任务
+            doReject(){
+
+                this.postRequest('/flow/task/reject?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                    if(resp&&resp.data.status=="200"){
+                        this.$emit("close");
+                        this.$emit("refresh");
+                        this.$message.success(resp.data.msg);
+                    }else{
+                        this.$message.error(resp.data.msg);
+                    }
+
+                })
+            },
             //办理
             handle(){
                 this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
@@ -265,7 +347,7 @@
             },
             //完成任务
             doComponent(){
-                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment).then((resp)=>{
+                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
                     this.$emit("close");
                     this.$emit("refresh");
                 })
@@ -281,6 +363,12 @@
                         if(resp.data.status==200){
                             this.claimVisible = false;
                             this.handleVisible = true;
+                            if(this.purchase.status === 'CGJLSH' || this.purchase.status === 'CWSH') {
+                                this.rejectFlag = true;
+                            }
+                            if(this.purchase.status === 'REJECT') {
+                                this.editVisible = true;
+                            }
                             this.$emit("refresh");
                         }
                     })
@@ -306,7 +394,12 @@
                 currentPurchase:{},
                 inboundDialogVisible:false,
                 inboundDialogTitle:'',
-                oldCost:{}
+                oldCost:{},
+                editVisible: false,
+                rejectFlag: false,
+                dialogVisible: false,
+                dialogTitle: '',
+                isEdit: false
             }
         }
     }

@@ -54,7 +54,7 @@
             </div>
         </el-card>
         <el-card>
-            <el-button @click="destroyOi" size="mini" type="danger" v-show="canDestroy">作废</el-button>
+            <el-button @click="resetOiDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
             <el-button @click="close" size="mini" type="info">关闭</el-button>
         </el-card>
         <div v-show="false">
@@ -81,6 +81,10 @@
             canDestroy: {
                 type: Boolean,
                 default: false
+            },
+            isReception: {
+                type: Boolean,
+                default: false
             }
         },
 
@@ -92,6 +96,18 @@
             print(){
 
                 this.$refs.easyPrint.print();
+            },
+            resetOiDetail() {
+                this.$confirm('确定取回该订单吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: "warning"
+                }).then(() => {
+                    this.getRequest('/oi/reset?id=' + this.oi.id).then(resp => {
+                        this.$emit("callback");
+                    });
+
+                })
             },
             //加载审批过程
             loadHistory(){
