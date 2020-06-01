@@ -49,7 +49,7 @@
             <opening-inventory-form :isEdit="isEdit" :oldOi="oldOi" @close="closeWin" @callback="callback"></opening-inventory-form>
         </el-dialog>
         <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
-            <opening-inventory-details @close="closeDetailsWin" :oi="currentOi"></opening-inventory-details>
+            <opening-inventory-details @close="closeDetailsWin" :oi="currentOi" :isReception="isReception" @callback="detailsCallback"></opening-inventory-details>
         </el-dialog>
     </div>
 </template>
@@ -64,6 +64,10 @@
             this.loadData();
         },
         methods:{
+            detailsCallback(){
+                this.detailsDialogVisible = false;
+                this.loadData();
+            },
             //关闭详情页
             closeDetailsWin(){
                 this.detailsDialogVisible = false;
@@ -74,6 +78,11 @@
                     if(resp&&resp.data){
                         this.currentOi = resp.data;
                         this.detailsDialogVisible = true;
+                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
+                            this.isReception = true;
+                        }else {
+                            this.isReception = false;
+                        }
                         this.detailsDialogTitle="订单查看";
                     }else{
                         this.$message.error("获取订单失败");
@@ -158,7 +167,8 @@
                 isEdit:false,
                 detailsDialogTitle:'',
                 detailsDialogVisible:false,
-                currentOi:[]
+                currentOi:[],
+                isReception: false
             }
         }
     }

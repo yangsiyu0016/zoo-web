@@ -44,20 +44,37 @@
             <el-input type="textarea" v-model="comment"></el-input>
         </el-card>
         <el-card shadow="hover">
-            <el-button v-show="handleVisible" @click="handle" type="primary" size="mini">办理</el-button>
+            <el-button v-show="handleVisible && oi.status !== 'REJECT'" @click="handle" type="primary" size="mini">通过</el-button>
+            <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini">驳回</el-button>
             <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
+            <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
+            <el-button v-show="oi.status=='REJECT'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
+            <el-button v-show="oi.status=='REJECT'" type="primary" size="mini" @click="destory">作废</el-button>
             <el-button @click="close" type="info" size="mini">关闭</el-button>
         </el-card>
+        <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <opening-inventory-form :isEdit="isEdit" :oldOi="oldOi" @close="closeWin" @callback="callback"></opening-inventory-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
+    import OpeningInventoryForm from "@/views/erp/stock/oi/OpeningInventoryForm";
     export default {
         name: "OpeningInventoryTaskDetails",
+        components: {OpeningInventoryForm},
         props:{
             task:{
                 type:Object,
                 default:()=>{}
+            },
+            rejectVisible:{
+                type:Boolean,
+                default: false
+            },
+            canEdit: {
+                type: Boolean,
+                default: false
             }
         },
         watch:{
@@ -84,6 +101,69 @@
             }
         },
         methods:{
+            edit() {
+                this.isEdit = true;
+                this.getRequest("/oi/getOiById?id="+this.oi.id).then((resp)=>{
+                    this.oldOi=resp.data;
+                    this.dialogTitle="编辑单据";
+                    this.dialogVisible = true;
+                })
+            },
+            callback() {
+                this.closeWin();
+            },
+            closeWin() {
+                this.dialogVisible = false;
+            },
+            //驳回任务
+            doReject(){
+
+                this.postRequest('/flow/task/reject?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                    if(resp&&resp.data.status=="200"){
+                        this.$emit("close");
+                        this.$emit("refresh");
+                        this.$message.success(resp.data.msg);
+                    }else{
+                        this.$message.error(resp.data.msg);
+                    }
+
+                })
+            },
+            //驳回
+            reject(){
+                this.$confirm("确定要驳回任务嘛？将此任务返回至创建人！", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: 'warning'
+                }).then(()=> {
+                    this.doReject();
+                })
+            },
+            //重新提交
+            reSubmit(){
+                this.handle();
+            },
+            //作废
+            destory(){
+                console.log(this.task)
+                this.$confirm("确定要作废该任务嘛？", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: 'warning'
+                }).then(()=> {
+                        this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE&id=" + this.oi.id + '&code=QC').then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$emit("close");
+                            this.$emit("refresh");
+                            this.$message.success(resp.data.msg);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+
+                    })
+                })
+            },
+
             //入库价格更新
             priceChange(row){
                 let m = 0,s1=row.costPrice.toString(),s2=row.number.toString();
@@ -111,7 +191,7 @@
                                     this.$message.error('成本价不能为0');
                                     return false;
                                 }else{
-                                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment).then((resp)=>{
+                                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
                                         this.$emit("close");
                                         this.$emit("refresh");
                                     })
@@ -119,7 +199,7 @@
                             }
                         })
                     }else{
-                        this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment).then((resp)=>{
+                        this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
                             this.$emit("close");
                             this.$emit("refresh");
                         })
@@ -138,6 +218,12 @@
                         if(resp.data.status==200){
                             this.claimVisible = false;
                             this.handleVisible = true;
+                            if(this.oi.status === 'ZGSH' ) {
+                                this.rejectFlag = true;
+                            }
+                            if(this.oi.status === 'REJECT') {
+                                this.editVisible = true;
+                            }
                             this.$emit("refresh");
                         }
                     })
@@ -157,7 +243,13 @@
                 },
                 claimVisible:false,
                 handleVisible:false,
-                comment:''
+                comment:'',
+                rejectFlag: false,
+                editVisible: false,
+                dialogTitle: '',
+                dialogVisible: false,
+                isEdit: false,
+                oldOi: {}
             }
         }
     }

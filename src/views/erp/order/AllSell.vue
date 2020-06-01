@@ -38,7 +38,7 @@
             </el-main>
         </el-container>
         <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
-            <sell-details :sell="currentSell" @callback="callback" @close="closeWin" :canDestroy="canDestroy"></sell-details>
+            <sell-details :sell="currentSell" @callback="callback" @close="closeWin" :canDestroy="canDestroy" :isReception="isReception"></sell-details>
         </el-dialog>
     </div>
 </template>
@@ -63,7 +63,8 @@
                 currentSell: {},
                 detailsDialogVisible: false,
                 detailsDialogTitle: '',
-                canDestroy: false
+                canDestroy: false,
+                isReception: false
             }
         },
         methods: {
@@ -84,6 +85,8 @@
                         this.currentSell = resp.data;
                         this.detailsDialogVisible = true;
                         this.detailsDialogTitle="订单查看";
+
+                        this.isReception = false;
                     }else{
                         this.$message.error("获取订单失败");
                     }

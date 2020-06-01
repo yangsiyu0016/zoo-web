@@ -27,7 +27,7 @@
             </el-pagination>
         </div>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
-            <purchase-task-details @refresh="refresh" @close="closeWin" :task="currentTask"></purchase-task-details>
+            <purchase-task-details @refresh="refresh" @close="closeWin" :task="currentTask" :rejectVisible="rejectVisible" :canEdit="canEdit"></purchase-task-details>
         </el-dialog>
     </div>
 </template>
@@ -53,6 +53,19 @@
                     if(resp&&resp.status==200){
                         this.currentTask = resp.data;
                         this.dialogVisible = true;
+
+                        if ((this.currentTask.taskKey === 'purchasecw' || this.currentTask.taskKey === 'purchasecgjl') && row.assigneeName != null) {
+                            this.rejectVisible = true;
+                        }else {
+                            this.rejectVisible = false;
+                        }
+                        console.log(this.rejectVisible);
+                        console.log(row.assigneeName)
+                        if (this.currentTask.taskKey === 'purchasereject') {
+                            this.canEdit = true;
+                        }else {
+                            this.canEdit = false;
+                        }
                         this.dialogTitle="任务办理";
                     }else{
                         this.$message.error("获取任务失败");
@@ -87,7 +100,9 @@
                 totalCount:-1,
                 currentTask:[],
                 dialogVisible:false,
-                dialogTitle:''
+                dialogTitle:'',
+                rejectVisible: false,
+                canEdit: false
             }
         }
     }

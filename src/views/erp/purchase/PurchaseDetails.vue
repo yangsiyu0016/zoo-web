@@ -120,7 +120,7 @@
                 </div>
             </el-card>
             <el-card>
-                <el-button @click="destroyPurchase" size="mini" type="danger" v-show="canDestroy">作废</el-button>
+                <el-button @click="resetPurchaseDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
                 <el-button @click="close" size="mini" type="info">关闭</el-button>
             </el-card>
         </el-form>
@@ -148,6 +148,10 @@
             canDestroy: {
                 type: Boolean,
                 default: false
+            },
+            isReception: {
+                type: Boolean,
+                default: false
             }
         },
         watch:{
@@ -164,6 +168,18 @@
             //this.loadCost();
         },
         methods:{
+            resetPurchaseDetail() {
+                this.$confirm('确定取回该订单吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: "warning"
+                }).then(() => {
+                    this.getRequest('/erp/purchase/reset?id=' + this.purchase.id).then(resp => {
+                        this.$emit("callback");
+                    });
+
+                })
+            },
             //打印
             print(){
 
