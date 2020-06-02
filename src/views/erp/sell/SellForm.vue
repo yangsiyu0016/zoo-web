@@ -56,6 +56,34 @@
 
                         </el-col>
                     </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="运费类型:" prop="freightType" >
+                                <el-select size="mini" style="float: left;" v-model="sell.freightType">
+                                    <el-option label="包邮" value="YES"></el-option>
+                                    <el-option label="不包邮" value="NO"></el-option>
+                                </el-select>
+
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="付款方式:" prop="receivableType">
+                                <el-select size="mini" style="float: left;" v-model="sell.receivableType">
+                                    <el-option label="全款发货" value="FULLPAYMENT" ></el-option>
+                                    <el-option label="借款抵" value="LOAN"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="备注:" prop="description">
+                                <el-input type="textarea" v-model="sell.description"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
                 </div>
             </el-card>
             <el-card shadow="hover">
@@ -315,6 +343,9 @@
                         name:''
                     },
                     receiving:{},
+                    receivableType:'FULLPAYMENT',
+                    freightType:'YES',
+                    description:'',
                     details:[]
                 },
                 rules:{

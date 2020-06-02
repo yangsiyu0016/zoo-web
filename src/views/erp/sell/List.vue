@@ -15,6 +15,18 @@
                     <el-table-column prop="code" label="单号"></el-table-column>
                     <el-table-column prop="initDate" label="下单日期"></el-table-column>
                     <el-table-column prop="customer.name" label="客户"></el-table-column>
+                    <el-table-column prop="freightType" label="运费类型">
+                        <template slot-scope="scope">
+                            <el-tag v-if="scope.row.freightType=='YES'" type="success" size="mini" effect="dark">包邮</el-tag>
+                            <el-tag v-if="scope.row.freightType=='NO'" type="warning" size="mini" effect="dark">不包邮</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="付款方式">
+                        <template slot-scope="scope">
+                            <el-tag v-if="scope.row.receivableType=='FULLPAYMENT'" type="success" size="mini" effect="dark">全款发货</el-tag>
+                            <el-tag v-if="scope.row.receivableType=='LOAN'" type="warning" size="mini" effect="dark">借款抵</el-tag>
+                        </template>
+                    </el-table-column>
                     <el-table-column  label="状态">
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
@@ -140,6 +152,9 @@
                         name:''
                     },
                     receiving:{},
+                    receivableType:'FULLPAYMENT',
+                    freightType:'YES',
+                    description:'',
                     details:[]
                 };
                 this.dialogVisible = true;
