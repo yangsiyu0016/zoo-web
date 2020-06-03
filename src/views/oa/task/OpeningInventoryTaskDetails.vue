@@ -214,7 +214,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(()=>{
-                    this.postRequest('/flow/task/claim?taskId='+this.task.id).then((resp)=>{
+                    this.postRequest('/flow/task/claim?taskId='+this.task.id + '&id=' + this.oi.id).then((resp)=>{
                         if(resp.data.status==200){
                             this.claimVisible = false;
                             this.handleVisible = true;
