@@ -127,6 +127,24 @@ export const asyncRouterMap = [{
             meta: {title: "盘点单"}
         }]
     },{
+        path: 'statistics',
+        name: 'statistics',
+        component: ()=>import('@/views/erp/statistics/index'),
+        meta: {title: '统计模块'},
+        children: [{
+            path: 'purchaseStatistics',
+            name: 'purchaseStatistics',
+            component: ()=> import('@/views/erp/statistics/PurchaseStatistics'),
+            meta: {title: '采购明细统计'}
+        },{
+            path: 'sellStatistics',
+            name: 'sellStatistics',
+            component: ()=>import('@/views/erp/statistics/SellStatistics'),
+            meta: {title: '销售明细统计'}
+        },{
+
+        }]
+    },{
         path:'cw',
         name:'cw',
         component:()=>import("@/views/erp/cw/index"),
