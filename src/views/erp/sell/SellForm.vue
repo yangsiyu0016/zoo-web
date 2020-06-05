@@ -123,6 +123,34 @@
                     </el-table>
                 </div>
             </el-card>
+            <el-card>
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">附件列表</span>
+                </div>
+                <div>
+                    <el-button type="primary" size="mini" icon="el-icon-plus"
+                               style="float: left"    @click="showAddAnnexView">
+                        添加附件
+                    </el-button>
+                    <el-table
+                            :data="sell.annexs"
+                            size="mini"
+                            style="width:100%">
+                        <el-table-column label="附件名称" prop="title" ></el-table-column>
+                        <el-table-column label="格式" prop="suffix" ></el-table-column>
+                        <el-table-column label="大小" prop="size" ></el-table-column>
+                        <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
+                        <el-table-column
+                                label="操作" width="120">
+                            <template slot-scope="scope">
+                                <el-button type="primary" v-show="isEdit"  @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                                <el-button type="danger"  @click="deleteAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
             <el-card shadow="hover">
                 <el-button @click="saveSell" type="primary" size="mini">保存</el-button>
                 <el-button @click="cancel" type="info" size="mini">取消</el-button>
@@ -133,15 +161,19 @@
         <el-dialog :visible.sync="detailDialogVisible" :title="detailDialogTitle" :close-on-click-modal="false" :append-to-body="true">
             <sell-detail-form :oldDetail="oldDetail" @close="closeDetailDialog" @callback="detailCallback"></sell-detail-form>
         </el-dialog>
+        <el-dialog :visible.sync="uploadDialogVisible" :title="uploadDialogTitle" :close-on-click-modal="false" :append-to-body="true">
+            <annex-upload-form :oldAnnex="oldAnnex" @close="closeUploadForm"   @addAnnex="addAnnex"></annex-upload-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import CustomerDialog from "@/components/dialog/CustomerDialog";
     import SellDetailForm from "@/views/erp/sell/SellDetailForm";
+    import AnnexUploadForm from "@/components/dialog/AnnexUploadForm";
     export default {
         name: "SellForm",
-        components: {SellDetailForm, CustomerDialog},
+        components: {AnnexUploadForm, SellDetailForm, CustomerDialog},
         props:{
             isEdit:{
                 type:Boolean,
@@ -163,6 +195,58 @@
             }
         },
         methods:{
+            downloadAnnex(row) {
+
+                window.open(row.url + "?fileName=" + row.fileName);
+            },
+            deleteAnnex(row) {
+                this.$confirm('确定删除该附件吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消'
+                }).then(()=>{
+                    this.postNoEnCodeRequest('/annex/delete', row).then(resp => {
+                        if (resp.data.status == '200') {
+                            this.$message.success('删除成功');
+                            this.sell.annexs.some((item, i) => {
+                                if (item == row) {
+                                    this.sell.annexs.splice(i, 1);
+                                    return true;
+                                }
+                            })
+                        }else if (resp.data.status == '000') {
+                            this.$message.error(resp.data.msg);
+                        }else {
+                            this.$message.error('删除失败')
+                        }
+                    })
+                })
+            },
+            addAnnex(data) {
+                let annex = data;
+                if(this.isEdit){
+                    Object.assign(annex,{foreignKey:this.sell.id});
+                    this.putNoEnCodeRequest('/annex/add',annex).then((resp)=>{
+                       if(resp&&resp.data.status==200) {
+                           this.sell.annexs.push(resp.data.annex);
+                           this.closeUploadForm();
+                       }else{
+                           this.$message.error("保存附件信息失败");
+                       }
+                    });
+                }else{
+                    this.sell.annexs.push(annex);
+                    this.closeUploadForm();
+                }
+
+            },
+            closeUploadForm(){
+                this.uploadDialogVisible = false;
+            },
+            showAddAnnexView(){
+                this.oldAnnex = {title:''}
+                this.uploadDialogVisible = true;
+                this.uploadDialogTitle = '添加附件'
+            },
             //保存销售单
             saveSell(){
                 this.$refs['sellForm'].validate((valid)=>{
@@ -346,7 +430,9 @@
                     receivableType:'FULLPAYMENT',
                     freightType:'YES',
                     description:'',
-                    details:[]
+                    details:[],
+                    annexs:[]
+
                 },
                 rules:{
                     initDate:[{required: true, message: '必填:单据日期', trigger: 'blur'}],
@@ -360,6 +446,10 @@
                 detailDialogTitle: '',
                 detailIsEdit:false,
                 oldDetail:{},
+                uploadDialogVisible:false,
+                uploadDialogTitle:'',
+
+                oldAnnex:{},
                 //日期选择器
                 pickerOptions: {
                     disabledDate(time) {

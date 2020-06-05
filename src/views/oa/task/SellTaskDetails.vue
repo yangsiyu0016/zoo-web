@@ -116,6 +116,29 @@
                     </el-table>
                 </div>
             </el-card>
+            <el-card>
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">附件列表</span>
+                </div>
+                <div>
+                    <el-table
+                            :data="sell.annexs"
+                            size="mini"
+                            style="width:100%">
+                        <el-table-column label="附件名称" prop="title" ></el-table-column>
+                        <el-table-column label="大小" prop="size" ></el-table-column>
+                        <el-table-column label="上传时间" prop="utime" ></el-table-column>
+                        <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
+                        <el-table-column
+                                label="操作" width="120">
+                            <template slot-scope="scope">
+                                <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
             <el-card shadow="hover" v-show="handleVisible">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">审批意见</span>
@@ -187,6 +210,11 @@
             }
         },
         methods:{
+            downloadAnnex(row) {
+
+                window.open(row.url + "?fileName=" + row.fileName);
+            },
+
             closeDialog() {
                 this.editDialogVisible = false;
             },
