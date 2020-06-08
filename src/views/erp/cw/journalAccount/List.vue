@@ -8,6 +8,7 @@
                     <el-tag v-if="scope.row.type=='PURCHASE'"  color="#7b1fa2" size="mini" effect="dark">采购</el-tag>
                     <el-tag v-if="scope.row.type=='SELL'" type="warning" size="mini" effect="dark">销售</el-tag>
                     <el-tag v-if="scope.row.type=='LOSSES'" type="success" size="mini" effect="dark">盘亏</el-tag>
+                    <el-tag v-if="scope.row.type=='QCDESTROY'" type="info" size="mini" effect="dark">期初作废</el-tag>
                 </template>
             </el-table-column>
             <el-table-column prop="orderCode" align="left"  label="单号" width="180" ></el-table-column>
