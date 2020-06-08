@@ -69,8 +69,8 @@
                         <el-table-column prop="warehouse.name" label="出库仓库"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
-                        <el-table-column label="价格" prop="price"  width="300"></el-table-column>
-                        <el-table-column label="总额" prop="totalMoney" ></el-table-column>
+                        <el-table-column v-if="sell.status!='OUT'" label="价格" prop="price"  width="300"></el-table-column>
+                        <el-table-column v-if="sell.status!='OUT'" label="总额" prop="totalMoney" ></el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -126,8 +126,9 @@
                             size="mini"
                             style="width:100%">
                         <el-table-column label="附件名称" prop="title" ></el-table-column>
+                        <el-table-column label="附件格式" prop="suffix" ></el-table-column>
                         <el-table-column label="大小" prop="size" ></el-table-column>
-                        <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
                         <el-table-column label="上传时间" prop="utime" ></el-table-column>
 
                         <el-table-column
@@ -136,6 +137,22 @@
                                 <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
                             </template>
                         </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
+            <el-card shadow="hover">
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">审批流程</span>
+                </div>
+                <div>
+                    <el-table :data="histories">
+                        <el-table-column type="index" width="80px"></el-table-column>
+                        <el-table-column label="节点名称" prop="actName"></el-table-column>
+                        <el-table-column label="意见" prop="message"></el-table-column>
+                        <el-table-column label="办理人" prop="assigneeName"></el-table-column>
+                        <el-table-column label="开始时间" prop="stime"></el-table-column>
+                        <el-table-column label="结束时间" prop="etime"></el-table-column>
+                        <el-table-column label="用时" prop="duration"></el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -200,6 +217,7 @@
                         if(resp&&resp.status==200){
                             this.sell = resp.data;
                             this.loadCost(this.sell.id);
+                            this.loadHistory();
                         }else{
                             this.$message.error("获取表单信息失败");
                         }
@@ -288,8 +306,8 @@
                     cancelButtonText:"取消",
                     type:"warning"
                 }).then(()=>{
-                    this.$message.error("请稍等^^");
-                    /*this.deleteRequest("/erp/cost/deleteCostFromSell?id="+row.id).then((resp)=>{
+                    //this.$message.error("请稍等^^");
+                    this.deleteRequest("/erp/cost/deleteCostFromSell?id="+row.id).then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$message.success("删除成功");
                             this.loadCost(this.sell.id);
@@ -298,7 +316,7 @@
                             this.$message.error("删除失败");
                         }
 
-                    })*/
+                    })
                 })
             },
             //物流编辑完后调用
@@ -324,6 +342,12 @@
                 this.currentSell = this.sell;
                 this.logisticsDialogTitle="添加物流信息";
                 this.logisticsDialogVisible =true;
+            },
+            //加载审批过程
+            loadHistory(){
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.sell.processInstanceId).then((resp)=>{
+                    this.histories = resp.data;
+                })
             },
             //加载产品信息
             loadDetails(){
@@ -417,6 +441,7 @@
                 isEdit: false,
                 rejectFlag: false,
                 editVisible: false,
+                histories:[]
             }
         }
     }

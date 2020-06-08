@@ -141,8 +141,10 @@
                             size="mini"
                             style="width:100%">
                         <el-table-column label="附件名称" prop="title" ></el-table-column>
+                        <el-table-column label="附件格式" prop="suffix" ></el-table-column>
+
                         <el-table-column label="大小" prop="size" ></el-table-column>
-                        <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
                         <el-table-column label="上传时间" prop="utime" ></el-table-column>
 
                         <el-table-column
@@ -171,7 +173,9 @@
                 </div>
             </el-card>
             <el-card shadow="hover">
+
                 <el-button @click="resetSellDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
+                <el-button @click="destroySell" v-show="canDestroy&&sell.status!='DESTROY'"  size="mini" type="danger" >作废</el-button>
                 <el-button @click="close" size="mini" type="info">关闭</el-button>
             </el-card>
 
@@ -272,7 +276,14 @@
                     cancelButtonText: '取消',
                     type: "warning"
                 }).then(() => {
-                    this.postRequest('/erp/sell/destroy?id=' + this.sell.id);
+                    this.postRequest('/erp/sell/destroy?id=' + this.sell.id).then(resp=>{
+                       if(resp&&resp.data.status=='200'){
+                           this.$message.success("操作成功");
+                           this.$emit("callback");
+                       } else{
+                           this.$message.error("操作失败");
+                       }
+                    });
                 })
             },
             //关闭

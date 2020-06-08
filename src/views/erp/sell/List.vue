@@ -31,6 +31,7 @@
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
                             <el-tag v-if="scope.row.status=='CWSH'" type="warning" size="mini" effect="dark">财务审核</el-tag>
+                            <el-tag v-if="scope.row.status=='REJECT'" type="danger" size="mini" effect="dark">驳回</el-tag>
                             <el-tag v-if="scope.row.status=='OUT'"  color="#7b1fa2" size="mini" effect="dark">出库中...</el-tag>
                             <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
                             <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
@@ -45,7 +46,7 @@
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
                             <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditSellView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteSell(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -78,6 +79,22 @@
             this.loadSells();
         },
         methods:{
+            deleteSell(row){
+                this.$confirm("确定要删除吗？删除后不可恢复！","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.deleteRequest('/erp/sell/'+row.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadSells();
+                        }else {
+                            this.$message.error("删除失败");
+                        }
+                    })
+                })
+            },
             startFlow(row){
                 this.$confirm("确定要启动审批流程吗？","提示",{
                     confirmButtonText:"确定",
