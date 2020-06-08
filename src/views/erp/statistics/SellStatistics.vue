@@ -17,7 +17,7 @@
                             <span>{{(currentPage - 1) * 10 + scope.$index + 1}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="name" label="产品类型"></el-table-column>
+                    <el-table-column prop="productType" label="产品类型"></el-table-column>
                     <el-table-column prop="productName" label="产品名称"></el-table-column>
                     <el-table-column prop="genericSpec" label="通用参数"></el-table-column>
                     <el-table-column prop="ownSpec" label="特殊参数"></el-table-column>
@@ -26,6 +26,7 @@
                     <el-table-column prop="price" label="销售单价"></el-table-column>
                     <el-table-column prop="code" label="单号"></el-table-column>
                     <el-table-column prop="initDate" label="下单日期"></el-table-column>
+                    <el-table-column prop="type" label="客户来自"></el-table-column>
                     <el-table-column prop="customerName" label="客户名称"></el-table-column>
                     <el-table-column prop="status" label="状态">
                         <template slot-scope="scope">
