@@ -40,6 +40,30 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="运费类型:" prop="freightType" >
+
+                                <span style="float:left" v-if="purchase.freightType=='YES'">包邮</span>
+                                <span style="float:left" v-else>不包邮</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="付款方式:" prop="paymentType">
+                                <span style="float:left" v-if="purchase.paymentType=='FULLPAYMENT'">全款发货</span>
+                                <span style="float:left" v-else-if="purchase.paymentType=='LOAN'">借款抵</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="备注:" prop="description">
+                                <span style="float:left">{{purchase.description}}</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
                 </div>
             </el-card>
             <el-card shadow="hover">
@@ -98,6 +122,31 @@
                             <template slot-scope="scope">
                                 <el-tag size="mini" type="info" v-show="!scope.row.finished">等待收货</el-tag>
                                 <el-tag size="mini" type="success" v-show="scope.row.finished">收货完成</el-tag>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
+            <el-card>
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">附件列表</span>
+                </div>
+                <div>
+                    <el-table
+                            :data="purchase.annexs"
+                            size="mini"
+                            style="width:100%">
+                        <el-table-column label="附件名称" prop="title" ></el-table-column>
+                        <el-table-column label="附件格式" prop="suffix" ></el-table-column>
+
+                        <el-table-column label="大小" prop="size" ></el-table-column>
+
+                        <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
+                        <el-table-column
+                                label="操作" width="120">
+                            <template slot-scope="scope">
+                                <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -168,6 +217,10 @@
             //this.loadCost();
         },
         methods:{
+            downloadAnnex(row) {
+
+                window.open(row.url + "?fileName=" + row.fileName);
+            },
             resetPurchaseDetail() {
                 this.$confirm('确定取回该订单吗？', '提示', {
                     confirmButtonText: '确定',

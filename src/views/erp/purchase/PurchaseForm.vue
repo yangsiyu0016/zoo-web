@@ -55,6 +55,34 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="运费类型:" prop="freightType" >
+                                <el-select size="mini" style="float: left;" v-model="purchase.freightType">
+                                    <el-option label="包邮" value="YES"></el-option>
+                                    <el-option label="不包邮" value="NO"></el-option>
+                                </el-select>
+
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="付款方式:" prop="paymentType">
+                                <el-select size="mini" style="float: left;" v-model="purchase.paymentType">
+                                    <el-option label="全款发货" value="FULLPAYMENT" ></el-option>
+                                    <el-option label="借款抵" value="LOAN"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="备注:" prop="description">
+                                <el-input type="textarea" v-model="purchase.description"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
                 </div>
             </el-card>
             <el-card shadow="hover">
@@ -110,12 +138,14 @@
                             size="mini"
                             style="width:100%">
                         <el-table-column label="附件名称" prop="title" ></el-table-column>
+                        <el-table-column label="格式" prop="suffix" ></el-table-column>
+                        <el-table-column label="大小" prop="size" ></el-table-column>
                         <el-table-column label="上传时间" prop="utime" ></el-table-column>
 
                         <el-table-column
                                 label="操作" width="120">
                             <template slot-scope="scope">
-                                <el-button type="primary"  @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                                <el-button type="primary"  v-show="isEdit"  @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
                                 <el-button type="danger"  @click="deleteAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
@@ -135,7 +165,7 @@
             <purchase-detail-form :isEdit="detailIsEdit" @close="closeDetailDialog" :oldDetail="oldDetail" @callback="editDetail"></purchase-detail-form>
         </el-dialog>
         <el-dialog :visible.sync="uploadDialogVisible" :title="uploadDialogTitle" :close-on-click-modal="false" :append-to-body="true">
-            <annex-upload-form @close="closeUploadForm" :purchaseId="purchase.id" @addAnnex="addAnnex"></annex-upload-form>
+            <annex-upload-form :oldAnnex="oldAnnex" @close="closeUploadForm"  @addAnnex="addAnnex"></annex-upload-form>
         </el-dialog>
     </div>
 </template>
@@ -182,8 +212,6 @@
                                     return true;
                                 }
                             })
-                        }else if (resp.data.status == '000') {
-                            this.$message.error(resp.data.msg);
                         }else {
                             this.$message.error('删除失败')
                         }
@@ -191,17 +219,24 @@
                 })
             },
             addAnnex(data) {
-                this.annex.id = data.id;
-                this.annex.title = data.title;
-                this.annex.url = data.url;
-                this.annex.utime = data.utime;
-                console.log(this.annex);
-                this.purchase.annexs.push(this.annex);
-                console.log(this.purchase.annexs);
+                let annex = data;
+                if(this.isEdit){
+                    Object.assign(annex,{foreignKey:this.purchase.id});
+                    this.putNoEnCodeRequest('/annex/add',annex).then((resp)=>{
+                        if(resp&&resp.data.status==200) {
+                            this.purchase.annexs.push(resp.data.annex);
+                            this.closeUploadForm();
+                        }else{
+                            this.$message.error("保存附件信息失败");
+                        }
+                    });
+                }else{
+                    this.purchase.annexs.push(annex);
+                    this.closeUploadForm();
+                }
             },
             downloadAnnex(row) {
-                console.log(row.title);
-                window.open(row.url + "?title=" + row.title);
+                window.open(row.url + "?fileName=" + row.fileName);
             },
             //删除产品
             deleteDetail(row){
@@ -293,6 +328,7 @@
             },
 
             showAddAnnexView(){
+                this.oldAnnex = {title:''};
               this.uploadDialogVisible = true;
               this.uploadDialogTitle = '添加附件'
             },
@@ -335,25 +371,32 @@
             savePurchase(){
                 this.$refs['purchaseForm'].validate((valid)=>{
                     if(valid){
-                        if(this.isEdit){//更新
-                            this.putNoEnCodeRequest('/erp/purchase/updatePurchase',this.purchase).then((resp)=>{
-                                if(resp&&resp.data.status=="200"){
-                                    this.$message.success("更新成功");
-                                    this.$emit("callback");
-                                }else{
-                                    this.$message.error(resp.data.msg);
-                                }
-                            })
-                        }else{//新增
-                            this.postNoEnCodeRequest('/erp/purchase/addPurchase',this.purchase).then((resp)=>{
-                                if(resp&&resp.data.status=="200"){
-                                    this.$message.success("保存成功");
-                                    this.$emit("callback");
-                                }else{
-                                    this.$message.error(resp.data.msg);
-                                }
-                            })
+                        let length = this.purchase.details.length;
+                        if(length>0){
+                            if(this.isEdit){//更新
+                                this.putNoEnCodeRequest('/erp/purchase/updatePurchase',this.purchase).then((resp)=>{
+                                    if(resp&&resp.data.status=="200"){
+                                        this.$message.success("更新成功");
+                                        this.$emit("callback");
+                                    }else{
+                                        this.$message.error(resp.data.msg);
+                                    }
+                                })
+                            }else{//新增
+                                this.postNoEnCodeRequest('/erp/purchase/addPurchase',this.purchase).then((resp)=>{
+                                    if(resp&&resp.data.status=="200"){
+                                        this.$message.success("保存成功");
+                                        this.$emit("callback");
+                                    }else{
+                                        this.$message.error(resp.data.msg);
+                                    }
+                                })
+                            }
+                        }else{
+                            this.$message.error("请添加产品");
+                            return false;
                         }
+
 
                     }else{
                         return false;
@@ -377,6 +420,7 @@
                     utime: '',
 
                 },
+                oldAnnex:{},
                 purchase:{
                     initDate:'',
                     codeGeneratorType:"AUTO",
@@ -388,7 +432,10 @@
 
                     },
                     details:[],
-                    annexs:[]
+                    annexs:[],
+                    paymentType:'FULLPAYMENT',
+                    freightType:'YES',
+                    description:''
                 },
                 rules:{
                     initDate:[{required:true,message:'选择日期',trigger:'blue'}],

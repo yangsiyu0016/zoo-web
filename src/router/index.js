@@ -273,6 +273,11 @@ export const asyncRouterMap = [{
             name:'companyType',
             component:()=>import("@/views/system/base/CompanyType"),
             meta:{title:"公司类型"}
+        },{
+            path:'systemParameter',
+            name:'systemParameter',
+            component:()=>import("@/views/system/paramter/index"),
+            meta:{title:"系统参数"}
         }]
     }]
 }

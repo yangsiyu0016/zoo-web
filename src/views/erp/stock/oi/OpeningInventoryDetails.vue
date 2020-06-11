@@ -55,6 +55,7 @@
         </el-card>
         <el-card>
             <el-button @click="resetOiDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
+            <el-button @click="destroyOi" v-show="canDestroy&&oi.status!='DESTROY'"  size="mini" type="danger" >作废</el-button>
             <el-button @click="close" size="mini" type="info">关闭</el-button>
         </el-card>
         <div v-show="false">
@@ -103,8 +104,14 @@
                     cancelButtonText: '取消',
                     type: "warning"
                 }).then(() => {
-                    this.getRequest('/oi/reset?id=' + this.oi.id).then(resp => {
-                        this.$emit("callback");
+                    this.getRequest('/oi/destroy?id=' + this.oi.id).then(resp => {
+                        if(resp&&resp.data.status=='200'){
+                            this.$message.success("操作成功");
+                            this.$emit("callback");
+                        }else{
+                            this.$message.error("操作失败");
+                        }
+
                     });
 
                 })

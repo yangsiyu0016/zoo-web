@@ -19,6 +19,16 @@
                 <el-table-column prop="product.productDetail.afterService" align="left" label="售后服务"></el-table-column>
                 <el-table-column prop="product.productDetail.description" align="left" width="500" label="描述"></el-table-column>
             </el-table>
+            <div style="display: flex;justify-content: space-between;margin: 2px">
+                <el-pagination
+                        background
+                        :page-size="10"
+                        :current-page="currentPage"
+                        layout="total,prev,pager,next"
+                        @current-change="currentChange"
+                        :total="totalCount">
+                </el-pagination>
+            </div>
             <el-divider></el-divider>
             <div slot="footer" class="dialog-footer">
                 <el-button size="mini" type="info" @click="closeWin" >关闭</el-button>
@@ -41,6 +51,10 @@
             }
         },
         methods:{
+            currentChange(page){
+                this.currentPage = page;
+                this.searchProduct();
+            },
             dblclick(row){
                 this.$emit("dblclick",row);
             },

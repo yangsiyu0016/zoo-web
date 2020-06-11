@@ -34,7 +34,7 @@
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" type="primary" @click="showEditPurchaseView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" @click="deletePurchase" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'" @click="deletePurchase(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -68,6 +68,22 @@
             this.loadPurchases();
         },
         methods:{
+            deletePurchase(row){
+                this.$confirm("确定要删除吗？删除后不可恢复！","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.deleteRequest('/erp/purchase/'+row.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadPurchases();
+                        }else {
+                            this.$message.error("删除失败");
+                        }
+                    })
+                })
+            },
             //关闭查看界面
             closeDetailDialog(){
                 this.detailDialogVisible = false;
@@ -109,18 +125,15 @@
                     type:'warning'
                 }).then(()=>{
                     this.postRequest('/erp/purchase/startFlow?id='+row.id).then((resp)=>{
-                        if(resp&&resp.data.status==200){
+                        if(resp&&resp.data.status=='200'){
                             this.$message.success("启动成功");
-                            this.loadData();
+                            this.loadPurchases();
 
                         }else{
                             this.$message.error(resp.data.msg);
                         }
                     })
                 })
-            },
-            deletePurchase(){
-                this.$message.info("暂时未实现");
             },
             callback(){
                 this.dialogVisible = false;
@@ -153,6 +166,9 @@
                     supplierAccount:{
 
                     },
+                    paymentType:'FULLPAYMENT',
+                    freightType:'YES',
+                    description:'',
                     details:[],
                     annexs:[]
                 },

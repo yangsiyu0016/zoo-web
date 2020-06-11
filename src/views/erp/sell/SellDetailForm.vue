@@ -31,7 +31,7 @@
                 <el-button  type="info" @click="cancel">取消</el-button>
             </el-form-item>
         </el-form>
-        <product-dialog :visible="dialogVisible" :title="dialogTitle" @dblclick="dblclick"></product-dialog>
+        <product-dialog @closeWin="closeProductDialog" :visible="dialogVisible" :title="dialogTitle" @dblclick="dblclick"></product-dialog>
     </div>
 </template>
 
@@ -59,6 +59,9 @@
             this.loadWarehouses();
         },
         methods:{
+            closeProductDialog(){
+                this.dialogVisible = false;
+            },
             //保存产品信息
             saveDetail(){
                 this.$refs['detailForm'].validate((valid)=>{
