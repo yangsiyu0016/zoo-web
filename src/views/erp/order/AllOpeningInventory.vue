@@ -16,6 +16,7 @@
                             <el-tag v-else-if="scope.row.status=='ZGSH'" type="warning" size="mini" effect="dark">仓库主管审核</el-tag>
                             <el-tag v-else-if="scope.row.status=='CWSH'" type="danger" size="mini" effect="dark">财务审核</el-tag>
                             <el-tag v-else-if="scope.row.status=='FINISHED'" type="success" size="mini" effect="dark">流程完成</el-tag>
+                            <el-tag v-else-if="scope.row.status=='DESTROY'" type="info" size="mini" effect="dark">作废</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="cuser.realName" align="left"  label="创建人" ></el-table-column>

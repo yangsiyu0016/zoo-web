@@ -32,6 +32,30 @@
                             </el-form-item>
                         </el-col>
                     </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="运费类型:" prop="freightType" >
+
+                                <span style="float:left" v-if="purchase.freightType=='YES'">包邮</span>
+                                <span style="float:left" v-else>不包邮</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="付款方式:" prop="paymentType">
+                                <span style="float:left" v-if="purchase.paymentType=='FULLPAYMENT'">全款发货</span>
+                                <span style="float:left" v-else-if="purchase.paymentType=='LOAN'">借款抵</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="备注:" prop="description">
+                                <span style="float:left">{{purchase.description}}</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
                 </div>
             </el-card>
             <el-card shadow="hover">

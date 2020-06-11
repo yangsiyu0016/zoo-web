@@ -102,7 +102,7 @@
         color:#fff;
         cursor: pointer;
     }
-    .home_userinfoContainer {
+    .home_userinfo Container {
         display: inline;
         margin-right: 20px;
     }

@@ -213,8 +213,6 @@
                                     return true;
                                 }
                             })
-                        }else if (resp.data.status == '000') {
-                            this.$message.error(resp.data.msg);
                         }else {
                             this.$message.error('删除失败')
                         }
