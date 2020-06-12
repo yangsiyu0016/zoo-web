@@ -23,6 +23,25 @@
 <script>
     export default {
         name: "DirectoryForm",
+        props:{
+            oldDirectory: {
+                type: Object,
+                default: ()=> {}
+            },
+            isDirEdit: {
+                type: Boolean,
+                default: false
+            }
+        },
+        watch:{
+            oldDirectory:{
+                handler(val){
+                    this.directory = JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
+            }
+        },
         methods:{
 
             saveDirectory(formName){
