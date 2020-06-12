@@ -34,18 +34,48 @@
     export default {
         name: "ParameterForm",
         components: {DirectoryDialog},
+        props:{
+            oldParameter: {
+                type: Object,
+                default: ()=> {}
+            },
+            isEdit: {
+                type: Boolean,
+                default: false
+            }
+        },
+        watch:{
+            oldParameter:{
+                handler(val){
+                    this.parameter = JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
+            }
+        },
         methods:{
             saveParameter(formName){
                 this.$refs[formName].validate(valid=>{
                     if(valid){
-                        this.postNoEnCodeRequest('/system/parameter/addParameter',this.parameter).then(resp=>{
-                            if(resp&&resp.data.status=="200"){
-                                this.$message.success("保存成功");
-                                this.$emit("callback");
-                            }else{
-                                this.$message.error(resp.data.msg);
-                            }
-                        })
+                        if (this.isEdit) {
+                            this.postNoEnCodeRequest('/system/parameter/updateParameter',this.parameter).then(resp=>{
+                                if(resp&&resp.data.status=="200"){
+                                    this.$message.success("保存成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
+                        }else {
+                            this.postNoEnCodeRequest('/system/parameter/addParameter',this.parameter).then(resp=>{
+                                if(resp&&resp.data.status=="200"){
+                                    this.$message.success("保存成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
+                        }
                     }else{
                         return false;
                     }

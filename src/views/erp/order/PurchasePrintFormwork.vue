@@ -76,24 +76,21 @@
                     </el-table>-->
                     <table v-for="(item, i) in purchase.details" style="border-collapse: collapse; border: none; width: 100%;">
                         <tr v-if="i==0">
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品名称</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">特殊规格参数</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">通用规格参数</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">价格</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">总额</td>
+                            <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
+                            <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
+                            <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品名称</td>
+
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">价格</td>
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">总额</td>
                         </tr>
                         <tr>
-                            <td v-text="(i+1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.productSku.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.productSku.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.productSku.ownSpec" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.productSku.product.productDetail.genericSpec" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.price" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.totalMoney" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="5%" v-text="(i+1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="25%" v-text="item.productSku.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="25%" v-text="item.productSku.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="15%" v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="15%" v-text="item.price" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="15%" v-text="item.totalMoney" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                         </tr>
                     </table>
                 </div>
@@ -120,20 +117,20 @@
                     </el-table>-->
                     <table v-for="(item, i) in costs" style="border-collapse: collapse; border: none; width: 100%;">
                         <tr v-if="i == 0">
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">物流名称</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">单号</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">运费</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">联系方式</td>
-                            <td style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">创建时间</td>
+                            <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">物流名称</td>
+                            <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">单号</td>
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">运费</td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">联系方式</td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">创建时间</td>
                         </tr>
                         <tr>
-                            <td v-text="(i+1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.express.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.logisticsNumber" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.money" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.express.phone" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td v-text="item.ctime" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="5%" v-text="(i+1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="15%" v-text="item.express.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="25%" v-text="item.logisticsNumber" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="15%" v-text="item.money" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" v-text="item.express.phone" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" v-text="item.ctime" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                         </tr>
                     </table>
                 </div>

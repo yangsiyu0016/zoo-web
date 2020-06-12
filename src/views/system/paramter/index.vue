@@ -24,16 +24,23 @@
                             <el-table-column label="参数值" prop="parameterValue"></el-table-column>
                             <el-table-column label="参数代码" prop="code"></el-table-column>
                             <el-table-column label="备注" prop="description"></el-table-column>
+                            <el-table-column
+                                    label="操作">
+                                <template slot-scope="scope">
+                                    <el-button  type="primary" @click="edit(scope.row)"  size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                                    <el-button  type="danger" @click="delParameter(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                </template>
+                            </el-table-column>
                         </el-table>
                     </el-main>
                 </el-container>
             </el-container>
         </el-container>
         <el-dialog :visible.sync="directoryDialogVisible" :title="directoryDialogTitle" :close-on-click-modal="false">
-            <directory-form @close="closeDirectoryDialog" @callback="directoryCallback"></directory-form>
+            <directory-form @close="closeDirectoryDialog"  @callback="directoryCallback" :oldDirectory="oldDirectory" :isDirEdit="isDirEdit"></directory-form>
         </el-dialog>
         <el-dialog :visible.sync="parameterDialogVisible" :title="parameterDialogTitle" :close-on-click-modal="false">
-            <parameter-form @close="closeParameterDialog" @callback="parameterCallback"></parameter-form>
+            <parameter-form @close="closeParameterDialog" :oldParameter="oldParameter" :isEdit="isEdit" @callback="parameterCallback"></parameter-form>
         </el-dialog>
     </div>
 </template>
@@ -49,6 +56,50 @@
             this.loadParameter();
         },
         methods:{
+            editDir(row) {
+                this.directoryDialogTitle="添加参数";
+                this.directoryDialogVisible = true;
+                this.isDirEdit = true;
+                this.oldDirectory = row;
+            },
+            delDir(row) {
+                this.$confirm("确定要删除吗？删除后不可恢复！","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.getRequest('/system/parameterDirectory/deleteDirectory?id='+row.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadDirectory();
+                        }else {
+                            this.$message.error("删除失败");
+                        }
+                    })
+                })
+            },
+            delParameter(row) {
+                this.$confirm("确定要删除吗？删除后不可恢复！","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.getRequest('/system/parameter/deleteParameter?id='+row.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadParameter();
+                        }else {
+                            this.$message.error("删除失败");
+                        }
+                    })
+                })
+            },
+            edit(row) {
+                this.parameterDialogTitle="添加参数";
+                this.parameterDialogVisible = true;
+                this.isEdit = true;
+                this.oldParameter = row;
+            },
             parameterCallback(){
                 this.loadParameter();
                 this.closeParameterDialog();
@@ -96,7 +147,11 @@
                 directoryDialogTitle:'',
                 parameters:[],
                 parameterDialogVisible:false,
-                parameterDialogTitle:''
+                parameterDialogTitle:'',
+                oldParameter: {},
+                oldDirectory: {},
+                isEdit: false,
+                isDirEdit: false
             }
         }
     }
