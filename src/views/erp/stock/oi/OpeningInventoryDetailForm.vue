@@ -1,8 +1,8 @@
 <template>
     <div>
         <el-form ref="detailForm" size="mini" :rules="rules" :model="detail" label-width="120px">
-            <el-form-item label="产品:" prop="productSku.product.name">
-                <el-input size="mini" class="input-with-select" style="width: 50%"  disabled v-model="detail.productSku.product.name"  >
+            <el-form-item label="产品:" prop="product.name">
+                <el-input size="mini" class="input-with-select" style="width: 50%"  disabled v-model="detail.product.name"  >
                     <el-button size="mini" slot="append" icon="el-icon-search" @click="selectProduct" ></el-button>
                 </el-input>
             </el-form-item>
@@ -64,7 +64,7 @@
         methods:{
             //填充产品信息
             dblclick(row){
-               this.detail.productSku = row;
+               this.detail.product = row;
                this.productDialogVisible = false;
             },
             //加载货位信息
@@ -122,14 +122,11 @@
                 detail:{
                     number:0,
                     goodsAllocation:{},
-                    productSku:{
-                        product:{
-                            name:''
-                        }
+                    product:{
                     }
                 },
                 rules:{
-                    'productSku.product.name':[{required:true,message:"请选择产品",trigger:'blur'}],
+                    'product.name':[{required:true,message:"请选择产品",trigger:'blur'}],
                     'goodsAllocation.id':[{required:true,message:"请选择货位",trigger:'blur'}],
                     number:[{required:true,validator:checkNumber,trigger:'blur'}]
                 }

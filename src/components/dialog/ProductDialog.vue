@@ -6,18 +6,24 @@
                     <el-button slot="append"  icon="el-icon-search" @click="searchProduct"></el-button>
                 </el-input>
             </div>
-            <el-table :data="skus" size="mini" @row-dblclick="dblclick">
-                <el-table-column type="index" width="30"></el-table-column>
+            <el-table :data="products" size="mini" @row-dblclick="dblclick">
+                <el-table-column type="index" width="50"></el-table-column>
+                <el-table-column prop="imageUrl" label="图片">
+                    <template slot-scope="scope">
+                        <el-image v-if="scope.row.imageUrl" :src="scope.row.imageUrl" :preview-src-list="[scope.row.imageUrl]"></el-image>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="code" align="left"  label="产品编号" width="200"  ></el-table-column>
-                <el-table-column prop="product.name" align="left"  label="产品名称"  ></el-table-column>
-                <el-table-column prop="product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                <el-table-column prop="ownSpec" align="left"  label="特殊规格参数" width="400"  ></el-table-column>
-                <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
-                <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+                <el-table-column prop="name" align="left"  label="产品名称"  ></el-table-column>
+                <el-table-column prop="typeName" align="left" width="100" label="分类"></el-table-column>
+                <el-table-column prop="productBrand.name" align="left"  label="品牌" ></el-table-column>
 
-                <el-table-column prop="product.productDetail.packageList" align="left" label="包装清单"></el-table-column>
-                <el-table-column prop="product.productDetail.afterService" align="left" label="售后服务"></el-table-column>
-                <el-table-column prop="product.productDetail.description" align="left" width="500" label="描述"></el-table-column>
+                <el-table-column prop="spec" align="left" label="规格"></el-table-column>
+                <el-table-column prop="unit.name" align="left" label="单位"></el-table-column>
+                <el-table-column prop="weight" align="left" label="重量"></el-table-column>
+                <el-table-column prop="color" align="left" label="颜色"></el-table-column>
+                <el-table-column prop="puse" align="left" label="用途"></el-table-column>
+                <el-table-column prop="description" align="left" label="备注"></el-table-column>
             </el-table>
             <div style="display: flex;justify-content: space-between;margin: 2px">
                 <el-pagination
@@ -59,12 +65,13 @@
                 this.$emit("dblclick",row);
             },
             searchProduct(){
-                this.getRequest('/sku/page?page='+this.currentPage+"&size=10&key="+this.search.key).then((resp)=>{
-                    this.skus = resp.data.skus;
+                this.getRequest('/product/page?page='+this.currentPage+"&size=10&key="+this.search.key).then((resp)=>{
+                    this.products = resp.data.products;
                     this.totalCount = resp.data.count;
                 })
             },
             closeWin(){
+                //alert('123');
                 this.$emit("closeWin");
             }
         },
@@ -73,7 +80,7 @@
                 search:{
                     key:''
                 },
-                skus:[],
+                products:[],
                 currentPage:1,
                 totalCount:-1
             }

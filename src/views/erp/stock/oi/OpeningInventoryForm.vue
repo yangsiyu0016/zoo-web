@@ -56,20 +56,32 @@
                 </div>
                 <div>
                     <el-button type="primary" size="mini" icon="el-icon-plus"
-                              :disabled="!oi.warehouse.id" style="float: left" v-show="!oi.processInstanceId"   @click="showAddSkuView">
+                              :disabled="!oi.warehouse.id" style="float: left" v-show="!oi.processInstanceId"   @click="showAddProductView">
                         添加产品
                     </el-button>
                     <el-table :data="oi.details" size="mini" style="width: 100%">
-                        <el-table-column type="selection" align="left" width="30"></el-table-column>
-                        <el-table-column label="产品编号" prop="productSku.code" fixed></el-table-column>
-                        <el-table-column label="产品名称" prop="productSku.product.name" fixed></el-table-column>
-                        <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                        <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400" fixed ></el-table-column>
+                        <el-table-column type="selection" align="left" width="80"></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
                         <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="操作">
                             <template slot-scope="scope">
-                                <el-button @click="showEditSkuView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                                <el-button @click="showEditProductView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                                 <el-button @click="deleteDetail(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
@@ -161,7 +173,7 @@
                 this.$emit("close");
             },
             //编辑产品
-            showEditSkuView(row){
+            showEditProductView(row){
                 this.detailIsEdit = true;
                 this.oldDetail = row;
                 this.detailDialogVisible = true;
@@ -247,15 +259,13 @@
             closeWin(){
                 this.detailDialogVisible = false;
             },
-            showAddSkuView(){
+            showAddProductView(){
                 this.detailIsEdit = false;
                 this.oldDetail = {
                     number:0,
                     goodsAllocation:{},
-                    productSku:{
-                        product:{
-                            name:''
-                        }
+                    product:{
+                        name:''
                     }
                 };
                 this.detailDialogVisible = true;

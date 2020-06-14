@@ -7,8 +7,8 @@
                     <el-option value="OVERFLOW" label="盘盈"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="产品:" prop="productSku.product.name">
-                <el-input size="mini" class="input-with-select" style="width: 50%"  disabled v-model="detail.productSku.product.name"  >
+            <el-form-item label="产品:" prop="product.name">
+                <el-input size="mini" class="input-with-select" style="width: 50%"  disabled v-model="detail.product.name"  >
                     <el-button size="mini" slot="append" icon="el-icon-search" @click="selectProduct" ></el-button>
                 </el-input>
             </el-form-item>
@@ -69,9 +69,11 @@
             //this.loadGoodsAllocation();
         },
         methods:{
-            closeWin(){},
+            closeWin(){
+                this.productDialogVisible = false;
+            },
             dblclick(row){
-                this.detail.productSku = row;
+                this.detail.product = row;
                 this.productDialogVisible = false;
             },
             cancel(){
@@ -120,15 +122,13 @@
             return{
                 goodsAllocations:[],
                 rules:{
-                    'productSku.product.name':[{required:true,message:"请选择产品",trigger:'blur'}],
+                    'product.name':[{required:true,message:"请选择产品",trigger:'blur'}],
                     'goodsAllocation.id':[{required:true,message:"请选择货位",trigger:'blur'}],
                     number:[{required:true,validator:checkNumber,trigger:'blur'}]
                 },
                 detail:{
-                    productSku:{
-                        product:{
-                            name:''
-                        }
+                    product:{
+
                     },
                     goodsAllocation:{},
                     number:0,
