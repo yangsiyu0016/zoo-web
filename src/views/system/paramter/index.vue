@@ -108,6 +108,16 @@
                 this.parameterDialogVisible = false;
             },
             showAddParameterView(){
+                this.isEdit = false;
+                this.oldParameter={
+                    parameterDirectory:{
+                        name:''
+                    },
+                    name:'',
+                    code:'',
+                    description:'',
+                    parameterValue:''
+                },
                 this.parameterDialogTitle="添加参数";
                 this.parameterDialogVisible = true;
             },
