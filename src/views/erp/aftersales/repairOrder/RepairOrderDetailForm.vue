@@ -1,0 +1,170 @@
+<template>
+    <div>
+        <el-form ref="detailForm" size="mini" :model="detail" label-width="120px" :rules="rules">
+            <el-form-item label="产品:" prop="productSku.product.name">
+                <el-input class="input-with-select" v-model="detail.productSku.product.name"  disabled  style="float:left;width:400px">
+                    <el-button slot="append" icon="el-icon-search" @click="selectProduct"></el-button>
+                </el-input>
+            </el-form-item>
+
+            <el-form-item label="数量:" prop="number">
+                <el-input-number @change="numberChange" size="mini" :precision="4" v-model="detail.number"  :min="0" style="float: left"></el-input-number>
+            </el-form-item>
+            <el-form-item label="故障描述:" prop="problemDescription">
+                <el-input type="textarea" v-model="detail.problemDescription" style="float: left; width: 400px"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="saveDetail">保存</el-button>
+                <el-button  type="info" @click="cancel">取消</el-button>
+            </el-form-item>
+        </el-form>
+        <product-dialog @closeWin="closeProductDialog" :visible="dialogVisible" :title="dialogTitle" @dblclick="dblclick"></product-dialog>
+    </div>
+</template>
+
+<script>
+
+    import ProductDialog from "@/components/dialog/ProductDialog";
+
+    export default {
+        name: "RepairOrderDetailForm",
+        components: {ProductDialog},
+        props:{
+            oldDetail:{
+                type:Object,
+                default:()=>{}
+            }
+        },
+        mounted(){
+            this.loadWarehouses();
+        },
+        data() {
+            let checkNumber = (rule,value,callback)=>{
+                if(!value){
+                    return callback(new Error('必填：数量'))
+                }
+                if(!Number.isInteger(value)){
+                    callback(new Error('提示:必须为数字'));
+                }else{
+                    if(value<=0){
+                        callback(new Error('提示:必须大于0'));
+                    }else{
+                        callback();
+                    }
+                }
+            };
+            return {
+
+                dialogVisible: false,
+                dialogTitle: '',
+                warehouses:[],
+                detail:{
+                    productSku:{
+                        product:{
+                            name:''
+                        }
+                    },
+                    warehouse:{
+
+                    },
+                    number:0,
+                    price:0,
+                    totalMoney:0
+                },
+                rules:{
+                    'productSku.product.name':[{required:true,message:'请选择产品',trigger:'blur'}],
+                    problemDescription:[{required:true,message:'添加故障描述',trigger:'blur'}],
+                    number:[{required:true,validator:checkNumber,trigger:'blur'}]
+                },
+            }
+        },
+        methods: {
+
+            //数量变化
+            numberChange(currentValue,oldValue){
+                this.detail.totalMoney = this.accMul(currentValue,this.detail.price);
+            },
+            saveDetail() {
+                this.$refs['detailForm'].validate((valid)=> {
+                    if (valid) {
+                        this.$emit('callback', this.detail);
+                    } else {
+                        return false;
+                    }
+                })
+            },
+            cancel() {
+                this.$emit("close");
+            },
+            closeProductDialog() {
+                this.dialogVisible = false;
+            },
+            dblclick(row) {
+                this.detail.productSku = row;
+                this.dialogVisible = false;
+            },
+            //总额变化
+            totalMoneyChange(currentValue,oldValue){
+                if(this.detail.number==0){
+                    return 0;
+                }else{
+                    this.detail.price = this.accDiv(currentValue,this.detail.number);
+                }
+            },
+            //价格变化
+            priceChange(currentValue,oldValue){
+                this.detail.totalMoney = this.accMul(currentValue,this.detail.number);
+
+            },
+            selectProduct() {
+                this.dialogVisible = true;
+                this.dialogTitle="选择产品";
+            },
+            //加载仓库信息
+            loadWarehouses(){
+                this.getRequest('/erp/warehouse/all').then((resp)=>{
+                    this.warehouses = resp.data;
+                })
+            },
+            //两个数字相除
+            accDiv(arg1,arg2){
+                let t1=0,t2=0,r1,r2;
+                try{t1=arg1.toString().split(".")[1].length}catch(e){}
+                try{t2=arg2.toString().split(".")[1].length}catch(e){}
+                //with(Math){
+                r1=Number(arg1.toString().replace(".",""))
+                r2=Number(arg2.toString().replace(".",""))
+                return (r1/r2)*Math.pow(10,t2-t1);
+                //}
+            },
+            //两个数字相乘
+            accMul(arg1,arg2){
+                let m = 0, s1 = arg1.toString(), s2 = arg2.toString();
+                try { m += s1.split(".")[1].length } catch (e) { }
+                try { m += s2.split(".")[1].length } catch (e) { }
+                return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
+            },
+            //数量变化
+            numberChange(currentValue,oldValue){
+                this.detail.totalMoney = this.accMul(currentValue,this.detail.price);
+            },
+            //价格变化
+            priceChange(currentValue,oldValue){
+                this.detail.totalMoney = this.accMul(currentValue,this.detail.number);
+
+            },
+            //总额变化
+            totalMoneyChange(currentValue,oldValue){
+                if(this.detail.number==0){
+                    return 0;
+                }else{
+                    this.detail.price = this.accDiv(currentValue,this.detail.number);
+                }
+            },
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
