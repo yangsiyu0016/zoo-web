@@ -13,12 +13,25 @@
                 <el-table :data="products" size="mini">
                     <el-table-column type="selection" align="left" width="30">
                     </el-table-column>
+                    <el-table-column prop="imageUrl" label="图片">
+                        <template slot-scope="scope">
+                            <el-image v-show="scope.row.imageUrl" :src="scope.row.imageUrl" :preview-src-list="[scope.row.imageUrl]"></el-image>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="code" align="left"  label="编号"></el-table-column>
                     <el-table-column prop="name" align="left"  label="名称"></el-table-column>
                     <el-table-column prop="typeName" align="left"  label="产品分类"></el-table-column>
                     <el-table-column prop="productBrand.name" align="left"  label="品牌"></el-table-column>
+                    <el-table-column prop="spec" align="left"  label="规格"></el-table-column>
+                    <el-table-column prop="unit.name" align="left"  label="计量单位"></el-table-column>
+                    <el-table-column prop="weight" align="left"  label="重量"></el-table-column>
+                    <el-table-column prop="color" align="left"  label="颜色"></el-table-column>
+                    <el-table-column prop="puse" align="left"  label="用途"></el-table-column>
+                    <el-table-column prop="description" align="left"  label="备注"></el-table-column>
+                    <el-table-column prop="ctime" label="创建时间"></el-table-column>
                     <el-table-column label="操作">
-                        <template >
-                            <el-button  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                        <template slot-scope="scope">
+                            <el-button @click="showUpdateProductView(scope.row)"  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                             <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
@@ -36,7 +49,7 @@
             </el-main>
         </el-container>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false">
-            <product-form></product-form>
+            <product-form :isEdit="isEdit" :oldProduct="oldProduct" @close="closeProductDialog" @callback="callback"></product-form>
         </el-dialog>
     </div>
 </template>
@@ -50,11 +63,44 @@
             this.loadProducts();
         },
         methods:{
+            callback(){
+                this.closeProductDialog();
+                this.loadProducts();
+            },
+            closeProductDialog() {
+              this.dialogVisible = false;
+            },
             currentChange(page){
                 this.currentPage = page;
                 this.loadProducts();
             },
+            showUpdateProductView(row){
+                this.getRequest('/product/getProductById?id='+row.id).then(resp=>{
+                    if(resp&&resp.data){
+                        this.isEdit=true;
+                        this.oldProduct = resp.data;
+                        this.dialogVisible = true;
+                        this.dialogTitle = "编辑产品";
+                    }else{
+                        this.$message.error("获取数据失败");
+                    }
+                })
+
+            },
             showAddProductView(){
+                this.isEdit = false;
+                this.oldProduct = {
+                    typeId:'',
+                    productBrand:{},
+                    unit:{},
+                    name:'',
+                    spec:'',
+                    weight:'',
+                    color:'',
+                    puse:'',
+                    description:'',
+                    imageUrl:''
+                },
                 this.dialogVisible = true;
                 this.dialogTitle = "新增产品";
             },
@@ -71,7 +117,9 @@
                 totalCount:-1,
                 currentPage:1,
                 dialogVisible:false,
-                dialogTitle:''
+                dialogTitle:'',
+                isEdit:false,
+                oldProduct:{}
             }
         }
     }

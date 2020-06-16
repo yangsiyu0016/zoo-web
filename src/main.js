@@ -11,6 +11,7 @@ import {deleteRequest} from './utils/api'
 import {postNoEnCodeRequest} from './utils/api'
 import {putNoEnCodeRequest} from './utils/api'
 import {putRequest} from './utils/api'
+import {uploadFileRequest} from  './utils/api'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import './assets/material.css'
@@ -24,6 +25,7 @@ Vue.prototype.deleteRequest = deleteRequest;
 Vue.prototype.postNoEnCodeRequest = postNoEnCodeRequest;
 Vue.prototype.putNoEnCodeRequest = putNoEnCodeRequest;
 Vue.prototype.putRequest = putRequest;
+Vue.prototype.uploadFileRequest = uploadFileRequest;
 import './permission'
 new Vue({
   router,
