@@ -124,6 +124,7 @@
 
         methods:{
             saveProduct(formName){
+
                 this.$refs[formName].validate(valid=>{
                     if(valid){
                         //处理typeId
@@ -131,7 +132,16 @@
                         if(nodes.length>0) this.product.typeId=nodes[0].data.id;
                         this.params.append('product',JSON.stringify(this.product));
                         if(this.isEdit){//更新
-
+                            console.log(this.product)
+                            console.log(this.params)
+                            this.uploadFileRequest('/product/update',this.params).then(resp=>{
+                                if(resp&&resp.data.status=='200'){
+                                    this.$message.success("更新成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
                         }else{//添加
                             this.uploadFileRequest('/product/add',this.params).then(resp=>{
                                 if(resp&&resp.data.status=='200'){
@@ -245,6 +255,7 @@
                 units:[],
 
                 product:{
+                    id:'',
                     typeId:'',
                     productBrand:{},
                     unit:{},
