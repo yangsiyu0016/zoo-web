@@ -213,6 +213,32 @@ export const asyncRouterMap = [{
             component:()=>import("@/views/erp/product/spec/index"),
             meta:{title:"规格参数"}
         }]
+    },{
+        path: 'aftersales',
+        name: 'aftersales',
+        component: ()=>import("@/views/erp/aftersales/index"),
+        meta: {title: "售后管理"},
+        children: [{
+            path: 'changeOrder',
+            name: 'changeOrder',
+            component: ()=>import("@/views/erp/aftersales/changeOrder/List"),
+            meta: {title: "换货单"}
+        },{
+            path: 'repairOrder',
+            name: 'repairOrder',
+            component: ()=>import("@/views/erp/aftersales/repairOrder/List"),
+            meta: {title: "维修单"}
+        },{
+            path: 'replenishmentNote',
+            name: 'replenishmentNote',
+            component: ()=>import("@/views/erp/aftersales/replenishmentNote/List"),
+            meta: {title: "补货单"}
+        },{
+            path: 'returnOrder',
+            name: 'returnOrder',
+            component: ()=>import("@/views/erp/aftersales/returnOrder/List"),
+            meta: {title: "退货单"}
+        }]
     }]
 },
 {
