@@ -3,7 +3,7 @@
         <el-form size="mini" :rules="rules" :model="product" ref="productForm" label-width="120px">
             <el-row>
                 <el-col :span="5">
-                    <el-upload class="avatar-uploader" :before-upload="beforeUpload" action="">
+                    <el-upload class="avatar-uploader" :before-upload="beforeUpload" action="" ref="upload">
                         <img v-if="product.imageUrl" :src="product.imageUrl" class="avatar">
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
@@ -130,12 +130,11 @@
                         //处理typeId
                         let nodes = this.$refs['typeCascader'].getCheckedNodes(true);
                         if(nodes.length>0) this.product.typeId=nodes[0].data.id;
-                        this.params.append('product',JSON.stringify(this.product));
+                        this.params.set('product',JSON.stringify(this.product));
                         if(this.isEdit){//更新
-                            console.log(this.product)
-                            console.log(this.params)
                             this.uploadFileRequest('/product/update',this.params).then(resp=>{
                                 if(resp&&resp.data.status=='200'){
+                                    //this.$refs.upload.clearFiles();
                                     this.$message.success("更新成功");
                                     this.$emit("callback");
                                 }else{
@@ -219,13 +218,13 @@
                 }
                 _this.selectBottomAction(visible,{ref,click:clickHandler,label:'添加品牌',icon:'el-icon-plus',arrow:false});
             },
-
             beforeUpload(file){
                 let windowURL = window.URL||window.webkitURL;
                 this.product.imageUrl = windowURL.createObjectURL(file);
 
                 //this.params = new FormData();
-                this.params.append('file',file,file.name);
+                //this.params.delete("file");
+                this.params.set('file',file,file.name);
                 return false;
             },
             loadTypes(){

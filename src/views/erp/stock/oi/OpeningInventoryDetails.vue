@@ -7,15 +7,15 @@
             <div>
                 <el-row :gutter="20">
                     <el-col :span="8">
-                        <span>单据日期:{{oi.initDate}}</span>
+                        <span>单据日期:{{currentOi.initDate}}</span>
                     </el-col>
                     <el-col :span="8">
-                        <span>单号：{{oi.code}}</span>
+                        <span>单号：{{currentOi.code}}</span>
                     </el-col>
                 </el-row>
                 <el-row :gutter="20">
                     <el-col :span="8">
-                        <span>仓库:{{oi.warehouse.name}}</span>
+                        <span>仓库:{{currentOi.warehouse.name}}</span>
                     </el-col>
                 </el-row>
             </div>
@@ -25,12 +25,24 @@
                 <span style="float: left;">产品清单</span>
             </div>
             <div>
-                <el-table :data="oi.details" size="mini" style="width: 100%">
-                    <el-table-column type="index" align="left" width="30" fixed></el-table-column>
-                    <el-table-column label="产品编号" prop="productSku.code" fixed></el-table-column>
-                    <el-table-column label="产品名称" prop="productSku.product.name" fixed></el-table-column>
-                    <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                    <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400" fixed ></el-table-column>
+                <el-table :data="currentOi.details" size="mini" style="width: 100%">
+                    <el-table-column type="index" align="left" width="80" fixed></el-table-column>
+                    <el-table-column prop="product.imageUrl" label="图片">
+                        <template slot-scope="scope">
+                            <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                    <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                    <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                    <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                    <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                    <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                    <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                    <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                    <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                    <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
                     <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
                     <el-table-column label="数量" prop="number"></el-table-column>
 
@@ -55,13 +67,13 @@
         </el-card>
         <el-card>
             <el-button @click="resetOiDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
-            <el-button @click="destroyOi" v-show="canDestroy&&oi.status!='DESTROY'"  size="mini" type="danger" >作废</el-button>
+            <el-button @click="destroyOi" v-show="canDestroy&&currentOi.status!='DESTROY'"  size="mini" type="danger" >作废</el-button>
             <el-button @click="close" size="mini" type="info">关闭</el-button>
         </el-card>
         <div v-show="false">
             <vue-easy-print table-show ref="easyPrint" style="width: 65%">
                 <template slot-scope="func">
-                    <opening-inventory-print-formwork :getChineseNumber="func.getChineseNumber" :oldOi="oi"></opening-inventory-print-formwork>
+                    <opening-inventory-print-formwork :getChineseNumber="func.getChineseNumber" :oldOi="currentOi"></opening-inventory-print-formwork>
                 </template>
             </vue-easy-print>
         </div>
@@ -88,7 +100,15 @@
                 default: false
             }
         },
-
+        watch:{
+            oi:{
+                handler(val){
+                    this.currentOi = JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
+            }
+        },
         mounted() {
           this.loadHistory();
         },
@@ -104,7 +124,7 @@
                     cancelButtonText: '取消',
                     type: "warning"
                 }).then(() => {
-                    this.getRequest('/oi/destroy?id=' + this.oi.id).then(resp => {
+                    this.getRequest('/oi/reset?id=' + this.currentOi.id).then(resp => {
                         if(resp&&resp.data.status=='200'){
                             this.$message.success("操作成功");
                             this.$emit("callback");
@@ -118,7 +138,7 @@
             },
             //加载审批过程
             loadHistory(){
-                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.oi.processInstanceId).then((resp)=>{
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.currentOi.processInstanceId).then((resp)=>{
                     this.histories = resp.data;
                 })
             },
@@ -131,13 +151,18 @@
                     cancelButtonText: '取消',
                     type: "warning"
                 }).then(() => {
-                    this.postRequest('/oi/destroy?id=' + this.oi.id);
+                    this.postRequest('/oi/destroy?id=' + this.currentOi.id);
                 })
             }
         },
         data() {
             return {
-                histories:[]
+                histories:[],
+                currentOi:{
+                    warehouse:{
+                        name:''
+                    }
+                }
             }
         }
     }

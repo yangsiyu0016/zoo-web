@@ -32,6 +32,7 @@
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" @click="showEditOiView(scope.row)" size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteOi(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -65,6 +66,22 @@
             this.loadData();
         },
         methods:{
+            deleteOi(row){
+                this.$confirm("确定要删除吗？删除后不可恢复！","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.deleteRequest('/oi/'+row.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadData();
+                        }else {
+                            this.$message.error("删除失败");
+                        }
+                    })
+                })
+            },
             detailsCallback(){
                 this.detailsDialogVisible = false;
                 this.loadData();

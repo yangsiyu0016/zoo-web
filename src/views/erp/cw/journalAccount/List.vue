@@ -13,9 +13,22 @@
             </el-table-column>
             <el-table-column prop="orderCode" align="left"  label="单号" width="180" ></el-table-column>
             <el-table-column prop="stock.warehouse.name" align="left" label="仓库"></el-table-column>
-            <el-table-column prop="stock.productSku.product.name" align="left" label="产品名称"></el-table-column>
-            <el-table-column prop="stock.productSku.ownSpec" align="left" label="特殊规格参数" width="300"></el-table-column>
-            <el-table-column prop="stock.productSku.product.productDetail.genericSpec" align="left" label="通用规格参数" width="300"></el-table-column>
+            <el-table-column prop="stock.product.imageUrl" label="图片">
+                <template slot-scope="scope">
+                    <el-image v-if="scope.row.stock.product.imageUrl" :src="scope.row.stock.product.imageUrl" :preview-src-list="[scope.row.stock.product.imageUrl]"></el-image>
+                </template>
+            </el-table-column>
+            <el-table-column label="产品编号" prop="stock.product.code" width="180"></el-table-column>
+            <el-table-column label="产品名称" prop="stock.product.name" ></el-table-column>
+            <el-table-column prop="stock.product.typeName" align="left" width="100" label="分类"></el-table-column>
+            <el-table-column prop="stock.product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+            <el-table-column prop="stock.product.spec" align="left" label="规格"></el-table-column>
+            <el-table-column prop="stock.product.unit.name" align="left" label="单位"></el-table-column>
+            <el-table-column prop="stock.product.weight" align="left" label="重量"></el-table-column>
+            <el-table-column prop="stock.product.color" align="left" label="颜色"></el-table-column>
+            <el-table-column prop="stock.product.puse" align="left" label="用途"></el-table-column>
+            <el-table-column prop="stock.product.description" align="left" label="备注"></el-table-column>
             <el-table-column prop="rkNumber" align="left" label="入库数量"></el-table-column>
             <el-table-column prop="rkPrice" align="left" label="入库单价"></el-table-column>
             <el-table-column prop="rkTotalMoney" align="left" label="入库总额"></el-table-column>

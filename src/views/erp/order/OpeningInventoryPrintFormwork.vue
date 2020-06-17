@@ -6,25 +6,27 @@
                 <span style="float: left;">单据基本信息</span>
             </div>
             <div>
-                <el-row :gutter="20">
-                    <el-col :span="8">
-                        <el-form-item label="单号:">
-                            <span style="float: left">{{oi.code}}</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="单据日期:">
-                            <span style="float: left">{{oi.initDate}}</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row :gutter="20">
-                    <el-col :span="8">
-                        <el-form-item label="仓库:">
-                            <span style="float: left">{{oi.warehouse.name}}</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
+                <el-form>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="单号:">
+                                <span style="float: left">{{oi.code}}</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="单据日期:">
+                                <span style="float: left">{{oi.initDate}}</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="仓库:">
+                                <span style="float: left">{{oi.warehouse.name}}</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
             </div>
         </el-card>
         <el-card shadow="hover">
@@ -67,13 +69,18 @@
         name: "OpengingInventoryPrintFormwork",
         data() {
             return {
-                oi:{}
+                oi:{
+                    warehouse:{
+                        name:''
+                    }
+                }
             }
         },
         watch:{
             oldOi:{
                 handler(val){
-                    this.oi = JSON.parse(JSON.stringify(val));
+                    if(val) this.oi = JSON.parse(JSON.stringify(val));
+
                     /* this.loadHistory();*/
                 },
                 deep:true,
