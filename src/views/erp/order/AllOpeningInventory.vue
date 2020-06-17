@@ -5,7 +5,7 @@
 
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
-                <el-table :data="ois"  @row-dblclick="dblclick">
+                <el-table :data="ois"  @row-dblclick="dblclick" size="mini">
                     <el-table-column type="selection" align="left" width="30"></el-table-column>
                     <el-table-column prop="code" align="left"  label="单号" ></el-table-column>
                     <el-table-column prop="initDate" align="left"  label="下单日期"  ></el-table-column>
@@ -39,7 +39,7 @@
                 </div>
             </el-main>
             <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
-                <opening-inventory-details @close="closeDetailsWin" :oi="currentOi" :canDestroy="canDestroy"></opening-inventory-details>
+                <opening-inventory-details @close="closeDetailsWin" :oi="currentOi" :canDestroy="canDestroy" @callback="callback"></opening-inventory-details>
             </el-dialog>
         </el-container>
     </div>
@@ -65,7 +65,10 @@
             this.loadOis();
         },
         methods: {
-
+            callback(){
+                this.closeDetailsWin();
+                this.loadOis();
+            },
             //关闭详情页
             closeDetailsWin(){
                 this.detailsDialogVisible = false;

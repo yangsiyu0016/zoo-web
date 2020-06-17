@@ -119,16 +119,11 @@
                         this.currentSell = resp.data;
                         this.detailsDialogVisible = true;
                         this.detailsDialogTitle="订单查看";
-                        if(resp.data.isClaimed=='N'&&resp.data.status=='CWSH'){
-                            this.isReception = true;
-                        }else{
-                            this.isReception = false;
-                        }
-                        /*if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
+                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
                             this.isReception = true;
                         }else {
                             this.isReception = false;
-                        }*/
+                        }
                     }else{
                         this.$message.error("获取订单失败");
                     }

@@ -13,7 +13,7 @@
                 <el-input v-model="parameter.parameterValue"></el-input>
             </el-form-item>
             <el-form-item label="参数代码:" prop="code">
-                <el-input v-model="parameter.code"></el-input>
+                <el-input v-model="parameter.code" :disabled="isEdit"></el-input>
             </el-form-item>
 
             <el-form-item label="备注:" prop="description">
@@ -60,7 +60,7 @@
                         if (this.isEdit) {
                             this.postNoEnCodeRequest('/system/parameter/updateParameter',this.parameter).then(resp=>{
                                 if(resp&&resp.data.status=="200"){
-                                    this.$message.success("保存成功");
+                                    this.$message.success("更新成功");
                                     this.$emit("callback");
                                 }else{
                                     this.$message.error(resp.data.msg);

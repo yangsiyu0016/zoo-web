@@ -25,7 +25,7 @@
                 <span style="float: left;">产品清单</span>
             </div>
             <div>
-                <el-table :data="currentOi.details" size="mini" style="width: 100%">
+                <el-table :data="currentOi.details" size="mini" style="width: 100%" show-summary>
                     <el-table-column type="index" align="left" width="80" fixed></el-table-column>
                     <el-table-column prop="product.imageUrl" label="图片">
                         <template slot-scope="scope">
@@ -151,7 +151,14 @@
                     cancelButtonText: '取消',
                     type: "warning"
                 }).then(() => {
-                    this.postRequest('/oi/destroy?id=' + this.currentOi.id);
+                    this.postRequest('/oi/destroy?id=' + this.currentOi.id).then(resp=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("作废成功");
+                            this.$emit("callback");
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
                 })
             }
         },

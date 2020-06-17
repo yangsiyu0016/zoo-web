@@ -33,7 +33,7 @@
                         </el-col>
                         <el-col :span="8" v-show="sell.id||sell.codeGeneratorType=='SELF'">
                             <el-form-item label="单号:" prop="code" :required="sell.codeGeneratorType=='SELF'">
-                                <el-input size="mini" v-model="sell.code"></el-input>
+                                <el-input size="mini" v-model="sell.code" :disabled="isEdit"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -92,31 +92,43 @@
                 </div>
                 <div>
                     <el-button type="primary" size="mini" icon="el-icon-plus"
-                               style="float: left"    @click="showAddSkuView">
+                               style="float: left"    @click="showAddProductView">
                         添加产品
                     </el-button>
                     <el-table
                             :data="sell.details"
                             size="mini"
-                            style="width:100%">
+                            style="width:100%" show-summary :summary-method="getSummaries">
                         <el-table-column
                                 type="selection"
                                 align="left"
-                                width="30">
+                                width="80">
                         </el-table-column>
-                        <el-table-column label="产品编号" prop="productSku.code" width="200"  fixed></el-table-column>
-                        <el-table-column label="产品名称" prop="productSku.product.name" fixed></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
 
                         <el-table-column label="发货仓库" prop="warehouse.name"></el-table-column>
-                        <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                        <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400" fixed ></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="价格" prop="price"></el-table-column>
                         <el-table-column label="总额" prop="totalMoney"></el-table-column>
                         <el-table-column
                                 label="操作" width="120">
                             <template slot-scope="scope">
-                                <el-button  type="primary" @click="showEditSkuView(scope.row)"  style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                                <el-button  type="primary" @click="showEditProductView(scope.row)"  style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                                 <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
@@ -257,7 +269,7 @@
                                         this.$message.success("更新成功");
                                         this.$emit('callback');
                                     }else{
-                                        this.$message.error("更新失败");
+                                        this.$message.error(resp.data.msg);
                                     }
                                 })
 
@@ -267,7 +279,7 @@
                                         this.$message.success("保存成功");
                                         this.$emit('callback');
                                     }else{
-                                        this.$message.error("保存失败");
+                                        this.$message.error(resp.data.msg);
                                     }
                                 })
                             }
@@ -364,20 +376,18 @@
 
             },
             //显示编辑产品页面
-            showEditSkuView(row){
+            showEditProductView(row){
                 this.detailIsEdit = true;
                 this.oldDetail = row;
                 this.detailDialogVisible = true;
                 this.detailDialogTitle="编辑产品";
             },
             //显示添加产品页面
-            showAddSkuView(){
+            showAddProductView(){
                 this.detailIsEdit = false;
                 this.oldDetail = {
-                    productSku:{
-                        product:{
-                            name:''
-                        }
+                    product:{
+                        name:''
                     },
                     warehouse:{
 
@@ -413,6 +423,24 @@
             //取消
             cancel(){
                 this.$emit("close");
+            },
+            getSummaries(param){
+                const {columns,data}  = param;
+                const sums =[];
+                columns.forEach((column,index)=>{
+                    if(index===0){
+                        sums[index]='总额';
+                        //return;
+                    }
+                    if(column.property=='totalMoney'){
+                        const values = data.map(item => Number(item[column.property]));
+                        sums[index]= values.reduce((prev,curr)=>{
+                            const value = Number(curr);
+                            return prev+curr;
+                        },0);
+                    }
+                });
+                return sums;
             }
         },
         data(){

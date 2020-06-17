@@ -59,7 +59,7 @@
                               :disabled="!oi.warehouse.id" style="float: left" v-show="!oi.processInstanceId"   @click="showAddProductView">
                         添加产品
                     </el-button>
-                    <el-table :data="oi.details" size="mini" style="width: 100%">
+                    <el-table :data="oi.details" size="mini" style="width: 100%" show-summary>
                         <el-table-column type="selection" align="left" width="80"></el-table-column>
                         <el-table-column prop="product.imageUrl" label="图片">
                             <template slot-scope="scope">
