@@ -127,13 +127,15 @@
                 this.$emit("dblclick",row);
             },
             searchProduct(){
-                this.getRequest('/product/page?page='+this.currentPage+"&size=10&key="+this.search.key).then((resp)=>{
+                this.getRequest('/product/page?page='+this.currentPage+"&size=10&key="+this.search.key + "&typeId=" + this.typeId).then((resp)=>{
                     this.products = resp.data.products;
                     this.totalCount = resp.data.count;
                     this.defaultExpandAll = false;
                 })
             },
             selectProductByTypeId(data) {
+                this.typeId = data.id;
+                console.log(this.typeId)
                 if (data.parentId !== '') {
                     this.getRequest('/product/getProductByTypeId?page=' + this.currentPage + '&size=10&typeId=' + data.id).then(resp => {
                         if (resp && resp.data) {
@@ -145,7 +147,7 @@
             },
             loadType() {
                 this.getRequest('/product/type/tree').then(resp => {
-                    this.types = resp.data;
+                    this.types[0].children = resp.data;
                 })
             },
             closeWin(){
@@ -158,11 +160,12 @@
                 search:{
                     key:''
                 },
+                typeId: '',
                 props:{
                     label:'name'
                 },
                 types: [{
-                    name:'',
+                    name:'全部类型',
                     children: []
                 }],
                 defaultExpandAll:false,
