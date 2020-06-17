@@ -27,12 +27,12 @@
                     <el-table-column prop="weight" align="left"  label="重量"></el-table-column>
                     <el-table-column prop="color" align="left"  label="颜色"></el-table-column>
                     <el-table-column prop="puse" align="left"  label="用途"></el-table-column>
-                    <el-table-column prop="description" align="left"  label="备注"></el-table-column>
+                    <el-table-column prop="description" align="left" label="备注"  :show-overflow-tooltip='true' ></el-table-column>
                     <el-table-column prop="ctime" label="创建时间"></el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showUpdateProductView(scope.row)"  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            <el-button type="danger" size="mini" @click="deleteProduct(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -63,6 +63,27 @@
             this.loadProducts();
         },
         methods:{
+            deleteProduct(row) {
+                this.$confirm('确定要删除该条数据嘛？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: "warning"
+                }).then(()=> {
+                    this.deleteRequest('/product/' + row.id).then(resp => {
+                        if (resp.data.status == '200') {
+                            this.$message.success('删除成功');
+                            this.products.some((item, i) => {
+                                if (item == row) {
+                                    this.products.splice(i, 1);
+                                    return true;
+                                }
+                            })
+                        }else {
+                            this.$message.error("删除失败");
+                        }
+                    })
+                })
+            },
             callback(){
                 this.closeProductDialog();
                 this.loadProducts();
@@ -125,6 +146,6 @@
     }
 </script>
 
-<style scoped>
-
+<style lang="css">
+    .el-tooltip__popper{font-size: 15px; max-width:40%} /*设置显示隐藏部分内容，按40%显示*/
 </style>
