@@ -71,14 +71,30 @@
                     <span style="float: left;">产品清单</span>
                 </div>
                 <div>
-                    <el-table :data="purchase.details" size="mini" style="width: 100%">
-                        <el-table-column type="index" align="left" width="30" ></el-table-column>
-                        <el-table-column label="产品编号" prop="productSku.code" ></el-table-column>
-                        <el-table-column label="产品名称" prop="productSku.product.name" ></el-table-column>
-                        <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                        <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400"  ></el-table-column>
+                    <el-table :data="purchase.details" size="mini" style="width: 100%" show-summary :summary-method="getSummaries">
+                        <el-table-column type="index" align="left"  ></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                        <el-table-column label="收货仓库" prop="warehouse.name"></el-table-column>
 
                         <el-table-column label="数量" prop="number"></el-table-column>
+
+                        <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
+                        <el-table-column label="未收货数量" prop="notInNumber"></el-table-column>
                         <el-table-column label="价格" prop="price"></el-table-column>
                         <el-table-column label="总额" prop="totalMoney"></el-table-column>
                     </el-table>
@@ -103,9 +119,23 @@
                                         </template>
                                     </el-table-column>
                                     <el-table-column type="index"></el-table-column>
-                                    <el-table-column label="产品名称" prop="productSku.product.name" ></el-table-column>
-                                    <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                                    <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400"  ></el-table-column>
+                                    <el-table-column prop="product.imageUrl" label="图片">
+                                        <template slot-scope="scope">
+                                            <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                                    <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                                    <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                                    <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                                    <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                                    <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                                    <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                                    <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                                    <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                                    <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                                    <el-table-column label="收货仓库" prop="warehouse.name"></el-table-column>
                                     <el-table-column label="数量" prop="number"></el-table-column>
                                     <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
                                     <el-table-column label="未收货数量" prop="noutInNumber"></el-table-column>
@@ -273,6 +303,24 @@
             //关闭
             close(){
                 this.$emit("close");
+            },
+            getSummaries(param){
+                const {columns,data}  = param;
+                const sums =[];
+                columns.forEach((column,index)=>{
+                    if(index===0){
+                        sums[index]='合计';
+                        //return;
+                    }
+                    if(column.property=='totalMoney'){
+                        const values = data.map(item => Number(item[column.property]));
+                        sums[index]= values.reduce((prev,curr)=>{
+                            const value = Number(curr);
+                            return prev+curr;
+                        },0);
+                    }
+                });
+                return sums;
             }
         },
         data(){

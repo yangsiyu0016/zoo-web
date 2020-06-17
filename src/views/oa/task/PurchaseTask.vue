@@ -16,6 +16,11 @@
             </el-table-column>
             <el-table-column prop="createTime" align="left" label="创建时间" ></el-table-column>
             <el-table-column prop="stateTime" align="left" label="停留时间" :formatter="getDuration"></el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                </template>
+            </el-table-column>
         </el-table>
         <div style="display: flex;justify-content: space-between;margin: 2px">
             <el-pagination
@@ -59,8 +64,8 @@
                         }else {
                             this.rejectVisible = false;
                         }
-                        console.log(this.rejectVisible);
-                        console.log(row.assigneeName)
+                        //console.log(this.rejectVisible);
+                        //console.log(row.assigneeName)
                         if (this.currentTask.taskKey === 'purchasereject') {
                             this.canEdit = true;
                         }else {

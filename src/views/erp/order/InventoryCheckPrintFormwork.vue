@@ -153,7 +153,7 @@
         data() {
             return{
                 check:{
-
+                    code:''
                 },
                 histories: []
             }

@@ -128,7 +128,7 @@
                 },
                 detail:{
                     product:{
-
+                        name:''
                     },
                     goodsAllocation:{},
                     number:0,

@@ -61,11 +61,23 @@
                 </div>
                 <div>
                     <el-table :data="purchase.details" size="mini">
-                        <el-table-column type="index" align="left" width="60"></el-table-column>
-                        <el-table-column label="产品名称" prop="productSku.product.name" ></el-table-column>
-                        <el-table-column label="产品编号" prop="productSku.code"  ></el-table-column>
-                        <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数"  ></el-table-column>
-                        <el-table-column prop="productSku.product.productDetail.genericSpec" align="left"   label="通用规格参数" ></el-table-column>
+                        <el-table-column type="index" align="left" width="80"></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
                         <el-table-column prop="warehouse.name" label="入库仓库"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
@@ -94,9 +106,22 @@
                                         </template>
                                     </el-table-column>
                                     <el-table-column type="index"></el-table-column>
-                                    <el-table-column label="产品名称" prop="productSku.product.name" ></el-table-column>
-                                    <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                                    <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400"  ></el-table-column>
+                                    <el-table-column prop="product.imageUrl" label="图片">
+                                        <template slot-scope="scope">
+                                            <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                                    <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                                    <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                                    <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                                    <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                                    <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                                    <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                                    <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                                    <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                                    <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
                                     <el-table-column label="数量" prop="number"></el-table-column>
                                 </el-table>
                             </template>
@@ -143,6 +168,22 @@
                     </el-table>
                 </div>
             </el-card>
+            <el-card shadow="hover">
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">审批流程</span>
+                </div>
+                <div>
+                    <el-table :data="histories">
+                        <el-table-column type="index" width="80px"></el-table-column>
+                        <el-table-column label="节点名称" prop="actName"></el-table-column>
+                        <el-table-column label="意见" prop="message"></el-table-column>
+                        <el-table-column label="办理人" prop="assigneeName"></el-table-column>
+                        <el-table-column label="开始时间" prop="stime"></el-table-column>
+                        <el-table-column label="结束时间" prop="etime"></el-table-column>
+                        <el-table-column label="用时" prop="duration"></el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
             <el-card shadow="hover" v-show="handleVisible">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">审批意见</span>
@@ -160,10 +201,10 @@
                 <el-button @click="close" type="info" size="mini">关闭</el-button>
             </el-card>
         </el-form>
-        <el-dialog :visible.sync="logisticsDialogVisible" :title="logisticsDialogTitle" :close-on-click-modal="false" :append-to-body="true" >
+        <el-dialog :visible.sync="logisticsDialogVisible" :title="logisticsDialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <purchase-logistics-form :purchase="currentPurchase" @close="closeLogisticsDialog" @callback="callback"></purchase-logistics-form>
         </el-dialog>
-        <el-dialog :visible.sync="inboundDialogVisible" :title="inboundDialogTitle" :close-on-click-modal="false" :append-to-body="true">
+        <el-dialog :visible.sync="inboundDialogVisible" :title="inboundDialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <inbound-set @closeInbound="closeInbound" :oldCost="oldCost" @inboundCallback="inboundCallback"></inbound-set>
         </el-dialog>
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
@@ -209,6 +250,7 @@
                         if(resp&&resp.status==200){
                             this.purchase = resp.data;
                             this.loadCost(this.purchase.id);
+                            this.loadHistory();
                         }else{
                             this.$message.error("获取表单信息失败");
                         }
@@ -429,7 +471,13 @@
             },
             close(){
                 this.$emit("close");
-            }
+            } ,
+            //加载审批过程
+            loadHistory(){
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.purchase.processInstanceId).then((resp)=>{
+                    this.histories = resp.data;
+                })
+            },
         },
         data(){
             return{
@@ -452,7 +500,8 @@
                 rejectFlag: false,
                 dialogVisible: false,
                 dialogTitle: '',
-                isEdit: false
+                isEdit: false,
+                histories:[],
             }
         }
     }

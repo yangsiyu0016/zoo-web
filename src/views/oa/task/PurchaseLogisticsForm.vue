@@ -26,12 +26,25 @@
 
                     <el-table size="mini" :data="cost.details">
                         <el-table-column type="index" width="80px"></el-table-column>
-                        <el-table-column label="产品名称" prop="productSku.product.name"></el-table-column>
-                        <el-table-column label="特殊属性" prop="productSku.ownSpec"></el-table-column>
-                        <el-table-column label="通用属性" prop="productSku.product.productDetail.genericSpec"></el-table-column>
-                        <el-table-column label="数量" >
+                        <el-table-column prop="product.imageUrl" label="图片">
                             <template slot-scope="scope">
-                                <el-input-number size="mini" :min="0" v-model="scope.row.number"></el-input-number>
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                        <el-table-column label="数量" width="150">
+                            <template slot-scope="scope">
+                                <el-input-number size="mini" :min="0" v-model="scope.row.number" ></el-input-number>
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -69,7 +82,7 @@
                         this.currentPurchase.details.forEach((detail)=>{
                             if(detail.notOutNumber>0){
                                 let costDetail = {
-                                    productSku:detail.productSku,
+                                    product:detail.product,
                                     number:detail.notOutNumber,
                                     warehouse:detail.warehouse,
                                     detailId:detail.id
