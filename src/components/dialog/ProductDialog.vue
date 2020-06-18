@@ -135,7 +135,6 @@
             },
             selectProductByTypeId(data) {
                 this.typeId = data.id;
-                console.log(this.typeId)
                 if (data.parentId !== '') {
                     this.getRequest('/product/getProductByTypeId?page=' + this.currentPage + '&size=10&typeId=' + data.id).then(resp => {
                         if (resp && resp.data) {
