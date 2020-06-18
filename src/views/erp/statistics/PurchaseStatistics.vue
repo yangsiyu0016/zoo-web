@@ -60,7 +60,7 @@
                 </el-row>
                 <el-row :gutter="20">
                     <el-col :span="8" >
-                        <el-form-item prop="startDate"  label="开始日期:">
+                        <el-form-item prop="startDate"  label="下单日期:">
                             <el-date-picker
                                     style="float: left"
                                     align="right"
@@ -78,8 +78,8 @@
                     </el-col>
 
                 </el-row>
+                <el-button style="margin-top: 6px;float: left" size="mini" type="success" @click="search">查询</el-button>
             </el-card>
-            <el-button style="margin-top: 6px;float: left" size="mini" type="success" @click="search">查询</el-button>
         </el-form>
         <el-card shadow="hover">
             <el-main style="padding-left: 0px;padding-top: 0px">
@@ -92,14 +92,13 @@
                             width="55">
                     </el-table-column>
                     <el-table-column type="index" width="60px">
-                        <template scope="scope">
+                        <template slot-scope="scope" >
                             <span>{{(currentPage - 1) * 10 + scope.$index + 1}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column prop="productType" label="产品类型"></el-table-column>
                     <el-table-column prop="productName" label="产品名称"></el-table-column>
-                    <el-table-column prop="genericSpec" label="通用参数"></el-table-column>
-                    <el-table-column prop="ownSpec" label="特殊参数"></el-table-column>
+                    <el-table-column prop="spec" label="规格"></el-table-column>
                     <el-table-column prop="number" label="采购数量"></el-table-column>
                     <el-table-column prop="notInNumber" label="未收货数量"></el-table-column>
                     <el-table-column prop="price" label="采购单价"></el-table-column>
@@ -129,9 +128,11 @@
                 </el-pagination>
             </el-main>
         </el-card>
-        <el-dialog :visible="productDialogVisible" :title="productDialogTitle" :close-on-click-modal="false" width="77%">
-            <search-product-form  @closeWin="closeWin" @dblclick="callback"></search-product-form>
-        </el-dialog>
+        <product-dialog @closeWin="closeProductDialog" :visible="dialogVisible" :title="dialogTitle" @dblclick="dblclick"></product-dialog>
+        <!--<search-product-form></search-product-form>
+        <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true">
+            <search-product-form></search-product-form>
+        </el-dialog>-->
     </div>
 </template>
 
@@ -140,30 +141,28 @@
     import FileSaver from 'file-saver'
     import XLSX from 'xlsx'
     import SearchProductForm from "./SearchProductForm";
-
+    import ProductDialog from "@/components/dialog/ProductDialog";
     export default {
         name: "PurchaseStatistics",
-        components: {SearchProductForm, FileSaver, XLSX},
+        components: {SearchProductForm, FileSaver, XLSX, ProductDialog},
         data() {
             return {
+                dialogVisible: false,
+                dialogTitle: '',
                 currentPage: 1,
                 totalCount: -1,
                 purchaseStatisticses: [],
                 multipleSelection: [],
                 searchData: {
+                    productId:'',
                     code:'',
                     status: '',
-                    productName: '',
-                    productSkuId: '',
+                    productName: ''
                 },
-                productDialogVisible: false,
-                productDialogTitle: '',
                 specs:[],
                 spec:{},
                 isShow:false,
-                skus:[],
                 searchDate:[],
-                ownSpec:{},
                 property:[],
                 pickerOptions: {
                     disabledDate(time) {
@@ -199,59 +198,44 @@
         },
 
         mounted() {
-            this.initData();
+            this.search();
         },
         methods: {
+            dblclick(row) {
+                //this.searchData.productName = row.name + ' | 规格：' + row.spec + ' | 重量：' + row.weight + ' | 颜色：' + row.color;
+                this.searchData.productName = row.name;
+                this.searchData.productId = row.id;
+                this.dialogVisible = false;
+            },
+            closeProductDialog() {
+                this.dialogVisible = false;
+            },
             search() {
-                console.log(this.property)
-                let arr = this.property[0].split(',');
-                for (var sku in this.skus) {
-                    let data  = JSON.parse(this.skus[sku].ownSpec);
-                    for (var d in data) {
-                        this.ownSpec.key = d;
-                        this.ownSpec.value = data[d];
-                    }
-                    if(arr[1] === this.ownSpec.key && arr[0] === this.skus[sku].indexes) {
-                        this.searchData.productSkuId = this.skus[sku].id;
-
-                    }
+                if (this.searchDate.length > 0) {
                     this.searchData.startDate = this.searchDate[0];
                     this.searchData.endDate = this.searchDate[1];
-                    this.searchData.page = this.currentPage;
-                    this.searchData.size = 10;
+                }else {
+                    this.searchData.startDate = '';
+                    this.searchData.endDate = '';
                 }
-
-
+                this.searchData.page = this.currentPage;
+                this.searchData.size = 10;
                 this.postNoEnCodeRequest('/erp/purchaseStatistics/search', this.searchData).then(resp => {
-                    console.log(resp.data);
-                    this.purchaseStatisticses = resp.data.purchaseStatisticses;
-                    this.totalCount = resp.data.count;
+                    if (resp&&resp.data) {
+                        this.purchaseStatisticses = resp.data.purchaseStatisticses;
+                    }
                 })
             },
             callback(row) {
-                this.productDialogVisible= false;
-                this.searchData.productName = row.name + ' | ' + row.typeName + ' | ' + row.productBrand.name;
-                this.getRequest('/sku/getProductSkuByProductId?productId=' + row.id).then(resp => {
-                    let obj = JSON.parse(resp.data.skus[0].product.productDetail.specialSpec);
-                    this.skus = resp.data.skus;
-                    for (var d in obj) {
-                        this.spec.key = d;
-                        this.spec.value = JSON.parse(obj[d]);
-                        this.specs.push(this.spec);
-                    }
-                    this.isShow = true;
-                })
-            },
-            closeWin(){
-                this.productDialogVisible  = false;
+
             },
             selectProduct() {
-                this.productDialogVisible = true;
-                this.productDialogTitle = '选择产品';
+                this.dialogVisible = true;
+                this.dialogTitle = '选择产品';
             },
             currentChange(page) {
                 this.currentPage = page;
-                this.initData();
+                this.search();
             },
             exportExcel() {
                 // 导出的内容只做解析，不进行格式转换
