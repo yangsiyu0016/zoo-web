@@ -212,6 +212,11 @@ export const asyncRouterMap = [{
             name:'spec',
             component:()=>import("@/views/erp/product/spec/index"),
             meta:{title:"规格参数"}
+        },{
+            path:'bom',
+            name:'bom',
+            component:()=>import("@/views/erp/product/bom/List"),
+            meta:{title:"产品结构清单(BOM)"}
         }]
     },{
         path: 'aftersales',
