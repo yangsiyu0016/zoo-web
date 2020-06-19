@@ -117,6 +117,7 @@
         },
         mounted() {
             this.loadType();
+            this.searchProduct();
         },
         methods:{
             currentChange(page){

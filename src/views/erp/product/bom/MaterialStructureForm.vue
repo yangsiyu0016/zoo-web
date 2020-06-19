@@ -9,7 +9,7 @@
                     <el-col :span="12">
                         <el-form-item label="产品编码：" prop="product.id">
                             <el-input class="input-with-select" v-model="materialStructure.product.code"  disabled  style="float:left;width:400px">
-                                <el-button slot="append" icon="el-icon-search" @click="selectProduct"></el-button>
+                                <el-button :disabled="isEdit" slot="append" icon="el-icon-search" @click="selectProduct"></el-button>
                             </el-input>
                         </el-form-item>
                     </el-col>
@@ -72,6 +72,12 @@
                                 <el-table-column prop="product.description" align="left" label="备注" :show-overflow-tooltip='true'></el-table-column>
                             </el-table-column>
                             <el-table-column label="备注" prop="description"></el-table-column>
+                            <el-table-column label="操作">
+                                <template slot-scope="scope">
+                                    <el-button @click="showEditDetailView(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px"  type="primary">编辑</el-button>
+                                    <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                </template>
+                            </el-table-column>
                         </el-table>
                     </el-main>
                 </el-container>
@@ -86,7 +92,7 @@
         </el-form>
         <product-dialog @closeWin="closeProductDialog" :visible="productDialogVisible" :title="productDialogTitle" @dblclick="dblclick"></product-dialog>
         <el-dialog :visible.sync="detailDialogVisible" :title="detailDialogTitle" :close-on-click-modal="false" :append-to-body="true">
-            <material-structure-detail-form @close="closeDetailDialog" @callback="detailCallback"></material-structure-detail-form>
+            <material-structure-detail-form :isEdit="detailIsEdit" :oldDetail="oldDetail" @close="closeDetailDialog" @callback="detailCallback"></material-structure-detail-form>
         </el-dialog>
     </div>
 </template>
@@ -97,10 +103,80 @@
     export default {
         name: "MaterialStructureForm",
         components: {MaterialStructureDetailForm, ProductDialog},
+        props:{
+            oldBom:{
+                type:Object,
+                default:()=>{}
+            },
+            isEdit:{
+                type:Boolean,
+                default:false
+            }
+        },
+        watch:{
+            oldBom:{
+                handler(val){
+                    this.materialStructure = JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
+            }
+        },
         methods:{
+            //删除产品
+            deleteDetail(row){
+                if(this.isEdit){
+                    this.$confirm("确定要删除吗?","提示",{
+                        confirmButtonText:"确定",
+                        cancelButtonText:"取消",
+                        type:'warning'
+                    }).then(()=>{
+                        this.deleteRequest('/product/ms/detail/'+row.id).then((resp)=>{
+                            if(resp&&resp.data.status=="200"){
+                                this.$message.success("删除成功");
+                                this.materialStructure.details.some((item,i)=>{
+                                    if(item==row){
+                                        this.materialStructure.details.splice(i,1);
+                                        return true;
+                                    }
+                                })
+                            }else{
+                                this.$message.error("删除失败");
+                            }
+                        })
+                    })
+                }else{
+                    this.materialStructure.details.some((item,i)=>{
+                        if(item==row){
+                            this.materialStructure.details.splice(i,1);
+                            return true;
+                        }
+                    })
+                }
+
+            },
             save(formName){
                 this.$refs[formName].validate(valid=>{
                    if(valid){
+                       if(this.isEdit){
+                           this.putNoEnCodeRequest('/product/ms/update',this.materialStructure).then((resp)=>{
+                               if(resp&&resp.data.status==200){
+                                   this.$message.success("保存成功");
+                                   this.$emit("callback",resp.data.ms);
+                               }else {
+                                   this.$message.error(resp.data.msg);
+                               }
+                           })
+                       }else{
+                           this.postNoEnCodeRequest('/product/ms/add',this.materialStructure).then((resp)=>{
+                               if(resp&&resp.data.status==200){
+                                   this.$message.success("保存成功");
+                                   this.$emit("callback",resp.data.ms);
+                               }else {
+                                   this.$message.error(resp.data.msg);
+                               }
+                           })
+                       }
 
                    }else{
                        return false;
@@ -108,8 +184,61 @@
                 });
             },
             detailCallback(row){
-                this.materialStructure.details.push(row);
-                this.closeDetailDialog();
+                if(this.isEdit){
+                    if(this.detailIsEdit){
+                        this.putNoEnCodeRequest('/product/ms/detail/update',row).then((resp)=>{
+                            if(resp&&resp.data.status=="200"){
+                                this.$message.success("更新成功");
+                                this.materialStructure.details.some((item,i)=>{
+                                    if(item==this.oldDetail){
+                                        this.materialStructure.details.splice(i,1,row);
+                                    }
+                                })
+                                this.closeDetailDialog();
+                            }else{
+                                this.$message.error("更新失败");
+                            }
+                        })
+                    }else{
+                        Object.assign(row,{materialStructureId:this.materialStructure.id});
+                        this.putNoEnCodeRequest('/product/ms/detail/add',row).then((resp)=>{
+                            if(resp&&resp.data.status==200){
+                                this.$message.success("保存成功");
+                                this.materialStructure.details.push(resp.data.detail);
+                                this.closeDetailDialog();
+                            } else{
+                                this.$message.error(resp.data.msg);
+                            }
+                        });
+                    }
+
+                }else{
+                    if(this.detailIsEdit){
+                        this.materialStructure.details.some((item,i)=>{
+                            if(item===this.oldDetail){
+                                this.materialStructure.details.splice(i,1,row);
+                            }
+                            this.closeDetailDialog();
+                        })
+                    }else{
+                        if(this.materialStructure.details.length>0){
+                            this.materialStructure.details.forEach(detail=>{
+                                if(detail.product.id===row.product.id){
+                                    this.$message.error("子件不能重复");
+                                }else{
+                                    this.materialStructure.details.push(row);
+                                    this.closeDetailDialog();
+                                }
+                            })
+                        }else{
+                            this.materialStructure.details.push(row);
+                            this.closeDetailDialog();
+                        }
+
+                    }
+
+                }
+
             },
             closeDetailDialog(){
                 this.detailDialogVisible = false;
@@ -117,7 +246,21 @@
             cancel(){
                 this.$emit("close");
             },
+            showEditDetailView(row){
+                this.detailIsEdit = true;
+                this.oldDetail = row;
+                this.detailDialogVisible = true;
+                this.detailDialogTitle="编辑子件清单";
+            },
             showAddDetailView(){
+                this.detailIsEdit = false;
+                this.oldDetail = {
+                    product:{
+                        name:''
+                    },
+                    number:0,
+                    description:''
+                };
                 this.detailDialogVisible = true;
                 this.detailDialogTitle="添加子件清单";
             },
@@ -153,7 +296,9 @@
                 productDialogVisible:false,
                 productDialogTitle:'',
                 detailDialogVisible:false,
-                detailDialogTitle:''
+                detailDialogTitle:'',
+                detailIsEdit:false,
+                oldDetail:{}
             }
         }
     }

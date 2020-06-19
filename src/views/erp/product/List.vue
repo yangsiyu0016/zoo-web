@@ -29,6 +29,12 @@
                     <el-table-column prop="puse" align="left"  label="用途"></el-table-column>
                     <el-table-column prop="description" align="left" label="备注"  :show-overflow-tooltip='true' ></el-table-column>
                     <el-table-column prop="ctime" label="创建时间"></el-table-column>
+                    <el-table-column prop="hasBom" label="BOM">
+                        <template slot-scope="scope">
+                            <el-tag v-if="!scope.row.hasBom" type="info">未做BOM</el-tag>
+                            <el-tag v-if="scope.row.hasBom" type="danger">已 做BOM</el-tag>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showUpdateProductView(scope.row)"  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>

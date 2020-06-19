@@ -3,7 +3,7 @@
         <el-form ref="detailForm" size="mini" :model="detail" :rules="rules" label-width="120px">
             <el-form-item label="产品：" prop="product.name">
                 <el-input class="input-with-select" v-model="detail.product.name"  disabled  style="float:left;width:400px">
-                    <el-button slot="append" icon="el-icon-search" @click="selectProduct"></el-button>
+                    <el-button :disabled="isEdit"  slot="append" icon="el-icon-search" @click="selectProduct"></el-button>
                 </el-input>
             </el-form-item>
             <el-form-item label="数量:" prop="number">
@@ -26,6 +26,25 @@
     export default {
         name: "MaterialStructureDetailForm",
         components: {ProductDialog},
+        props:{
+            isEdit:{
+                type:Boolean,
+                default:false
+            },
+            oldDetail:{
+                type:Object,
+                default:()=>{}
+            }
+        },
+        watch:{
+            oldDetail: {
+                handler(val){
+                    this.detail = JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
+            }
+        },
         methods:{
             save(formName){
                 this.$refs[formName].validate(valid=>{
