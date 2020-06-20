@@ -80,7 +80,7 @@
                     <span style="float: left;">组装材料明细</span>
                 </div>
                 <el-table
-                        :data="productAssembled.assembledMaterials"
+                        :data="productAssembled.materials"
                         size="mini"
                         style="width:100%" >
                     <el-table-column
@@ -175,7 +175,7 @@
                     warehouse:{
                         name:''
                     },
-                    assembledMaterials:[],
+                    materials:[],
                     codeGeneratorType:"AUTO",
                     number:1
                 },
@@ -244,7 +244,7 @@
 
                 this.getRequest('/product/ms/getMS?productId='+row.id).then(resp=>{
                    if(resp&&resp.data){
-                       this.productAssembled.assembledMaterials = resp.data.details;
+                       this.productAssembled.materials = resp.data.details;
                        this.productAssembled.product = row;
                        this.closeProductDialog();
                    } else{
