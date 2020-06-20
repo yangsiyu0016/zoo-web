@@ -129,7 +129,7 @@
     import ProductDialog from "@/components/dialog/ProductDialog";
 
     export default {
-        name: "ProductComposeForm",
+        name: "ProductAssembledForm",
         components: {ProductDialog},
         mounted() {
             this.loadWarehouse();

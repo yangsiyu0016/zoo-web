@@ -95,6 +95,16 @@ export const asyncRouterMap = [{
             component:()=>import("@/views/erp/stock/oi/index"),
             meta:{title:"期初单据"}
         },{
+            path:'assembled',
+            name:'assembled',
+            component:()=>import("@/views/erp/stock/productassembled/List"),
+            meta:{title:"产品组装"}
+        },{
+            path:'split',
+            name:'split',
+            component:()=>import("@/views/erp/stock/productsplit/List"),
+            meta:{title:"产品拆分"}
+        },{
             path:"warehouse",
             name:"warehouse",
             component:()=>import("@/views/erp/stock/warehouse/index"),

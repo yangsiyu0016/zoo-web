@@ -74,18 +74,18 @@
             </el-main>
         </el-card>
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-compose-form   @close="closeDialog" @callback="callback"></product-compose-form>
+            <product-assembled-form   @close="closeDialog" @callback="callback"></product-assembled-form>
         </el-dialog>
     </div>
 </template>
 
 <script>
 
-    import ProductComposeForm from "@/views/erp/stock/productcompose/ProductComposeForm"
+    import ProductAssembledForm from "@/views/erp/stock/productassembled/ProductAssembledForm"
 
     export default {
         name: "List",
-        components: {ProductComposeForm},
+        components: {ProductAssembledForm},
         data() {
             return {
                 dialogVisible:false,
