@@ -50,13 +50,13 @@
                             <el-button style="margin-top: 6px;float: left" size="mini" type="success" @click="selectProduct">选择</el-button>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8"  v-show="isShow" v-for="(val,j) in specs">
+                    <!--<el-col :span="8"  v-show="isShow" v-for="(val,j) in specs">
                         <el-form-item :label="val.key">
                             <el-select size="mini" v-model="property[j]" style="float: left">
                                 <el-option v-for="(item,i) in val.value" :key="i" :label="item" :value="i + ','  + val.key"></el-option>
                             </el-select>
                         </el-form-item>
-                    </el-col>
+                    </el-col>-->
                 </el-row>
                 <el-row :gutter="20">
                     <el-col :span="8" >
@@ -79,6 +79,7 @@
 
                 </el-row>
                 <el-button style="margin-top: 6px;float: left" size="mini" type="success" @click="search">查询</el-button>
+                <el-button style="margin-top: 6px;float: left" size="mini" type="info" @click="reset">重置</el-button>
             </el-card>
         </el-form>
         <el-card shadow="hover">
@@ -122,9 +123,9 @@
                         background
                         :page-size="10"
                         @current-change="currentChange"
-                        :current-page="currentPage"
+                        :current-page="searchData.currentPage"
                         layout="prev,pager,next"
-                        :total="totalCount">
+                        :total="searchData.totalCount">
                 </el-pagination>
             </el-main>
         </el-card>
@@ -147,17 +148,17 @@
         components: {SearchProductForm, FileSaver, XLSX, ProductDialog},
         data() {
             return {
-                dialogVisible: false,
-                dialogTitle: '',
                 currentPage: 1,
                 totalCount: -1,
+                dialogVisible: false,
+                dialogTitle: '',
                 purchaseStatisticses: [],
                 multipleSelection: [],
                 searchData: {
                     productId:'',
                     code:'',
                     status: '',
-                    productName: ''
+                    productName: '',
                 },
                 specs:[],
                 spec:{},
@@ -201,6 +202,15 @@
             this.search();
         },
         methods: {
+            reset() {
+                this.searchData = {
+                    productId:'',
+                        code:'',
+                        status: '',
+                        productName: '',
+                };
+                this.searchDate = [];
+            },
             dblclick(row) {
                 //this.searchData.productName = row.name + ' | 规格：' + row.spec + ' | 重量：' + row.weight + ' | 颜色：' + row.color;
                 this.searchData.productName = row.name;
@@ -214,15 +224,13 @@
                 if (this.searchDate.length > 0) {
                     this.searchData.startDate = this.searchDate[0];
                     this.searchData.endDate = this.searchDate[1];
-                }else {
-                    this.searchData.startDate = '';
-                    this.searchData.endDate = '';
                 }
                 this.searchData.page = this.currentPage;
                 this.searchData.size = 10;
                 this.postNoEnCodeRequest('/erp/purchaseStatistics/search', this.searchData).then(resp => {
                     if (resp&&resp.data) {
                         this.purchaseStatisticses = resp.data.purchaseStatisticses;
+                        this.totalCount = resp.data.count;
                     }
                 })
             },
