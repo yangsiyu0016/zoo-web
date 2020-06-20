@@ -15,6 +15,7 @@ import {uploadFileRequest} from  './utils/api'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import './assets/material.css'
+import 'font-awesome/css/font-awesome.min.css'
 Vue.use(Vuetify)
 Vue.use(ElementUI)
 Vue.config.productionTip = false
