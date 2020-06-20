@@ -77,14 +77,14 @@
                     </el-col>
 
                 </el-row>
-                <el-button style="margin-top: 6px;float: left" size="mini" type="success" @click="search">查询</el-button>
-                <el-button style="margin-top: 6px;float: left" size="mini" type="success" @click="reset">重置</el-button>
+                <el-button style="margin-top: 6px;float: left;margin-bottom: 6px" size="mini" type="success" @click="search" icon="el-icon-search">查询</el-button>
+                <el-button style="margin-top: 6px;float: left;margin-bottom: 6px" size="mini" type="info" @click="reset" icon="el-icon-close">重置</el-button>
             </el-card>
         </el-form>
         <el-card shadow="hover">
             <el-main style="padding-left: 0px;padding-top: 0px">
                 <div class="export" style="float: right">
-                    <el-button @click="exportExcel" style="margin-top: 2px;" size="medium" type="success">导出</el-button>
+                    <el-button @click="exportExcel" style="margin-top: 2px;" size="mini" type="success">导出</el-button>
                 </div>
                 <el-table :data="sellStatisticses" tooltip-effect="dark" ref="multipleTable" style="width: 100%" id="table" @selection-change="handleSelectionChange">
                     <el-table-column

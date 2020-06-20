@@ -61,7 +61,7 @@
                     </el-row>
                     <el-row :gutter="20">
                         <el-col :span="8">
-                            <el-form-item label="组装数量：" prop="number">
+                            <el-form-item label="组装数量:" prop="number">
                                 <el-input-number style="float: left" :min="0" v-model="productAssembled.number"></el-input-number>
                             </el-form-item>
                         </el-col>
