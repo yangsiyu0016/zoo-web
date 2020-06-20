@@ -5,14 +5,14 @@
                 <div style="display: inline">
                     <el-input size="mini" placeholder="通过产品名称搜索，记得回车呦..." clearable style="width: 300px;margin: 0px;padding: 0px;" prefix-icon="el-icon-search"></el-input>
                     <el-button type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
-                    <el-button type="primary" size="mini" style="margin-left: 5px"
+                    <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
                         @click="showSearchView">
-                        <i class="fa fa-lg" style="margin-right: 5px"></i>高级搜索
+                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
                     </el-button>
 
                 </div>
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                    <el-button type="primary" size="mini" icon="el-icon-plus">添加</el-button>
+                    <el-button type="primary" size="mini" icon="el-icon-plus" @click="showAddView">添加</el-button>
                 </div>
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
@@ -42,7 +42,7 @@
                                     创建日期：<el-input size="mini" style="width: 200px" placeholder="创建日期" ></el-input>
                                 </el-col>
                                 <el-col :span="5">
-                                    <el-button size="mini" @click="cancelSearch">取消</el-button>
+                                    <el-button icon="el-icon-zoom-out" size="mini" @click="cancelSearch">取消</el-button>
                                     <el-button icon="el-icon-search" type="primary" size="mini" >搜索</el-button>
                                 </el-col>
                             </el-row>
@@ -75,20 +75,51 @@
                 </div>
             </el-main>
         </el-container>
+        <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" width="77%">
+            <product-assembled-form @close="closeDialog" :isEdit="isEdit" :oldProductAssembled="oldProductAssembled"></product-assembled-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
+    import ProductAssembledForm from "@/views/erp/stock/productassembled/ProductAssembledForm";
     export default {
         name: "List",
+        components: {ProductAssembledForm},
         data() {
             return {
                 searchViewVisible:false,
                 currentPage: 1,
-                totalCount: -1
+                totalCount: -1,
+                dialogVisible:false,
+                dialogTitle:'',
+                isEdit:false,
+                oldProductAssembled:{},
+                faangledoubleup: 'fa-angle-double-up',
+                faangledoubledown: 'fa-angle-double-down',
             }
         },
         methods: {
+            closeDialog(){
+                this.dialogVisible = false;
+            },
+            showAddView(){
+                this.isEdit = false;
+                this.oldProductAssembled={
+                    assembledTime:'',
+                    product: {
+                        code: ''
+                    },
+                    warehouse:{
+                        name:''
+                    },
+                    assembledMaterials:[],
+                    codeGeneratorType:"AUTO",
+                    number:1
+                };
+                this.dialogVisible = true;
+                this.dialogTitle="添加组装单"
+            },
             cancelSearch(){
                 this.searchViewVisible = false;
             },
