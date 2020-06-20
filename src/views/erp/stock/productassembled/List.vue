@@ -1,147 +1,102 @@
 <template>
     <div>
-        <el-form>
-            <el-card>
-                <div slot="header" class="clearfix">
-                    <span style="float: left;">查询条件</span>
+        <el-container>
+            <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+                <div style="display: inline">
+                    <el-input size="mini" placeholder="通过产品名称搜索，记得回车呦..." clearable style="width: 300px;margin: 0px;padding: 0px;" prefix-icon="el-icon-search"></el-input>
+                    <el-button type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                    <el-button type="primary" size="mini" style="margin-left: 5px"
+                        @click="showSearchView">
+                        <i class="fa fa-lg" style="margin-right: 5px"></i>高级搜索
+                    </el-button>
+
                 </div>
-                <el-row :gutter="20">
-                    <el-col :span="8" >
-                        <el-form-item prop=""  label="组装日期:">
-                            <el-date-picker
-                                    style="float: left"
-                                    align="right"
-                                    type="daterange"
-                                    range-separator="至"
-                                    start-placeholder="开始日期"
-                                    end-placeholder="结束日期"
-                                    size="mini"
-                                    v-model="searchDate"
-                                    value-format="yyyy-MM-dd"
-                                    format="yyyy 年 MM 月 dd 日"
-                                    :picker-options="pickerOptions">
-                            </el-date-picker>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-button style="margin-top: 6px;float: left" size="mini" type="success" @click="search">查询</el-button>
-            </el-card>
-        </el-form>
-        <el-card>
+                <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                    <el-button type="primary" size="mini" icon="el-icon-plus">添加</el-button>
+                </div>
+            </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
-                <div class="export" style="float: left">
-                    <el-button @click="showAddProductComposeViews" style="margin-top: 2px;" size="medium" type="success">添加</el-button>
+                <div>
+                    <transition name="slide-fade">
+                        <div v-show="searchViewVisible" style="margin-bottom: 10px;border: 1px;border-radius: 5px;border-style: solid;padding: 5px 0px 5px 0px;box-sizing:border-box;border-color: #20a0ff">
+                            <el-row :gutter="20" style="margin-top: 20px">
+                                <el-col :span="6">
+                                    组装单编号：<el-input size="mini" style="width: 200px" placeholder="组装单编号" ></el-input>
+                                </el-col>
+                                <el-col :span="6">
+                                    产品编号：<el-input size="mini" style="width: 200px" placeholder="产品编号" ></el-input>
+                                </el-col>
+                                <el-col :span="6">
+                                    产品名称：<el-input size="mini" style="width: 200px" placeholder="产品名称" ></el-input>
+                                </el-col>
+                                <el-col :span="6">
+                                    组装仓库：<el-input size="mini" style="width: 200px" placeholder="组装仓库" ></el-input>
+                                </el-col>
+
+                            </el-row>
+                            <el-row :gutter="20" style="margin-top: 20px">
+                                <el-col :span="6">
+                                    组装日期：<el-input size="mini" style="width: 200px" placeholder="组装日期" ></el-input>
+                                </el-col>
+                                <el-col :span="6">
+                                    创建日期：<el-input size="mini" style="width: 200px" placeholder="创建日期" ></el-input>
+                                </el-col>
+                                <el-col :span="5">
+                                    <el-button size="mini" @click="cancelSearch">取消</el-button>
+                                    <el-button icon="el-icon-search" type="primary" size="mini" >搜索</el-button>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </transition>
+                    <el-table>
+                        <el-table-column type="index"></el-table-column>
+                        <el-table-column label="组装单编号"></el-table-column>
+                        <el-table-column label="组装仓库"></el-table-column>
+                        <el-table-column label="组装日期"></el-table-column>
+                        <el-table-column label="产品编号"></el-table-column>
+                        <el-table-column label="产品图片"></el-table-column>
+                        <el-table-column label="产品名称"></el-table-column>
+                        <el-table-column label="组装数量"></el-table-column>
+                        <el-table-column label="操作人"></el-table-column>
+                        <el-table-column label="创建日期"></el-table-column>
+                        <el-table-column label="完成日期"></el-table-column>
+                        <el-table-column label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                    </el-table>
+                    <div style="display: flex;justify-content: space-between;margin: 2px">
+                        <el-pagination
+                                background
+                                :page-size="10"
+                                @current-change="currentChange"
+                                :current-page="currentPage"
+                                layout="prev,pager,next"
+                                :total="totalCount">
+                        </el-pagination>
+                    </div>
                 </div>
-                <el-table :data="productComposes" tooltip-effect="dark" ref="multipleTable" style="width: 100%" id="table" >
-                    <el-table-column
-                            type="selection"
-                            width="35">
-                    </el-table-column>
-                    <el-table-column type="index" width="5px">
-                        <template slot-scope="scope" >
-                            <span>{{(currentPage - 1) * 10 + scope.$index + 1}}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="" label="组装单编号"></el-table-column>
-                    <el-table-column prop="" label="组装仓库"></el-table-column>
-                    <el-table-column prop="" label="组装日期"></el-table-column>
-                    <el-table-column prop="" label="商品编号"></el-table-column>
-                    <el-table-column prop="" label="商品名称"></el-table-column>
-                    <el-table-column prop="" label="商品类型"></el-table-column>
-                    <el-table-column prop="" label="组装后数量"></el-table-column>
-                    <el-table-column prop="" label="批号"></el-table-column>
-                    <el-table-column prop="" label="组装人"></el-table-column>
-                    <el-table-column prop="" label="创建时间"></el-table-column>
-                    <el-table-column prop="" label="结束时间"></el-table-column>
-                    <el-table-column prop="status" label="状态">
-                        <template slot-scope="scope">
-                            <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
-                            <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
-                            <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="" label="备注"></el-table-column>
-                    <el-table-column prop="" label="总金额"></el-table-column>
-                </el-table>
-                <el-pagination
-                        background
-                        :page-size="10"
-                        @current-change="currentChange"
-                        :current-page="currentPage"
-                        layout="prev,pager,next"
-                        :total="totalCount">
-                </el-pagination>
             </el-main>
-        </el-card>
-        <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-assembled-form   @close="closeDialog" @callback="callback"></product-assembled-form>
-        </el-dialog>
+        </el-container>
     </div>
 </template>
 
 <script>
-
-    import ProductAssembledForm from "@/views/erp/stock/productassembled/ProductAssembledForm"
-
     export default {
         name: "List",
-        components: {ProductAssembledForm},
         data() {
             return {
-                dialogVisible:false,
-                dialogTitle: '',
-                productComposes: [],
+                searchViewVisible:false,
                 currentPage: 1,
-                totalCount: -1,
-                searchDate:[],
-                pickerOptions: {
-                    disabledDate(time) {
-                        return time.getTime() > Date.now();
-                    },
-                    shortcuts: [{
-                        text: '最近一周',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    }, {
-                        text: '最近一个月',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    }, {
-                        text: '最近三个月',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    }]
-                }
+                totalCount: -1
             }
         },
         methods: {
-            callback() {
-                this.dialogVisible = false;
+            cancelSearch(){
+                this.searchViewVisible = false;
             },
-            closeDialog() {
-                this.dialogVisible = false;
-            },
-            search() {
-
+            showSearchView(){
+                this.searchViewVisible = !this.searchViewVisible;
             },
             currentChange() {
 
-            },
-            showAddProductComposeViews() {
-                this.dialogVisible = true;
-                this.dialogTitle = "添加商品组装";
             }
         }
     }
