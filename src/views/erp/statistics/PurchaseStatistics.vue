@@ -3,7 +3,7 @@
         <el-form>
             <el-card>
                 <div slot="header" class="clearfix">
-                    <span style="float: left;">查询条件</span>
+                    <span style="float: left;margin-bottom: 6px">查询条件</span>
                 </div>
                 <el-row :gutter="20">
                     <el-col :span="8">
@@ -78,8 +78,8 @@
                     </el-col>
 
                 </el-row>
-                <el-button style="margin-top: 6px;float: left" size="mini" type="success" @click="search">查询</el-button>
-                <el-button style="margin-top: 6px;float: left" size="mini" type="info" @click="reset">重置</el-button>
+                <el-button style="margin-top: 6px;float: left;margin-bottom: 6px" size="mini" type="success" @click="search" icon="el-icon-search">查询</el-button>
+                <el-button style="margin-top: 6px;float: left;margin-bottom: 6px" size="mini" type="info" @click="reset" icon="el-icon-close">重置</el-button>
             </el-card>
         </el-form>
         <el-card shadow="hover">
