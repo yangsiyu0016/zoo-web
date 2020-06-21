@@ -63,7 +63,7 @@
                     <el-table-column prop="" label="商品编号"></el-table-column>
                     <el-table-column prop="" label="商品名称"></el-table-column>
                     <el-table-column prop="" label="商品类型"></el-table-column>
-                    <el-table-column prop="" label="拆分后数量"></el-table-column>
+                    <el-table-column prop="" label="拆分数量"></el-table-column>
                     <el-table-column prop="" label="批号"></el-table-column>
                     <el-table-column prop="" label="拆分人"></el-table-column>
                     <el-table-column prop="" label="创建时间"></el-table-column>

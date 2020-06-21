@@ -111,13 +111,13 @@
                     <!--<el-table-column label="数量" prop="number"></el-table-column>
                     <el-table-column label="价格" prop="price"></el-table-column>
                     <el-table-column label="总额" prop="totalMoney"></el-table-column>-->
-                    <el-table-column
+                    <!--<el-table-column
                             label="操作" width="120">
                         <template slot-scope="scope">
                             <el-button  type="primary" @click="showEditProductView(scope.row)"  style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                             <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
-                    </el-table-column>
+                    </el-table-column>-->
                 </el-table>
             </el-card>
             <el-card shadow="hover">
