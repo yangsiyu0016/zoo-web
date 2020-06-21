@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-form size="mini" :rules="rules" :model="productAssembled"  ref="productAssembledForm" label-width="120px">
+        <el-form size="mini" :rules="rules" :model="productAssembled"  ref="assembledForm" label-width="120px">
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">组装产品信息</span>
@@ -22,7 +22,7 @@
                                 </el-date-picker>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8" >
+                        <el-col :span="8" v-show="!isEdit">
                             <el-form-item label="单号录入方式:">
                                 <el-select style="float: left" size="mini" v-model="productAssembled.codeGeneratorType">
                                     <el-option key="AUTO" label="自动生成" value="AUTO"></el-option>
@@ -80,7 +80,7 @@
                     <span style="float: left;">组装材料明细</span>
                 </div>
                 <el-table
-                        :data="productAssembled.assembledMaterials"
+                        :data="productAssembled.materials"
                         size="mini"
                         style="width:100%" >
                     <el-table-column
@@ -111,7 +111,7 @@
             </el-card>
             <el-card shadow="hover">
                 <div style="text-align: center">
-                    <el-button @click="save" type="primary" size="mini">保存</el-button>
+                    <el-button @click="save('assembledForm')" type="primary" size="mini">保存</el-button>
                     <el-button @click="cancel" type="info" size="mini">取消</el-button>
                 </div>
             </el-card>
@@ -175,7 +175,7 @@
                     warehouse:{
                         name:''
                     },
-                    assembledMaterials:[],
+                    materials:[],
                     codeGeneratorType:"AUTO",
                     number:1
                 },
@@ -216,10 +216,42 @@
         },
         methods: {
             needNumberFormatter(row,column,cellValue,index){
+                row.needNumber = row.number*this.productAssembled.number;
+
+                //console.log(row);
+                //console.log(column);
+                //console.log(cellValue);
+                //console.log(index);
+
+                //row.neeNumber =row.number*this.productAssembled.number;
                 return row.number*this.productAssembled.number;
             },
-            save() {
-
+            save(formName) {
+                this.$refs[formName].validate(valid=>{
+                    if(valid){
+                        if(this.isEdit){
+                            this.putNoEnCodeRequest('/erp/assembled/update',this.productAssembled).then(resp=>{
+                                if(resp&&resp.data.status=="200"){
+                                    this.$message.success("更新成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            });
+                        }else{
+                            this.postNoEnCodeRequest('/erp/assembled/add',this.productAssembled).then(resp=>{
+                                if(resp&&resp.data.status=="200"){
+                                    this.$message.success("保存成功");
+                                    this.$emit("callback");
+                                }else{
+                                    this.$message.error(resp.data.msg);
+                                }
+                            });
+                        }
+                    }else{
+                        return false;
+                    }
+                })
             },
             cancel() {
                 this.$emit("close");
@@ -244,7 +276,7 @@
 
                 this.getRequest('/product/ms/getMS?productId='+row.id).then(resp=>{
                    if(resp&&resp.data){
-                       this.productAssembled.assembledMaterials = resp.data.details;
+                       this.productAssembled.materials = resp.data.details;
                        this.productAssembled.product = row;
                        this.closeProductDialog();
                    } else{
