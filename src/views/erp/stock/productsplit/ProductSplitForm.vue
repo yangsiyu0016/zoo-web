@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-form size="mini"   ref="productSplitForm" :rules="rules" :model="productSplit" label-width="150px">
+        <el-form size="mini"  :model="productSplit" ref="productSplitForm" :rules="rules" label-width="150px">
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">拆分产品信息</span>
@@ -22,7 +22,7 @@
                                 </el-date-picker>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8" >
+                        <el-col :span="8" v-show="!isEdit">
                             <el-form-item label="单号录入方式:">
                                 <el-select size="mini" v-model="productSplit.codeGeneratorType">
                                     <el-option key="AUTO" label="自动生成" value="AUTO"></el-option>
@@ -81,7 +81,7 @@
                     <span style="float: left;">拆分材料明细</span>
                 </div>
                 <el-table
-                        :data="productSplit.splitMaterials"
+                        :data="productSplit.details"
                         size="mini"
                         style="width:100%" >
                     <el-table-column
@@ -111,18 +111,18 @@
                     <!--<el-table-column label="数量" prop="number"></el-table-column>
                     <el-table-column label="价格" prop="price"></el-table-column>
                     <el-table-column label="总额" prop="totalMoney"></el-table-column>-->
-                    <el-table-column
+                    <!--<el-table-column
                             label="操作" width="120">
                         <template slot-scope="scope">
                             <el-button  type="primary" @click="showEditProductView(scope.row)"  style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
                             <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
-                    </el-table-column>
+                    </el-table-column>-->
                 </el-table>
             </el-card>
             <el-card shadow="hover">
                 <div style="text-align: center">
-                    <el-button @click="save" type="primary" size="mini">保存</el-button>
+                    <el-button @click="save('productSplitForm')" type="primary" size="mini">保存</el-button>
                     <el-button @click="cancel" type="info" size="mini">取消</el-button>
                 </div>
             </el-card>
@@ -187,7 +187,7 @@
                     },
                     codeGeneratorType:"AUTO",
                     number:1,
-                    splitMaterials: [],
+                    details: [],
                 },
                 warehouses:[],
                 rules:{
@@ -228,8 +228,30 @@
             splitNumberFormatter(row,column,cellValue,index){
                 return row.number*this.productSplit.number;
             },
-            save() {
-
+            save(formName) {
+                this.$refs[formName].validate(valid => {
+                    if (valid) {
+                        if (this.isEdit) {
+                            this.postNoEnCodeRequest('/erp/split/update', this.productSplit).then(resp => {
+                                if (resp.data.status == '200') {
+                                    this.$message.success("更新成功");
+                                    this.$emit('callback');
+                                }else {
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
+                        }else {
+                            this.postNoEnCodeRequest('/erp/split/add', this.productSplit).then(resp => {
+                                if (resp.data.status == '200') {
+                                    this.$message.success("添加成功");
+                                    this.$emit('callback');
+                                }else {
+                                    this.$message.error(resp.data.msg);
+                                }
+                            })
+                        }
+                    }
+                })
             },
             cancel() {
                 this.$emit("close");
@@ -254,7 +276,7 @@
                 this.getRequest('/product/ms/getMS?productId='+row.id).then(resp=>{
 
                     if(resp&&resp.data){
-                        this.productSplit.splitMaterials = resp.data.details;
+                        this.productSplit.details = resp.data.details;
                         this.productSplit.product = row;
                         this.closeProductDialog();
                     } else{

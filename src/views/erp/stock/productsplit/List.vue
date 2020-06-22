@@ -50,24 +50,28 @@
                 <el-table :data="productSplits" tooltip-effect="dark" ref="multipleTable" style="width: 100%" id="table" >
                     <el-table-column
                             type="selection"
-                            width="35">
+                            width="40">
                     </el-table-column>
-                    <el-table-column type="index" width="5px">
+                    <el-table-column type="index" width="20px">
                         <template slot-scope="scope" >
                             <span>{{(currentPage - 1) * 10 + scope.$index + 1}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="拆分单编号"></el-table-column>
-                    <el-table-column prop="" label="拆分仓库"></el-table-column>
-                    <el-table-column prop="" label="拆分日期"></el-table-column>
-                    <el-table-column prop="" label="商品编号"></el-table-column>
-                    <el-table-column prop="" label="商品名称"></el-table-column>
-                    <el-table-column prop="" label="商品类型"></el-table-column>
-                    <el-table-column prop="" label="拆分后数量"></el-table-column>
-                    <el-table-column prop="" label="批号"></el-table-column>
-                    <el-table-column prop="" label="拆分人"></el-table-column>
-                    <el-table-column prop="" label="创建时间"></el-table-column>
-                    <el-table-column prop="" label="结束时间"></el-table-column>
+                    <el-table-column prop="code" label="拆分单编号"></el-table-column>
+                    <el-table-column prop="warehouse.name" label="拆分仓库"></el-table-column>
+                    <el-table-column prop="splitTime" label="拆分日期"></el-table-column>
+                    <el-table-column prop="product.imageUrl" label="图片">
+                        <template slot-scope="scope">
+                            <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="product.code" label="商品编号"></el-table-column>
+                    <el-table-column prop="product.name" label="商品名称"></el-table-column>
+                    <el-table-column prop="number" label="拆分数量"></el-table-column>
+                    <!--<el-table-column prop="batchNumber" label="批号"></el-table-column>-->
+                    <el-table-column prop="splitMan.realName" label="拆分人"></el-table-column>
+                    <el-table-column prop="ctime" label="创建时间"></el-table-column>
+                    <el-table-column prop="etime" label="结束时间"></el-table-column>
                     <el-table-column prop="" label="状态">
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
@@ -75,7 +79,16 @@
                             <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                    <el-table-column prop="description" label="备注" :show-tooltip-when-overflow="true" :show-overflow-tooltip='true'></el-table-column>
+                    <el-table-column width="200px"
+                                     label="操作">
+                        <template slot-scope="scope">
+                            <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteProductAssembled(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
                 <el-pagination
                         background
@@ -90,16 +103,27 @@
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <product-split-form   @close="closeDialog" :isEdit="isEdit" @callback="callback" :oldProductSplit="oldProductSplit"></product-split-form>
         </el-dialog>
+        <el-dialog :visible.sync="detailsDialogVisible" :title="detailsDialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <product-split-details   @close="closeDetailDialog" :isEdit="isDetailsEdit" :oldProductSplit="oldProductSplit"></product-split-details>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import ProductSplitForm from "./ProductSplitForm";
+    import ProductSplitDetails from "./ProductSplitDetails";
     export default {
         name: "List",
-        components: {ProductSplitForm},
+        components: {ProductSplitDetails, ProductSplitForm},
+        mounted() {
+            this.loadSplit();
+        },
         data() {
             return {
+                isDetailsEdit: false,
+                detailsDialogVisible:false,
+                detailsDialogTitle: '',
+
                 isEdit:false,
                 oldProductSplit:{
 
@@ -146,6 +170,48 @@
             }
         },
         methods: {
+            closeDetailDialog() {
+                this.detailsDialogVisible = false;
+            },
+
+            showDetails(row) {
+                this.detailsDialogVisible = true;
+                this.detailsDialogTitle = "拆分单详情";
+                this.oldProductSplit = row;
+            },
+            startFlow(row) {
+
+            },
+            showEditView(row) {
+                this.isEdit = true;
+                this.oldProductSplit = row;
+                this.dialogVisible = true;
+                this.dialogTitle = "编辑拆分单";
+            },
+            deleteProductAssembled(row) {
+                this.$confirm("确定要删除吗？删除后不可恢复！","提示",{
+                    confirmButtonText:"确定",
+                    cancelButtonText:"取消",
+                    type:'warning'
+                }).then(()=>{
+                    this.deleteRequest('/erp/split/'+row.id).then((resp)=>{
+                        if(resp&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadSplit();
+                        }else {
+                            this.$message.error("删除失败");
+                        }
+                    })
+                })
+            },
+            loadSplit() {
+                this.getRequest('/erp/split/page?page=' + this.currentPage + '&size=10').then(resp => {
+                    if (resp&&resp.data) {
+                        this.productSplits = resp.data.productSplits;
+                        this.totalCount = resp.data.count;
+                    }
+                })
+            },
             cancelSearch(){
                 this.searchViewVisible = false;
             },
@@ -154,6 +220,7 @@
             },
             callback() {
                 this.dialogVisible = false;
+                this.loadSplit();
             },
             closeDialog() {
                   this.dialogVisible = false;
@@ -161,8 +228,9 @@
             search() {
 
             },
-            currentChange() {
-
+            currentChange(page) {
+                this.currentPage = page;
+                this.loadSplit();
             },
             showAddView() {
                 this.isEdit = false;
@@ -174,7 +242,7 @@
                     warehouse:{
                         name:''
                     },
-                    splitMaterials:[],
+                    details:[],
                     codeGeneratorType:"AUTO",
                     number:1
                 };
