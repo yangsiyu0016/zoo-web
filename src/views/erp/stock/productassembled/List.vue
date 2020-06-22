@@ -3,6 +3,10 @@
         <el-container>
             <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
                 <div style="display: inline">
+
+                    <el-button type="primary" size="mini" icon="el-icon-plus" @click="showAddView">添加</el-button>
+                </div>
+                <div style="margin-left: 5px;margin-right: 20px;display: inline">
                     <el-input size="mini" placeholder="通过单号、产品编码、产品名称搜索，记得回车呦..."
                               clearable
                               style="width: 300px;margin: 0px;padding: 0px;"
@@ -14,13 +18,9 @@
                     ></el-input>
                     <el-button @click="searchProductAssembled" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
                     <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
-                        @click="showSearchView">
+                               @click="showSearchView">
                         <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
                     </el-button>
-
-                </div>
-                <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                    <el-button type="primary" size="mini" icon="el-icon-plus" @click="showAddView">添加</el-button>
                 </div>
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
