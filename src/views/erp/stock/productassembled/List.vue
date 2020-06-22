@@ -94,7 +94,7 @@
                             </el-row>
                         </div>
                     </transition>
-                    <el-table v-loading="loading" size="mini" :data="productAssembleds"  @row-dblclick="dblclick">
+                    <el-table @sort-change="sortChange" v-loading="loading" size="mini" :data="productAssembleds"  @row-dblclick="dblclick">
                         <el-table-column type="index"></el-table-column>
                         <el-table-column label="组装单编号"  width="200px" >
                             <template slot-scope="scope">
@@ -102,8 +102,8 @@
                             </template>
                         </el-table-column>
                         <el-table-column label="组装仓库" prop="warehouse.name"></el-table-column>
-                        <el-table-column label="组装日期" prop="assembledTime"></el-table-column>
-                        <el-table-column label="产品编号" >
+                        <el-table-column label="组装日期" prop="assembledTime" sortable="custom" width="150px"></el-table-column>
+                        <el-table-column label="产品编号" width="150px">
                             <template slot-scope="scope">
                                 <span v-html="showData(scope.row.product.code)"></span>
                             </template>
@@ -130,7 +130,7 @@
                             </template>
                         </el-table-column>
                         <el-table-column label="操作人" prop="cuser.realName"></el-table-column>
-                        <el-table-column label="创建日期" prop="ctime"  width="200px" ></el-table-column>
+                        <el-table-column label="创建日期" prop="ctime" sortable="custom"  width="200px" ></el-table-column>
                         <el-table-column label="完成日期" prop="etime" width="200px" ></el-table-column>
                         <el-table-column label="备注" prop="description" :show-tooltip-when-overflow="true"></el-table-column>
                         <el-table-column width="200px"
@@ -181,6 +181,8 @@
                 currentPage: 1,
                 totalCount: -1,
                 pageSize:10,
+                sort:'ctime',
+                order:'desc',
                 dialogVisible:false,
                 dialogTitle:'',
                 isEdit:false,
@@ -299,7 +301,9 @@
                     "&start_assembledTime="+start_assembledTime+
                     "&end_assembledTime="+end_assembledTime+
                     "&start_ctime="+start_ctime+
-                    "&end_ctime="+end_ctime).then(resp=>{
+                    "&end_ctime="+end_ctime+
+                    "&sort="+this.sort+
+                    "&order="+this.order).then(resp=>{
                     this.productAssembleds = resp.data.productAssembleds;
                     this.totalCount = resp.data.count;
                     this.loading = false;
@@ -351,6 +355,15 @@
                     warehouseId:'',
                     status:''
                 }
+            },
+            sortChange(column){
+                this.sort=column.prop;
+                if(column.order==='descending'){
+                    this.order = "desc";
+                }else{
+                    this.order = "asc";
+                }
+                this.loadData();
             },
             sizeChange(size){
                 this.pageSize = size;
