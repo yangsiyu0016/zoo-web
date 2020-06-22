@@ -96,6 +96,15 @@
                     </transition>
                     <el-table @sort-change="sortChange" v-loading="loading" size="mini" :data="productAssembleds"  @row-dblclick="dblclick">
                         <el-table-column type="index"></el-table-column>
+                        <el-table-column width="200px"
+                                         label="操作">
+                            <template slot-scope="scope">
+                                <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                                <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
+                                <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                                <el-button v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteProductAssembled(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="组装单编号"  width="200px" >
                             <template slot-scope="scope">
                                 <span v-html="showData(scope.row.code)"></span>
@@ -133,15 +142,7 @@
                         <el-table-column label="创建日期" prop="ctime" sortable="custom"  width="200px" ></el-table-column>
                         <el-table-column label="完成日期" prop="etime" width="200px" ></el-table-column>
                         <el-table-column label="备注" prop="description" :show-tooltip-when-overflow="true"></el-table-column>
-                        <el-table-column width="200px"
-                                         label="操作">
-                            <template slot-scope="scope">
-                                <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                                <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                                <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                                <el-button v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteProductAssembled(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
-                            </template>
-                        </el-table-column>
+
                     </el-table>
                     <div style="display: flex;justify-content: space-between;margin: 2px">
                         <el-pagination
