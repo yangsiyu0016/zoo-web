@@ -3,8 +3,16 @@
         <el-container>
             <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
                 <div style="display: inline">
-                    <el-input size="mini" placeholder="通过产品名称搜索，记得回车呦..." clearable style="width: 300px;margin: 0px;padding: 0px;" prefix-icon="el-icon-search"></el-input>
-                    <el-button type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                    <el-input size="mini" placeholder="通过单号、产品编码、产品名称搜索，记得回车呦..."
+                              clearable
+                              style="width: 300px;margin: 0px;padding: 0px;"
+                              prefix-icon="el-icon-search"
+                              :disabled="searchViewVisible"
+                              @keyup.enter.native="searchProductAssembled"
+                              v-model="keywords"
+                              @change="keywordsChange"
+                    ></el-input>
+                    <el-button @click="searchProductAssembled" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
                     <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
                         @click="showSearchView">
                         <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
@@ -20,46 +28,96 @@
                     <transition name="slide-fade">
                         <div v-show="searchViewVisible" style="margin-bottom: 10px;border: 1px;border-radius: 5px;border-style: solid;padding: 5px 0px 5px 0px;box-sizing:border-box;border-color: #20a0ff">
                             <el-row :gutter="20" style="margin-top: 20px">
-                                <el-col :span="6">
-                                    组装单编号：<el-input size="mini" style="width: 200px" placeholder="组装单编号" ></el-input>
+                                <el-col :span="8">
+                                    组装单编号：<el-input v-model="productAssembled.code" size="mini" style="width: 400px" placeholder="组装单编号" ></el-input>
                                 </el-col>
-                                <el-col :span="6">
-                                    产品编号：<el-input size="mini" style="width: 200px" placeholder="产品编号" ></el-input>
+                                <el-col :span="8">
+                                    产品编号：<el-input v-model="productAssembled.productCode" size="mini" style="width: 400px" placeholder="产品编号" ></el-input>
                                 </el-col>
-                                <el-col :span="6">
-                                    产品名称：<el-input size="mini" style="width: 200px" placeholder="产品名称" ></el-input>
+                                <el-col :span="8">
+                                    产品名称：<el-input v-model="productAssembled.productName" size="mini" style="width: 400px" placeholder="产品名称" ></el-input>
                                 </el-col>
-                                <el-col :span="6">
-                                    组装仓库：<el-input size="mini" style="width: 200px" placeholder="组装仓库" ></el-input>
+
+
+                            </el-row>
+                            <el-row :gutter="20" style="margin-top: 20px">
+                                <el-col :span="8">
+                                    组装仓库：
+                                    <el-select clearable  size="mini" v-model="productAssembled.warehouseId" style="width: 400px">
+                                        <el-option v-for="(item,i) in warehouses" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-col>
+                                <el-col :span="8">
+                                    组装日期：
+                                    <el-date-picker
+                                        v-model="productAssembled.assembledTime"
+                                        size="mini"
+                                        style="width: 400px"
+                                        type="daterange"
+                                        align="right"
+                                        unlink-panels
+                                        range-separator="至"
+                                        start-placeholder="开始日期"
+                                        end-placeholder="结束日期"
+                                        value-format="yyyy-MM-dd"
+                                        :picker-options="pickerOptions">
+                                    </el-date-picker>
+                                </el-col>
+                                <el-col :span="8">
+                                    创建日期：
+                                    <el-date-picker
+                                            v-model="productAssembled.ctime"
+                                            size="mini"
+                                            type="datetimerange"
+                                            align="right"
+                                            unlink-panels
+                                            range-separator="至"
+                                            start-placeholder="开始日期"
+                                            end-placeholder="结束日期"
+                                            value-format="yyyy-MM-dd"
+                                            :picker-options="pickerOptions">
+                                    </el-date-picker>
                                 </el-col>
 
                             </el-row>
                             <el-row :gutter="20" style="margin-top: 20px">
-                                <el-col :span="6">
-                                    组装日期：<el-input size="mini" style="width: 200px" placeholder="组装日期"></el-input>
+                                <el-col :span="8">
+                                    订单状态:
+                                    <el-select size="mini" style="width: 400px" v-model="productAssembled.status" clearable>
+                                        <el-option label="未提交" value="WTJ"></el-option>
+                                    </el-select>
                                 </el-col>
-                                <el-col :span="6">
-                                    创建日期：<el-input size="mini" style="width: 200px" placeholder="创建日期" ></el-input>
-                                </el-col>
-                                <el-col :span="5">
-                                    <el-button icon="el-icon-zoom-out" size="mini" @click="cancelSearch">取消</el-button>
-                                    <el-button icon="el-icon-search" type="primary" size="mini" >搜索</el-button>
-                                </el-col>
+                            </el-row>
+                            <el-row :gutter="20" style="margin-top: 20px">
+                                <el-button icon="el-icon-zoom-out" size="mini" @click="cancelSearch">取消</el-button>
+                                <el-button @click="searchProductAssembled" icon="el-icon-search" type="primary" size="mini" >搜索</el-button>
                             </el-row>
                         </div>
                     </transition>
-                    <el-table size="mini" :data="productAssembleds"  @row-dblclick="dblclick">
+                    <el-table v-loading="loading" size="mini" :data="productAssembleds"  @row-dblclick="dblclick">
                         <el-table-column type="index"></el-table-column>
-                        <el-table-column label="组装单编号" prop="code" width="200px" ></el-table-column>
+                        <el-table-column label="组装单编号"  width="200px" >
+                            <template slot-scope="scope">
+                                <span v-html="showData(scope.row.code)"></span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="组装仓库" prop="warehouse.name"></el-table-column>
                         <el-table-column label="组装日期" prop="assembledTime"></el-table-column>
-                        <el-table-column label="产品编号" prop="product.code"></el-table-column>
+                        <el-table-column label="产品编号" >
+                            <template slot-scope="scope">
+                                <span v-html="showData(scope.row.product.code)"></span>
+                            </template>
+                        </el-table-column>
                         <el-table-column prop="product.imageUrl" label="图片">
                             <template slot-scope="scope">
                                 <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
                             </template>
                         </el-table-column>
-                        <el-table-column label="产品名称" prop="product.name"></el-table-column>
+                        <el-table-column label="产品名称" >
+                            <template slot-scope="scope">
+                                <span v-html="showData(scope.row.product.name)"></span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="组装数量" prop="number"></el-table-column>
                         <el-table-column  label="状态">
                             <template slot-scope="scope">
@@ -88,10 +146,12 @@
                     <div style="display: flex;justify-content: space-between;margin: 2px">
                         <el-pagination
                                 background
-                                :page-size="10"
+                                :page-sizes="[10,20,50,100,200]"
+                                :page-size="pageSize"
                                 @current-change="currentChange"
+                                @size-change="sizeChange"
                                 :current-page="currentPage"
-                                layout="prev,pager,next"
+                                layout="total,sizes,prev,pager,next,jumper"
                                 :total="totalCount">
                         </el-pagination>
                     </div>
@@ -117,8 +177,10 @@
             return {
                 searchViewVisible:false,
                 productAssembleds:[],
+                loading:false,
                 currentPage: 1,
                 totalCount: -1,
+                pageSize:10,
                 dialogVisible:false,
                 dialogTitle:'',
                 isEdit:false,
@@ -127,13 +189,61 @@
                 faangledoubledown: 'fa-angle-double-down',
                 detailsDialogVisible:false,
                 detailsDialogTitle:"",
-                isReception:false
+                isReception:false,
+                keywords:'',
+                productAssembled:{
+                    code:'',
+                    assembledTime:'',
+                    ctime:'',
+                    productCode:'',
+                    productName:'',
+                    warehouseId:'',
+                    status:''
+                },
+                warehouses:[],
+                //时间选择器
+                pickerOptions: {
+                    shortcuts: [{
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近一个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近三个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }]
+                }
             }
         },
         mounted(){
+            this.loadWarehouse();
             this.loadData();
         },
         methods: {
+            searchProductAssembled(){
+                this.loadData();
+            },
+            keywordsChange(val){
+                if(val==''){
+                    this.loadData();
+                }
+            },
             //显示订单详情
             showDetails(row){
                 this.dblclick(row);
@@ -165,9 +275,34 @@
                 this.dialogVisible = false;
             },
             loadData(){
-                this.getRequest('/erp/assembled/page?page='+this.currentPage+"&size=10").then(resp=>{
+                this.loading = true;
+                let start_assembledTime ='',
+                    end_assembledTime='',
+                    start_ctime='',
+                    end_ctime='';
+                if(this.productAssembled&&this.productAssembled.assembledTime.length>0){
+                    start_assembledTime = this.productAssembled.assembledTime[0];
+                    end_assembledTime=this.productAssembled.assembledTime[1];
+                }
+                if(this.productAssembled&&this.productAssembled.ctime.length>0){
+                    start_ctime = this.productAssembled.ctime[0];
+                    end_ctime = this.productAssembled.ctime[1];
+                }
+                this.getRequest('/erp/assembled/page?page='+this.currentPage+
+                    "&size="+this.pageSize+
+                    "&keywords="+this.keywords+
+                    "&code="+this.productAssembled.code+
+                    "&productCode="+this.productAssembled.productCode+
+                    "&productName="+this.productAssembled.productName+
+                    "&warehouseId="+this.productAssembled.warehouseId+
+                    "&status="+this.productAssembled.status+
+                    "&start_assembledTime="+start_assembledTime+
+                    "&end_assembledTime="+end_assembledTime+
+                    "&start_ctime="+start_ctime+
+                    "&end_ctime="+end_ctime).then(resp=>{
                     this.productAssembleds = resp.data.productAssembleds;
                     this.totalCount = resp.data.count;
+                    this.loading = false;
                 });
             },
             showEditView(row){
@@ -195,12 +330,35 @@
             },
             cancelSearch(){
                 this.searchViewVisible = false;
+                this.emptyProductAssembledData();
+                this.loadData();
             },
             showSearchView(){
                 this.searchViewVisible = !this.searchViewVisible;
+                this.keywords = '';
+                if(!this.searchViewVisible){
+                    this.emptyProductAssembledData();
+                    this.loadData();
+                }
             },
-            currentChange() {
-
+            emptyProductAssembledData(){
+                this.productAssembled={
+                    code:'',
+                    assembledTime:'',
+                    ctime:'',
+                    productCode:'',
+                    productName:'',
+                    warehouseId:'',
+                    status:''
+                }
+            },
+            sizeChange(size){
+                this.pageSize = size;
+                this.loadData();
+            },
+            currentChange(page) {
+                this.currentPage = page;
+                this.loadData();
             },
             //列表双击事件
             dblclick(row){
@@ -219,6 +377,21 @@
                     }
                 })
 
+            },
+            showData(val){
+                val = val+'';
+                if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
+                    return val.replace(this.keywords,'<font color="red">' + this.keywords + '</font>')
+                }else{
+                    return val;
+                }
+            },
+            loadWarehouse() {
+                this.getRequest('/erp/warehouse/all').then(resp=> {
+                    if (resp &&resp.data) {
+                        this.warehouses = resp.data;
+                    }
+                })
             },
         }
     }
