@@ -76,8 +76,8 @@
                         <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
-                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途" ></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
                         <el-table-column prop="warehouse.name" label="出库仓库"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
@@ -120,7 +120,7 @@
                                     <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                                     <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                                     <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                                    <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                                    <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
                                     <el-table-column label="数量" prop="number"></el-table-column>
                                 </el-table>
                             </template>
