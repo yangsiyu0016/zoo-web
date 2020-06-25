@@ -30,6 +30,7 @@
                                 background
                                 :page-size="10"
                                 :current-page="currentPage"
+                                @current-change="currentChange"
                                 layout="prev,pager,next"
                                 :total="totalCount">
                         </el-pagination>
@@ -58,6 +59,10 @@
             showUploadView(){
                 this.dialogVisible = true;
                 this.dialogTitle="上传流程";
+            },
+            currentChange(page) {
+                this.currentPage = page;
+                this.loadDeployments();
             },
             loadDeployments(){
                 let _this = this;

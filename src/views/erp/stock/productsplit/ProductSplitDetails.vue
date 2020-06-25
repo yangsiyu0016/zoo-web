@@ -11,12 +11,12 @@
         <el-form size="mini"  label-width="120px">
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
-                    <span style="float: left;">组装产品信息</span>
+                    <span style="float: left;">拆分产品信息</span>
                 </div>
                 <div>
                     <el-row :gutter="20">
                         <el-col :span="8">
-                            <el-form-item   label="组装日期:">
+                            <el-form-item   label="拆分日期:">
                                 <span style="float: left">{{oldProductSplit.splitTime}}</span>
                             </el-form-item>
                         </el-col>
@@ -29,7 +29,7 @@
                     </el-row>
                     <el-row :gutter="20">
                         <el-col :span="8" >
-                            <el-form-item label="组装仓库:" >
+                            <el-form-item label="拆分仓库:" >
                                 <span style="float: left">{{oldProductSplit.warehouse.name}}</span>
                             </el-form-item>
                         </el-col>
@@ -47,7 +47,7 @@
                     </el-row>
                     <el-row :gutter="20">
                         <el-col :span="8">
-                            <el-form-item label="组装数量:" >
+                            <el-form-item label="拆分数量:" >
                                 <span style="float: left">{{oldProductSplit.number}}</span>
                             </el-form-item>
                         </el-col>
@@ -63,7 +63,7 @@
             </el-card>
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
-                    <span style="float: left;">组装材料明细</span>
+                    <span style="float: left;">拆分材料明细</span>
                 </div>
                 <el-table
                         :data="oldProductSplit.details"
