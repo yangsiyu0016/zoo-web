@@ -48,6 +48,11 @@ export const asyncRouterMap = [{
         component:()=>import("@/views/oa/task/PurchaseTask"),
         meta:{title:"采购待办"}
     },{
+        path:'assembledTask',
+        name:'assembledTask',
+        component:()=>import("@/views/oa/task/assembled/AssembledTask"),
+        meta:{title:'产品组装待办'}
+    },{
         path:'inventoryCheckTask',
         name:'inventoryCheckTask',
         component:()=>import("@/views/oa/task/inventorycheck/InventoryCheckTask"),
@@ -135,6 +140,11 @@ export const asyncRouterMap = [{
             name: "allInventoryCheck",
             component: ()=>import("@/views/erp/order/AllInventoryCheck"),
             meta: {title: "盘点单"}
+        },{
+            path:'allAssembled',
+            name:'allAssembled',
+            component:()=>import("@/views/erp/order/assembled/AllAssembled"),
+            meta:{title:"产品组装单"}
         }]
     },{
         path: 'statistics',

@@ -50,17 +50,17 @@
                                 <el-col :span="8">
                                     组装日期：
                                     <el-date-picker
-                                        v-model="productAssembled.assembledTime"
-                                        size="mini"
-                                        style="width: 400px"
-                                        type="daterange"
-                                        align="right"
-                                        unlink-panels
-                                        range-separator="至"
-                                        start-placeholder="开始日期"
-                                        end-placeholder="结束日期"
-                                        value-format="yyyy-MM-dd"
-                                        :picker-options="pickerOptions">
+                                            v-model="productAssembled.assembledTime"
+                                            size="mini"
+                                            style="width: 400px"
+                                            type="daterange"
+                                            align="right"
+                                            unlink-panels
+                                            range-separator="至"
+                                            start-placeholder="开始日期"
+                                            end-placeholder="结束日期"
+                                            value-format="yyyy-MM-dd"
+                                            :picker-options="pickerOptions">
                                     </el-date-picker>
                                 </el-col>
                                 <el-col :span="8">
@@ -172,7 +172,7 @@
     import ProductAssembledForm from "@/views/erp/stock/productassembled/ProductAssembledForm";
     import ProductAssembledDetails from "@/views/erp/stock/productassembled/ProductAssembledDetails";
     export default {
-        name: "List",
+        name: "AllAssembled",
         components: {ProductAssembledDetails, ProductAssembledForm},
         data() {
             return {

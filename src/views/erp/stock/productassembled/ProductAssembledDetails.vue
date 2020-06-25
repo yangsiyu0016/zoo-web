@@ -17,12 +17,12 @@
                     <el-row :gutter="20">
                         <el-col :span="8">
                             <el-form-item   label="组装日期:">
-                                <span style="float: left">{{productAssembled.assembledTime}}</span>
+                                <span style="float: left">{{currentProductAssembled.assembledTime}}</span>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8">
                             <el-form-item label="单号:">
-                                <span style="float: left">{{productAssembled.code}}</span>
+                                <span style="float: left">{{currentProductAssembled.code}}</span>
                             </el-form-item>
                         </el-col>
 
@@ -30,32 +30,32 @@
                     <el-row :gutter="20">
                         <el-col :span="8" >
                             <el-form-item label="组装仓库:" >
-                                <span style="float: left">{{productAssembled.warehouse.name}}</span>
+                                <span style="float: left">{{currentProductAssembled.warehouse.name}}</span>
                             </el-form-item>
                         </el-col>
 
                         <el-col :span="8">
                             <el-form-item label="产品编号:">
-                                <span style="float: left">{{productAssembled.product.code}}</span>
+                                <span style="float: left">{{currentProductAssembled.product.code}}</span>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8">
                             <el-form-item label="产品名称:">
-                                <span style="float: left">{{productAssembled.product.name}}</span>
+                                <span style="float: left">{{currentProductAssembled.product.name}}</span>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="20">
                         <el-col :span="8">
                             <el-form-item label="组装数量:" >
-                                <span style="float: left">{{productAssembled.number}}</span>
+                                <span style="float: left">{{currentProductAssembled.number}}</span>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row :gutter="20">
                         <el-col >
                             <el-form-item label="备注:" prop="description">
-                                <span style="float: left">{{productAssembled.description}}</span>
+                                <span style="float: left">{{currentProductAssembled.description}}</span>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -66,7 +66,7 @@
                     <span style="float: left;">组装材料明细</span>
                 </div>
                 <el-table
-                        :data="productAssembled.materials"
+                        :data="currentProductAssembled.materials"
                         size="mini"
                         style="width:100%" >
                     <el-table-column
@@ -96,7 +96,24 @@
                 </el-table>
             </el-card>
             <el-card shadow="hover">
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">审批流程</span>
+                </div>
+                <div>
+                    <el-table :data="histories">
+                        <el-table-column type="index" width="80px"></el-table-column>
+                        <el-table-column label="节点名称" prop="actName"></el-table-column>
+                        <el-table-column label="意见" prop="message"></el-table-column>
+                        <el-table-column label="办理人" prop="assigneeName"></el-table-column>
+                        <el-table-column label="开始时间" prop="stime"></el-table-column>
+                        <el-table-column label="结束时间" prop="etime"></el-table-column>
+                        <el-table-column label="用时" prop="duration"></el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
+            <el-card shadow="hover">
                 <div style="text-align: center">
+                    <el-button @click="takeBack" size="mini" type="danger" v-show="isReception">取回</el-button>
                     <el-button @click="cancel" type="info" size="mini">关闭</el-button>
                 </div>
             </el-card>
@@ -105,7 +122,7 @@
 
             <vue-easy-print table-show ref="easyPrint" style="width: 65%">
                 <template slot-scope="func">
-                    <product-assembled-print-formwork :product-assembled="productAssembled"></product-assembled-print-formwork>
+                    <product-assembled-print-formwork :product-assembled="currentProductAssembled"></product-assembled-print-formwork>
                 </template>
             </vue-easy-print>
         </div>
@@ -122,15 +139,61 @@
             productAssembled:{
                 type:Object,
                 default:()=>{}
+            },
+            isReception: {
+                type: Boolean,
+                default: false
             }
         },
+        watch:{
+            productAssembled:{
+                handler(val){
+
+                    this.currentProductAssembled = JSON.parse(JSON.stringify(val));
+                    this.loadHistory();
+                },
+                deep:true,
+                immediate:true
+            }
+        },
+        data(){
+            return{
+                currentProductAssembled:{},
+                histories:[]
+            }
+        },
+
         methods:{
+            takeBack(){
+                this.$confirm('确定取回该订单吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: "warning"
+                }).then(() => {
+                    this.getRequest('/erp/assembled/takeBack?id=' + this.currentProductAssembled.id).then(resp => {
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("取回成功");
+                            this.$emit("callback");
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+
+                    });
+
+                })
+            },
             print(){
                 this.$refs.easyPrint.print();
             },
             cancel(){
                 this.$emit("close");
-            }
+            },
+            //加载审批过程
+            loadHistory(){
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.currentProductAssembled.processInstanceId).then((resp)=>{
+                    this.histories = resp.data;
+                })
+            },
         }
     }
 </script>

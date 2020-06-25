@@ -41,7 +41,7 @@
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                         <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
                         <el-table-column label="数量" width="150">
                             <template slot-scope="scope">
                                 <el-input-number size="mini" :min="0" v-model="scope.row.number" ></el-input-number>
