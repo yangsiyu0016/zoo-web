@@ -7,8 +7,9 @@
                 </div>
                 <el-row :gutter="20">
                     <el-col :span="8">
-                        <el-form-item prop="initDate" label="单据日期">
+                        <el-form-item prop="initDate" label="单据日期:">
                             <el-date-picker
+                                    style="float: left"
                                     align="right"
                                     type="date"
                                     v-model="oi.initDate"
@@ -21,7 +22,7 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="8" v-show="!isEdit">
-                        <el-form-item label="单号录入方式">
+                        <el-form-item label="单号录入方式:">
                             <el-select v-model="oi.codeGeneratorType">
                                 <el-option key="AUTO" label="自动生成" value="AUTO"></el-option>
                                 <el-option key="SELF" label="手动录入" value="SELF"></el-option>
@@ -29,15 +30,15 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="8" v-show="oi.id||oi.codeGeneratorType=='SELF'" >
-                        <el-form-item label="单号" prop="code" :required="oi.codeGeneratorType=='SELF'">
+                        <el-form-item label="单号:" prop="code" :required="oi.codeGeneratorType=='SELF'">
                             <el-input :disabled="isEdit" v-model="oi.code"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row :gutter="20">
                     <el-col :span="8">
-                        <el-form-item label="仓库" prop="warehouse.id">
-                            <el-select :disabled="oi.details.length>0" v-model="oi.warehouse" value-key="id" placeholder="选择仓库">
+                        <el-form-item label="仓库:" prop="warehouse.id">
+                            <el-select style="float: left" :disabled="oi.details.length>0" v-model="oi.warehouse" value-key="id" placeholder="选择仓库">
                                 <el-option
                                         v-for="(item,i) in warehouses"
                                         :key="item.id"
@@ -76,7 +77,7 @@
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                         <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
                         <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="操作">
@@ -89,23 +90,56 @@
                     </el-table>
                 </div>
             </el-card>
+            <el-card>
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">附件列表</span>
+                </div>
+                <div>
+                    <el-button type="primary" size="mini" icon="el-icon-plus"
+                               style="float: left"    @click="showAddAnnexView">
+                        添加附件
+                    </el-button>
+                    <el-table
+                            :data="oi.annexs"
+                            size="mini"
+                            style="width:100%">
+                        <el-table-column label="附件名称" prop="title" ></el-table-column>
+                        <el-table-column label="格式" prop="suffix" ></el-table-column>
+                        <el-table-column label="大小" prop="size" ></el-table-column>
+                        <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
+                        <el-table-column
+                                label="操作" width="120">
+                            <template slot-scope="scope">
+                                <el-button type="primary" v-show="isEdit"  @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                                <el-button type="danger"  @click="deleteAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
             <el-card shadow="hover">
                 <el-button @click="saveOi" size="mini" type="primary">保存</el-button>
-                <el-button @click="saveAndStart" size="mini" type="warning" v-show="oi.status !== 'REJECT'">保存并启动流程</el-button>
+               <!-- <el-button @click="saveAndStart" size="mini" type="warning" v-show="oi.status !== 'REJECT'">保存并启动流程</el-button>-->
                 <el-button @click="cancel" size="mini" type="info">取消</el-button>
             </el-card>
         </el-form>
         <el-dialog :visible.sync="detailDialogVisible" :title="detailDialogTitle" :close-on-click-modal="false" :append-to-body="true">
             <opening-inventory-detail-form :isEdit="this.detailIsEdit" :oldDetail="oldDetail" :warehouseId="oi.warehouse.id" @addDetail="addDetail" @editDetail="editDetail" @close="closeWin"></opening-inventory-detail-form>
         </el-dialog>
+
+        <el-dialog :visible.sync="uploadDialogVisible" :title="uploadDialogTitle" :close-on-click-modal="false" :append-to-body="true">
+            <annex-upload-form :oldAnnex="oldAnnex" @close="closeUploadForm"   @addAnnex="addAnnex"></annex-upload-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import OpeningInventoryDetailForm from "@/views/erp/stock/oi/OpeningInventoryDetailForm";
+    import AnnexUploadForm from "@/components/dialog/AnnexUploadForm";
     export default {
         name: "OpeningInventoryForm",
-        components: {OpeningInventoryDetailForm},
+        components: {AnnexUploadForm, OpeningInventoryDetailForm},
         mounted(){
             this.loadWarehouses();
         },
@@ -129,6 +163,54 @@
             }
         },
         methods:{
+            downloadAnnex(row) {
+                window.open(row.url + "?fileName=" + row.fileName);
+            },
+            deleteAnnex(row) {
+                this.$confirm('确定删除该附件吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消'
+                }).then(()=>{
+                    this.postNoEnCodeRequest('/annex/delete', row).then(resp => {
+                        if (resp.data.status == '200') {
+                            this.$message.success('删除成功');
+                            this.oi.annexs.some((item, i) => {
+                                if (item == row) {
+                                    this.oi.annexs.splice(i, 1);
+                                    return true;
+                                }
+                            })
+                        }else {
+                            this.$message.error('删除失败')
+                        }
+                    })
+                })
+            },
+            addAnnex(data){
+                let annex = data;
+                if(this.isEdit){
+                    Object.assign(annex,{foreignKey:this.oi.id});
+                    this.putNoEnCodeRequest('/annex/add',annex).then((resp)=>{
+                        if(resp&&resp.data.status==200) {
+                            this.oi.annexs.push(resp.data.annex);
+                            this.closeUploadForm();
+                        }else{
+                            this.$message.error("保存附件信息失败");
+                        }
+                    });
+                }else{
+                    this.oi.annexs.push(annex);
+                    this.closeUploadForm();
+                }
+            },
+            closeUploadForm(){
+                this.uploadDialogVisible = false;
+            },
+            showAddAnnexView(){
+                this.oldAnnex = {title:''}
+                this.uploadDialogVisible = true;
+                this.uploadDialogTitle = '添加附件'
+            },
             //保存并启动流程
             saveAndStart(){
                 this.$message.info("暂时不实现");
@@ -285,6 +367,9 @@
                 }
             };
             return{
+                uploadDialogVisible:false,
+                uploadDialogTitle:'',
+                oldAnnex:{},
                 detailDialogVisible:false,
                 detailDialogTitle:"添加产品",
                 warehouses:[],
@@ -294,7 +379,8 @@
                     code:'',
                     processInstanceId:'',
                     warehouse:{},
-                    details:[]
+                    details:[],
+                    annexs:[]
                 },
                 oldDetail:{},
                 detailIsEdit:false,

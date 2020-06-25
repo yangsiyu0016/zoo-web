@@ -1,92 +1,107 @@
 <template>
     <div style="width: 100%; text-align: center">
-        <span style="text-align: center; font-size: 24px; font-weight: bold">期初订单</span>
-        <el-card shadow="hover" >
-            <div slot="header" class="clearfix">
-                <span style="float: left;">单据基本信息</span>
-            </div>
-            <div>
-                <el-form>
-                    <el-row :gutter="20">
-                        <el-col :span="8">
-                            <el-form-item label="单号:">
-                                <span style="float: left">{{oi.code}}</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="单据日期:">
-                                <span style="float: left">{{oi.initDate}}</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row :gutter="20">
-                        <el-col :span="8">
-                            <el-form-item label="仓库:">
-                                <span style="float: left">{{oi.warehouse.name}}</span>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </div>
-        </el-card>
-        <el-card shadow="hover">
-            <div slot="header">
-                <span style="float: left;">产品清单</span>
-            </div>
-            <div>
-                <!--<el-table :data="oi.details" size="mini" style="width: 100%">
-                    <el-table-column type="index" align="left" width="30" fixed></el-table-column>
-                    <el-table-column label="产品编号" prop="productSku.code" fixed></el-table-column>
-                    <el-table-column label="产品名称" prop="productSku.product.name" fixed></el-table-column>
-                    <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                    <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400" fixed ></el-table-column>
-                    <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
-                    <el-table-column label="数量" prop="number"></el-table-column>
-
-                </el-table>-->
-                <table v-for="(item, i) in oi.details" style="border-collapse: collapse; border: none; width: 100%;">
-                    <tr v-if="i==0">
-                        <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
-                        <td width="30%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
-                        <td width="30%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品名称</td>
-
-                        <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
-                    </tr>
-                    <tr>
-                        <td width="15%" v-text="i" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                        <td width="30%" v-text="item.productSku.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                        <td width="30%" v-text="item.productSku.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                        <td width="25%" v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                    </tr>
-                </table>
-            </div>
-        </el-card>
+        <el-header>
+            <el-row>
+                <el-col :span="6">
+                    <el-image :src="logo" style="float: left"></el-image>
+                </el-col>
+                <el-col :span="12">
+                    <span style="text-align: center;
+    	margin-bottom: 1em;
+    	font-size: 20pt;
+    	font-weight: bold;
+    	line-height: 1.5;
+   	 	color: #000833;
+    	text-shadow: 0px 1px 3px #CCC;">牧疆南北期初订单</span>
+                </el-col>
+                <!-- <td  class="middle pageTitle" style="font-size: 25px; vertical-align: top;">订单</td>-->
+            </el-row>
+        </el-header>
+        <el-form size="mini"  label-width="120px">
+            <el-card shadow="hover" >
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">单据基本信息</span>
+                </div>
+                <div>
+                    <el-form>
+                        <el-row :gutter="20">
+                            <el-col :span="8">
+                                <el-form-item label="单号:">
+                                    <span style="float: left">{{oi.code}}</span>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-form-item label="单据日期:">
+                                    <span style="float: left">{{oi.initDate}}</span>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="8">
+                                <el-form-item label="仓库:">
+                                    <span style="float: left">{{oi.warehouse.name}}</span>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                </div>
+            </el-card>
+            <el-card shadow="hover">
+                <div slot="header">
+                    <span style="float: left;">产品清单</span>
+                </div>
+                <div>
+                    <table v-for="(item, i) in oi.details" style="border-collapse: collapse; border: none; width: 100%;">
+                        <tr v-if="i==0">
+                            <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品名称</td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品图片</td>
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">单位</td>
+                        </tr>
+                        <tr>
+                            <td width="5%" v-text="(i + 1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" v-text="item.product.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" v-text="item.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">
+                                <el-image style="width: 100px;height: 100px"  v-if="item.product.imageUrl" :src="item.product.imageUrl" ></el-image>
+                            </td>
+                            <td width="15%" v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="15%" v-text="item.product.unit==null?'':item.product.unit.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                        </tr>
+                    </table>
+                </div>
+            </el-card>
+            <el-card shadow="hover" style="text-align: left">
+                <el-row>
+                    <span>制单人：{{oi.cuser.realName}}</span>
+                </el-row>
+                <el-row>
+                    <span>制单日期：{{oi.ctime}}</span>
+                </el-row>
+            </el-card>
+        </el-form>
     </div>
 </template>
 
 <script>
+    import logo from '@/assets/logo.jpg'
     export default {
         name: "OpengingInventoryPrintFormwork",
-        data() {
-            return {
-                oi:{
-                    warehouse:{
-                        name:''
-                    }
+        props:{
+            oi:{
+                type:Object,
+                default:()=>{
+                    code:''
                 }
             }
         },
-        watch:{
-            oldOi:{
-                handler(val){
-                    if(val) this.oi = JSON.parse(JSON.stringify(val));
-
-                    /* this.loadHistory();*/
-                },
-                deep:true,
-                immediate:true
+        data(){
+            return{
+                logo:logo
             }
-        },
+        }
     }
 </script>
 

@@ -196,8 +196,8 @@
                 keywords:'',
                 productAssembled:{
                     code:'',
-                    assembledTime:'',
-                    ctime:'',
+                    assembledTime:[],
+                    ctime:[],
                     productCode:'',
                     productName:'',
                     warehouseId:'',
@@ -305,11 +305,11 @@
                     end_assembledTime='',
                     start_ctime='',
                     end_ctime='';
-                if(this.productAssembled&&this.productAssembled.assembledTime.length>0){
+                if(this.productAssembled.assembledTime&&this.productAssembled.assembledTime.length>0){
                     start_assembledTime = this.productAssembled.assembledTime[0];
                     end_assembledTime=this.productAssembled.assembledTime[1];
                 }
-                if(this.productAssembled&&this.productAssembled.ctime.length>0){
+                if(this.productAssembled.assembledTime&&this.productAssembled.ctime.length>0){
                     start_ctime = this.productAssembled.ctime[0];
                     end_ctime = this.productAssembled.ctime[1];
                 }
@@ -371,8 +371,8 @@
             emptyProductAssembledData(){
                 this.productAssembled={
                     code:'',
-                    assembledTime:'',
-                    ctime:'',
+                    assembledTime:[],
+                    ctime:[],
                     productCode:'',
                     productName:'',
                     warehouseId:'',

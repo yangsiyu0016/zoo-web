@@ -1,5 +1,13 @@
 <template>
     <div>
+        <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+            <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                <el-button type="primary" size="mini" icon="el-icon-printer"
+                           @click="print">
+                    打印
+                </el-button>
+            </div>
+        </el-header>
         <el-card shadow="hover" >
             <div slot="header" class="clearfix">
                 <span style="float: left;">单据基本信息</span>
@@ -42,13 +50,37 @@
                     <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                     <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                     <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                    <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                    <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
                     <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
                     <el-table-column label="数量" prop="number"></el-table-column>
 
                 </el-table>
             </div>
         </el-card>
+        <el-card>
+            <div slot="header" class="clearfix">
+                <span style="float: left;">附件列表</span>
+            </div>
+            <div>
+                <el-table
+                        :data="oi.annexs"
+                        size="mini"
+                        style="width:100%">
+                    <el-table-column label="附件名称" prop="title" ></el-table-column>
+                    <el-table-column label="格式" prop="suffix" ></el-table-column>
+                    <el-table-column label="大小" prop="size" ></el-table-column>
+                    <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
+                    <el-table-column
+                            label="操作" width="120">
+                        <template slot-scope="scope">
+                            <el-button type="primary"   @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+        </el-card>
+
         <el-card shadow="hover">
             <div slot="header" class="clearfix">
                 <span style="float: left;">审批流程</span>
@@ -71,9 +103,9 @@
             <el-button @click="close" size="mini" type="info">关闭</el-button>
         </el-card>
         <div v-show="false">
-            <vue-easy-print table-show ref="easyPrint" style="width: 65%">
+            <vue-easy-print table-show ref="easyPrint" style="width: 100%">
                 <template slot-scope="func">
-                    <opening-inventory-print-formwork :getChineseNumber="func.getChineseNumber" :oldOi="currentOi"></opening-inventory-print-formwork>
+                    <opening-inventory-print-formwork :getChineseNumber="func.getChineseNumber" :oi="currentOi"></opening-inventory-print-formwork>
                 </template>
             </vue-easy-print>
         </div>
@@ -113,6 +145,9 @@
           this.loadHistory();
         },
         methods:{
+            downloadAnnex(row) {
+                window.open(row.url + "?fileName=" + row.fileName);
+            },
             //打印
             print(){
 

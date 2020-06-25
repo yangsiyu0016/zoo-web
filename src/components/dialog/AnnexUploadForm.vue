@@ -43,6 +43,7 @@
             oldAnnex:{
                 handler(val){
                     this.annex = JSON.parse(JSON.stringify(val));
+
                 },
                 deep:true,
                 immediate:true
@@ -114,6 +115,7 @@
             },
             cancelEdit() {
                 this.$emit('close');
+                this.$refs.upload.clearFiles();
             }
         }
     }
