@@ -1,36 +1,63 @@
 <template>
     <div>
-        <el-table :data="tasks" size="mini" @row-dblclick="showDetailView">
-            <el-table-column
-                    type="index"
-                    align="left"
-                    width="30"></el-table-column>
-            <el-table-column  prop="code" align="left"  label="单号"></el-table-column>
-            <el-table-column  prop="name" align="left"  label="当前步骤"></el-table-column>
-            <el-table-column prop="originatorName" align="left" label="任务发起人"></el-table-column>
-            <el-table-column label="流程状态">
-                <template slot-scope="scope">
-                    <el-tag size="mini" v-if="!scope.row.assigneeName" type="info">未签收</el-tag>
-                    <el-tag size="mini" v-else type="warning">处理中【{{scope.row.assigneeName}}】</el-tag>
-                </template>
-            </el-table-column>
-            <el-table-column prop="createTime" align="left" label="创建时间" ></el-table-column>
-            <el-table-column prop="stateTime" align="left" label="停留时间" :formatter="getDuration"></el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                    <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <div style="display: flex;justify-content: space-between;margin: 2px">
-            <el-pagination
-                    background
-                    :page-size="10"
-                    :current-page="currentPage"
-                    layout="prev,pager,next"
-                    :total="totalCount">
-            </el-pagination>
-        </div>
+        <el-container>
+            <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+                <div></div>
+                <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                    <el-input size="mini" placeholder="通过单号搜索，记得回车呦..."
+                              clearable
+                              style="width: 350px;margin: 0px;padding: 0px;"
+                              prefix-icon="el-icon-search"
+                              @keyup.enter.native="searchTask"
+                              v-model="keywords"
+                              @change="keywordsChange"
+                    ></el-input>
+                    <el-button @click="searchTask" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                </div>
+            </el-header>
+            <el-main>
+                <el-table @sort-change="sortChange" v-loading="loading" :data="tasks" size="mini" @row-dblclick="showDetailView">
+                    <el-table-column
+                            type="index"
+                            align="left"
+                            width="80"></el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                        </template>
+                    </el-table-column>
+                    <el-table-column  prop="code" align="left"  label="单号">
+                        <template slot-scope="scope">
+                            <span v-html="showData(scope.row.code)"></span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column  prop="name" align="left"  label="当前步骤"></el-table-column>
+                    <el-table-column prop="originatorName" align="left" label="任务发起人"></el-table-column>
+                    <el-table-column label="流程状态">
+                        <template slot-scope="scope">
+                            <el-tag size="mini" v-if="!scope.row.assigneeName" type="info">未签收</el-tag>
+                            <el-tag size="mini" v-else type="warning">处理中【{{scope.row.assigneeName}}】</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="createTime" align="left" label="创建时间" sortable></el-table-column>
+                    <el-table-column prop="stateTime" align="left" label="停留时间" :formatter="getDuration" sortable></el-table-column>
+
+                </el-table>
+                <div style="display: flex;justify-content: space-between;margin: 2px">
+                    <el-pagination
+                            background
+                            :page-sizes="[10,20,50,100,200]"
+                            :page-size="pageSize"
+                            @size-change="sizeChange"
+                            @current-change="currentChange"
+                            :current-page="currentPage"
+                            layout="total,sizes,prev,pager,next,jumper"
+                            :total="totalCount">
+                    </el-pagination>
+                </div>
+            </el-main>
+        </el-container>
+
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
             <opening-inventory-task-details :task="currentTask" @close="closeWin" @refresh="refresh" :rejectVisible="rejectVisible" :canEdit="canEdit"></opening-inventory-task-details>
         </el-dialog>
@@ -46,6 +73,39 @@
             this.loadTask();
         },
         methods:{
+            showData(val){
+                val = val+'';
+                if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
+                    return val.replace(this.keywords,'<font color="red">' + this.keywords + '</font>')
+                }else{
+                    return val;
+                }
+            },
+            sortChange(column){
+                this.sort=column.prop;
+                if(column.order==='descending'){
+                    this.order = "desc";
+                }else{
+                    this.order = "asc";
+                }
+                this.loadData();
+            },
+            sizeChange(size){
+                this.pageSize = size;
+                this.loadData();
+            },
+            currentChange(page) {
+                this.currentPage = page;
+                this.loadData();
+            },
+            keywordsChange(val){
+                if(val==''){
+                    this.loadData();
+                }
+            },
+            searchTask(){
+                this.loadTask();
+            },
             //刷新列表
             refresh(){
                 this.loadTask();
@@ -78,9 +138,15 @@
             },
             //加载任务列表
             loadTask(){
-                this.getRequest('/flow/task/getOpeningInventoryTask?page='+this.currentPage+'&size=10').then((resp)=>{
+                this.loading = true;
+                this.getRequest('/flow/task/getOpeningInventoryTask?page='+this.currentPage+
+                    '&size='+this.pageSize+
+                    '&sort='+this.sort+
+                    '&order='+this.order+
+                '&keywords='+this.keywords).then((resp)=>{
                     this.tasks = resp.data.tasks;
                     this.totalCount = resp.data.count;
+                    this.loading = false;
                 })
             },
             getDuration(row){
@@ -99,9 +165,14 @@
         },
         data(){
             return{
+                keywords:'',
+                loading:false,
                 tasks:[],
                 currentPage:1,
                 totalCount:-1,
+                pageSize:10,
+                sort:'createTime',
+                order:'desc',
                 dialogTitle:'',
                 dialogVisible:false,
                 currentTask:{

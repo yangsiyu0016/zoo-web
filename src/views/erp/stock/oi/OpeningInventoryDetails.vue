@@ -164,7 +164,7 @@
                             this.$message.success("操作成功");
                             this.$emit("callback");
                         }else{
-                            this.$message.error("操作失败");
+                            this.$message.error(resp.data.msg);
                         }
 
                     });

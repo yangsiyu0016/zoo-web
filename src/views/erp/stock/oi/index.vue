@@ -116,6 +116,7 @@
                             <el-tag v-else-if="scope.row.status=='CWSH'" type="danger" size="mini" effect="dark">财务审核</el-tag>
                             <el-tag v-else-if="scope.row.status=='FINISHED'" type="success" size="mini" effect="dark">流程完成</el-tag>
                             <el-tag v-else-if="scope.row.status=='DESTROY'" type="info" size="mini" effect="dark">作废</el-tag>
+                            <el-tag v-else-if="scope.row.status=='REJECT'" type="danger" size="mini" effect="dark">驳回调整</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="cuser.realName" align="left"  label="创建人" ></el-table-column>
@@ -129,7 +130,8 @@
                             :page-sizes="[10,20,50,100,200]"
                             :page-size="pageSize"
                             @size-change="sizeChange"
-                            @current-page="currentPage"
+                            @current-change="currentChange"
+                            :current-page="currentPage"
                             layout="total,sizes,prev,pager,next,jumper"
                             :total="totalCount">
                     </el-pagination>
@@ -177,6 +179,10 @@
                 this.pageSize = size;
                 this.loadData();
             },
+            currentChange(page) {
+                this.currentPage = page;
+                this.loadData();
+            },
             keywordsChange(val){
                 if(val==''){
                     this.loadData();
@@ -220,7 +226,8 @@
                             this.$message.success("删除成功");
                             this.loadData();
                         }else {
-                            this.$message.error("删除失败");
+                            this.$message.error(resp.data.msg);
+                            this.loadData();
                         }
                     })
                 })
@@ -239,10 +246,10 @@
                     if(resp&&resp.data){
                         this.currentOi = resp.data;
                         this.detailsDialogVisible = true;
-                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
-                            this.isReception = true;
-                        }else {
+                        if (resp.data.status === 'WTJ' || resp.data.status === 'DESTROY') {
                             this.isReception = false;
+                        }else {
+                            this.isReception = true;
                         }
                         this.detailsDialogTitle="订单查看";
                     }else{
@@ -267,7 +274,7 @@
                             this.loadData();
 
                         }else{
-                            this.$message.error("启动失败");
+                            this.$message.error(resp.data.msg);
                         }
                     })
                 })
@@ -321,10 +328,16 @@
             //显示修改视图
             showEditOiView(row){
                 this.getRequest("/oi/getOiById?id="+row.id).then((resp)=>{
-                    this.isEdit = true;
-                    this.oldOi=resp.data;
-                    this.dialogTitle="编辑单据";
-                    this.dialogVisible = true;
+                    if(!resp.data.processInstanceId){
+                        this.isEdit = true;
+                        this.oldOi=resp.data;
+                        this.dialogTitle="编辑单据";
+                        this.dialogVisible = true;
+                    }else{
+                        this.$message.error("流程已启动,不能编辑");
+                        this.loadData();
+                    }
+
                 })
 
             },

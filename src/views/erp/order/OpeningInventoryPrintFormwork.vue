@@ -27,19 +27,19 @@
                         <el-row :gutter="20">
                             <el-col :span="8">
                                 <el-form-item label="单号:">
-                                    <span style="float: left">{{oi.code}}</span>
+                                    <span style="float: left">{{currentOi.code}}</span>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="8">
                                 <el-form-item label="单据日期:">
-                                    <span style="float: left">{{oi.initDate}}</span>
+                                    <span style="float: left">{{currentOi.initDate}}</span>
                                 </el-form-item>
                             </el-col>
                         </el-row>
                         <el-row :gutter="20">
                             <el-col :span="8">
                                 <el-form-item label="仓库:">
-                                    <span style="float: left">{{oi.warehouse.name}}</span>
+                                    <span style="float: left">{{currentOi.warehouse.name}}</span>
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -51,7 +51,7 @@
                     <span style="float: left;">产品清单</span>
                 </div>
                 <div>
-                    <table v-for="(item, i) in oi.details" style="border-collapse: collapse; border: none; width: 100%;">
+                    <table v-for="(item, i) in currentOi.details" style="border-collapse: collapse; border: none; width: 100%;">
                         <tr v-if="i==0">
                             <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
                             <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
@@ -75,10 +75,10 @@
             </el-card>
             <el-card shadow="hover" style="text-align: left">
                 <el-row>
-                    <span>制单人：{{oi.cuser.realName}}</span>
+                    <span>制单人：{{currentOi.cuser.realName}}</span>
                 </el-row>
                 <el-row>
-                    <span>制单日期：{{oi.ctime}}</span>
+                    <span>制单日期：{{currentOi.ctime}}</span>
                 </el-row>
             </el-card>
         </el-form>
@@ -92,14 +92,30 @@
         props:{
             oi:{
                 type:Object,
-                default:()=>{
-                    code:''
-                }
+                default:()=>{}
+            }
+        },
+        watch:{
+            oi:{
+                handler(val){
+                    this.currentOi = JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
             }
         },
         data(){
             return{
-                logo:logo
+                logo:logo,
+                currentOi:{
+                    code:'',
+                    warehouse:{
+                        name:''
+                    },
+                    cuser:{
+                        realName:''
+                    }
+                }
             }
         }
     }

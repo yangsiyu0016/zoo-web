@@ -1,15 +1,23 @@
 <template>
     <div>
+        <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+            <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                <el-button type="primary" size="mini" icon="el-icon-printer"
+                           @click="print">
+                    打印
+                </el-button>
+            </div>
+        </el-header>
         <el-card shadow="hover">
             <div slot="header" class="clearfix">
                 <span style="float: left;">单据基本信息</span>
             </div>
             <div>
-                <el-row  :gutter="20">
+                <el-row  :gutter="20" style="margin-top: 20px">
                     <el-col :span="8"><span>单据日期:{{oi.initDate}}</span></el-col>
                     <el-col :span="8"><span>单号：{{oi.code}}</span></el-col>
                 </el-row>
-                <el-row>
+                <el-row style="margin-top: 20px">
                     <el-col :span="8"><span>仓库:{{oi.warehouse.name}}</span></el-col>
                 </el-row>
             </div>
@@ -36,7 +44,7 @@
                     <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                     <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                     <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                    <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                    <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
                     <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
                     <el-table-column label="数量" prop="number"></el-table-column>
                     <el-table-column label="成本价" prop="costPrice" v-if="oi.status=='CWSH'" width="300">
@@ -46,6 +54,30 @@
                         </template>
                     </el-table-column>
                     <el-table-column label="总额" prop="totalMoney" v-if="oi.status=='CWSH'"></el-table-column>
+                </el-table>
+            </div>
+        </el-card>
+        <el-card>
+            <div slot="header" class="clearfix">
+                <span style="float: left;">附件列表</span>
+            </div>
+            <div>
+                <el-table
+                        :data="oi.annexs"
+                        size="mini"
+                        style="width:100%">
+                    <el-table-column label="附件名称" prop="title" ></el-table-column>
+                    <el-table-column label="附件格式" prop="suffix" ></el-table-column>
+                    <el-table-column label="大小" prop="size" ></el-table-column>
+
+                    <el-table-column label="上传时间" prop="utime" ></el-table-column>
+
+                    <el-table-column
+                            label="操作" width="120">
+                        <template slot-scope="scope">
+                            <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </div>
         </el-card>
@@ -83,14 +115,23 @@
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <opening-inventory-form :isEdit="isEdit" :oldOi="oldOi" @close="closeWin" @callback="callback"></opening-inventory-form>
         </el-dialog>
+        <div v-show="false">
+            <vue-easy-print table-show ref="easyPrint" style="width: 100%">
+                <template slot-scope="func">
+                    <openging-inventory-print-formwork :getChineseNumber="func.getChineseNumber" :oi="oi"></openging-inventory-print-formwork>
+                </template>
+            </vue-easy-print>
+        </div>
     </div>
 </template>
 
 <script>
+    import vueEasyPrint from "vue-easy-print";
     import OpeningInventoryForm from "@/views/erp/stock/oi/OpeningInventoryForm";
+    import OpengingInventoryPrintFormwork from "@/views/erp/order/OpeningInventoryPrintFormwork";
     export default {
         name: "OpeningInventoryTaskDetails",
-        components: {OpeningInventoryForm},
+        components: {OpengingInventoryPrintFormwork, OpeningInventoryForm,vueEasyPrint},
         props:{
             task:{
                 type:Object,
@@ -129,6 +170,15 @@
             }
         },
         methods:{
+            //打印
+            print(){
+
+                this.$refs.easyPrint.print();
+            },
+            downloadAnnex(row) {
+
+                window.open(row.url + "?fileName=" + row.fileName);
+            },
             edit() {
                 this.isEdit = true;
                 this.getRequest("/oi/getOiById?id="+this.oi.id).then((resp)=>{
@@ -146,7 +196,7 @@
             //驳回任务
             doReject(){
 
-                this.postRequest('/flow/task/reject?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
                     if(resp&&resp.data.status=="200"){
                         this.$emit("close");
                         this.$emit("refresh");
@@ -173,13 +223,12 @@
             },
             //作废
             destory(){
-                console.log(this.task)
                 this.$confirm("确定要作废该任务嘛？", "提示", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
                     type: 'warning'
                 }).then(()=> {
-                        this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE&id=" + this.oi.id + '&code=QC').then((resp)=>{
+                        this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE" ).then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$emit("close");
                             this.$emit("refresh");
@@ -254,6 +303,8 @@
                             }
                             this.loadHistory();
                             this.$emit("refresh");
+                        }else{
+                            this.$message.error(resp.data.msg);
                         }
                     })
                 })
@@ -274,6 +325,9 @@
                 oi:{
                     warehouse:{
                         name:''
+                    },
+                    cuser:{
+                        realName:''
                     }
                 },
                 claimVisible:false,
