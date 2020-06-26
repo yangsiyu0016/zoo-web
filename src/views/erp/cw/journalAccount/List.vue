@@ -42,6 +42,21 @@
                             <el-col :span="8">
                                 单号：<el-input v-model="searchData.code" size="mini" style="width: 400px" placeholder="单号" ></el-input>
                             </el-col>
+                            <el-col :span="8">
+                                创建日期：
+                                <el-date-picker
+                                        v-model="searchData.ctime"
+                                        size="mini"
+                                        type="datetimerange"
+                                        align="right"
+                                        unlink-panels
+                                        range-separator="至"
+                                        start-placeholder="开始日期"
+                                        end-placeholder="结束日期"
+                                        value-format="yyyy-MM-dd"
+                                        :picker-options="pickerOptions">
+                                </el-date-picker>
+                            </el-col>
                         </el-row>
                         <el-row :gutter="20" style="margin-top: 20px">
                             <el-button icon="el-icon-zoom-out" size="mini" @click="cancelSearch">取消</el-button>
@@ -124,7 +139,8 @@
                     code:'',
                     productCode:'',
                     productName:'',
-                    warehouseId:''
+                    warehouseId:'',
+                    ctime:''
                 },
                 faangledoubleup: 'fa-angle-double-up',
                 faangledoubledown: 'fa-angle-double-down',
@@ -134,7 +150,35 @@
                 currentPage:1,
                 pageSize:10,
                 sort:'ctime',
-                order:'desc'
+                order:'desc',
+                //时间选择器
+                pickerOptions: {
+                    shortcuts: [{
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近一个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '最近三个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }]
+                }
             }
         },
         mounted() {
@@ -190,6 +234,13 @@
             },
             loadData(){
                 this.tableLoading = true;
+                let start_ctime='',
+                    end_ctime='';
+
+                if(this.searchData.ctime&&this.searchData.ctime.length>0){
+                    start_ctime = this.searchData.ctime[0];
+                    end_ctime = this.searchData.ctime[1];
+                }
                 this.getRequest('/erp/ja/page?page='+this.currentPage+"" +
                     "&size="+this.pageSize+
                     "&sort="+this.sort+
@@ -198,7 +249,8 @@
                     "&code="+this.searchData.code+
                     "&productCode="+this.searchData.productCode+
                     "&productName="+this.searchData.productName+
-                    "&warehouseId="+this.searchData.warehouseId).then((resp)=>{
+                    "&warehouseId="+this.searchData.warehouseId+
+                    "&start_ctime="+start_ctime+"&end_ctime="+end_ctime).then((resp)=>{
                     this.journalAccounts = resp.data.journalAccounts;
                     this.totalCount = resp.data.count;
                     this.tableLoading = false;
