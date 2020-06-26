@@ -17,10 +17,11 @@
             </el-header>
             <el-main>
                 <el-table @sort-change="sortChange" v-loading="loading" :data="tasks" size="mini" @row-dblclick="showDetailView">
-                    <el-table-column
-                            type="index"
-                            align="left"
-                            width="80"></el-table-column>
+                    <el-table-column type="index" align="left" width="80">
+                        <template scope="scope">
+                            <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>

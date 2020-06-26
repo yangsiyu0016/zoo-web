@@ -92,7 +92,12 @@
                     </div>
                 </transition>
                 <el-table @sort-change="sortChange" v-loading="loading" :data="ois" size="mini" @row-dblclick="dblclick">
-                    <el-table-column type="index" align="left" width="80"></el-table-column>
+                    <el-table-column type="index" align="left" width="80">
+                        <template scope="scope">
+                            <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
+                        </template>
+
+                    </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
