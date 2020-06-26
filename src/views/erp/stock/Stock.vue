@@ -24,7 +24,7 @@
             <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
             <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
             <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-            <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+            <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
             <el-table-column prop="usableNumber" label="可用数量" align="left"></el-table-column>
             <el-table-column prop="lockedNumber" label="锁定数量" align="left"></el-table-column>
         </el-table>

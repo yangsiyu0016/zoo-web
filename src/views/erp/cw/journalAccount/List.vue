@@ -28,7 +28,7 @@
             <el-table-column prop="stock.product.weight" align="left" label="重量"></el-table-column>
             <el-table-column prop="stock.product.color" align="left" label="颜色"></el-table-column>
             <el-table-column prop="stock.product.puse" align="left" label="用途"></el-table-column>
-            <el-table-column prop="stock.product.description" align="left" label="备注"></el-table-column>
+            <el-table-column prop="stock.product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
             <el-table-column prop="rkNumber" align="left" label="入库数量"></el-table-column>
             <el-table-column prop="rkPrice" align="left" label="入库单价"></el-table-column>
             <el-table-column prop="rkTotalMoney" align="left" label="入库总额"></el-table-column>
