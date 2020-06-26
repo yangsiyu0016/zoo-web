@@ -86,13 +86,39 @@
 
                 </el-table>
             </el-card>
+            <el-card shadow="hover">
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">入库信息</span>
+                </div>
+                <div>
+                    <el-table :data="newInbounds" size="mini">
+                        <el-table-column type="expand">
+                            <template slot-scope="props">
+                                <el-table :data="props.row.details">
+                                    <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
+                                    <el-table-column label="数量" prop="number"></el-table-column>
+                                </el-table>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="splitDetail.product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品名称" prop="splitDetail.product.name"></el-table-column>
+                        <el-table-column prop="splitDetail.product.typeName" label="分类"></el-table-column>
+                        <el-table-column label="品牌" prop="splitDetail.product.productBrand.name"></el-table-column>
+                        <el-table-column label="数量" prop="splitDetail.totalNumber"></el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
             <el-card shadow="hover" v-show="isSplitMan">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">出库信息</span>
                 </div>
                 <div>
                     <el-table :data="newOutbound.details">
-                        <el-table-column label="产品名称" prop="product.name"></el-table-column>
+                        <!--<el-table-column label="产品名称" prop="product.name"></el-table-column>-->
                         <el-table-column label="出库货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="出库数量" prop="number"></el-table-column>
                         <el-table-column label="未出库数量" prop="notOutNumber"></el-table-column>
@@ -204,6 +230,10 @@
                         this.handleVisible = false;
                         this.claimVisible = true;
                     }
+                    if (val.taskKey === 'productsplitrk') {
+                        this.isSplitMan = false;
+                        this.isShowMaterial = true;
+                    }
                     this.loadOut(val.businessKey);
                     this.getRequest('/erp/split/getProducrSplitById?id=' + val.businessKey).then(resp => {
                         if (resp && resp.status == 200) {
@@ -236,13 +266,11 @@
             callbackGa(row) {
                 this.goodsAllocation = row.goodsAllocation;
                 this.productSplit.notOutNumber = this.productSplit.notOutNumber - row.number;
-                if (this.productSplit.notOutNumber === 0) {
-                    this.isPass = true;
-                }
                 this.cancel();
                 this.addOutbound(row.number);
                 this.updateNotOutNumber();
                 this.loadOut(this.productSplit.id);
+                this.$emit('showDetailView', this.task);
             },
             addOutbound(number) {
                 Object.assign(this.outbound,{foreignKey:this.productSplit.id, taskId:this.task.id});
@@ -256,7 +284,7 @@
             },
             //办理
             handle(){
-                if (this.productSplit.notOutNumber == 0) {
+                if (this.productSplit.status !== 'CKLL') {
                     this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
@@ -267,9 +295,23 @@
                             this.$emit("refresh");
                         });
                     })
-                }else  {
-                    this.$message.error('有产品未出库')
+                }else {
+                    if (this.productSplit.notOutNumber == 0) {
+                        this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }).then(()=>{
+                            this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
+                                this.$emit("close");
+                                this.$emit("refresh");
+                            });
+                        })
+                    }else  {
+                        this.$message.error('有产品未出库')
+                    }
                 }
+
 
             },
             showAddOutBound() {
@@ -368,7 +410,8 @@
         },
         data() {
             return {
-                isSplitMan: false,
+                newInbounds: [],
+                isSplitMan: true,
                 newOutbound: {
                     details: [],
                     product:{
@@ -382,7 +425,6 @@
                 outbound:{
 
                 },
-                isPass: false,
                 gaDialogTitle: '',
                 gaDialogVisible: false,
                 isShowMaterial: false,

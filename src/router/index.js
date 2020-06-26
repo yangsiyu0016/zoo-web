@@ -62,6 +62,11 @@ export const asyncRouterMap = [{
         name:'oiTask',
         component:()=>import("@/views/oa/task/OpeningInventoryTask"),
         meta:{title:"期初待办"}
+    },{
+        path: 'productSplit',
+        name: 'productSplit',
+        component: ()=>import("@/views/oa/task/productsplit/ProductSplitTask"),
+        meta: {title: '拆分代办'}
     }]
 },
 {
