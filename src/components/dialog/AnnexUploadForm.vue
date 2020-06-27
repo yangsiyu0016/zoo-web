@@ -18,13 +18,13 @@
                         :limit="1"
                         :data="upData"
                         :with-credentials="true">
-                    <el-button slot="trigger" size="mini" type="primary">选取文件</el-button>
+                    <el-button slot="trigger" size="mini" type="primary" icon="el-icon-folder-add">选取文件</el-button>
                 </el-upload>
             </el-form-item>
             <el-form-item>
 
-                <el-button size="mini" type="primary" @click="uploadAnnex('annexForm')">确 定</el-button>
-                <el-button size="mini" type="info" @click="cancelEdit">取 消</el-button>
+                <el-button size="mini" type="primary" @click="uploadAnnex('annexForm')" icon="el-icon-check">确 定</el-button>
+                <el-button size="mini" type="info" @click="cancelEdit" icon="el-icon-close">取 消</el-button>
             </el-form-item>
         </el-form>
     </div>

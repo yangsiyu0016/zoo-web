@@ -100,31 +100,10 @@
                             size="mini"
                             style="width:100%" show-summary :summary-method="getSummaries">
                         <el-table-column
-                                type="selection"
+                                type="index"
                                 align="left"
                                 width="80">
                         </el-table-column>
-                        <el-table-column prop="product.imageUrl" label="图片">
-                            <template slot-scope="scope">
-                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
-                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
-                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
-                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
-
-                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
-                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
-                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
-                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
-                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
-
-                        <el-table-column label="发货仓库" prop="warehouse.name"></el-table-column>
-                        <el-table-column label="数量" prop="number"></el-table-column>
-                        <el-table-column label="价格" prop="price"></el-table-column>
-                        <el-table-column label="总额" prop="totalMoney"></el-table-column>
                         <el-table-column
                                 label="操作" width="120">
                             <template slot-scope="scope">
@@ -132,6 +111,28 @@
                                 <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" width="150px"></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格" width="150px"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
+
+                        <el-table-column label="发货仓库" prop="warehouse.name"></el-table-column>
+                        <el-table-column label="数量" prop="number"></el-table-column>
+                        <el-table-column label="价格" prop="price"></el-table-column>
+                        <el-table-column label="总额" prop="totalMoney"></el-table-column>
+
                     </el-table>
                 </div>
             </el-card>
@@ -164,8 +165,8 @@
                 </div>
             </el-card>
             <el-card shadow="hover">
-                <el-button @click="saveSell" type="primary" size="mini">保存</el-button>
-                <el-button @click="cancel" type="info" size="mini">取消</el-button>
+                <el-button @click="saveSell" type="primary" size="mini" icon="el-icon-check">保存</el-button>
+                <el-button @click="cancel" type="info" size="mini" icon="el-icon-close">取消</el-button>
             </el-card>
         </el-form>
         <customer-dialog @callback="customerCallback" @closeWin="closeCustomerWin" :title="customerDialogTitle" :visible="customerDialogVisible"></customer-dialog>
@@ -432,7 +433,7 @@
                         sums[index]='总额';
                         //return;
                     }
-                    if(column.property=='totalMoney'){
+                    if(column.property=='totalMoney'||column.property=='number'){
                         const values = data.map(item => Number(item[column.property]));
                         sums[index]= values.reduce((prev,curr)=>{
                             const value = Number(curr);

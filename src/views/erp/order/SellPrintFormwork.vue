@@ -67,65 +67,53 @@
                     <span style="float: left;">产品清单</span>
                 </div>
                 <div>
-                    <table v-for="(item, i) in sell.details" style="border-collapse: collapse; border: none; width: 100%;">
-                        <tr v-if="i==0">
+                    <table id="table" style="border-collapse: collapse; border: none; width: 100%;">
+                        <tr >
                             <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
-                            <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
                             <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品名称</td>
-
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">价格</td>
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">总额</td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品图片</td>
+                            <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
+                            <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">价格</td>
+                            <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">总额</td>
+                        </tr>
+                        <tr v-for="(item, i) in sell.details">
+                            <td width="5%" v-text="(i + 1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="15%" v-text="item.product.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="25%" v-text="item.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">
+                                <el-image style="width: 100px;height: 100px"  v-if="item.product.imageUrl" :src="item.product.imageUrl" ></el-image>
+                            </td>
+                            <td width="10%" v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%" v-text="item.price" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%" v-text="item.totalMoney" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                         </tr>
                         <tr>
-                            <td width="5%" v-text="(i + 1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="25%" v-text="item.productSku.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="25%" v-text="item.productSku.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.price" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.totalMoney" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="5%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">合计</td>
+                            <td width="15%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="25%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                         </tr>
                     </table>
                 </div>
             </el-card>
-            <el-card shadow="hover">
-                <div slot="header" class="clearfix">
-                    <span style="float: left;">物流信息</span>
-                </div>
-                <div>
-                    <!--<el-table :data="costs" size="mini">
-                        <el-table-column type="index" width="80px"></el-table-column>
-                        <el-table-column label="物流名称" prop="express.name"></el-table-column>
-                        <el-table-column label="单号" prop="logisticsNumber"></el-table-column>
-                        <el-table-column label="运费" prop="money"></el-table-column>
-                        <el-table-column label="联系方式" prop="express.phone"></el-table-column>
-                        <el-table-column label="创建时间" prop="ctime"></el-table-column>
-                    </el-table>-->
-                    <table v-for="(item, i) in costs" style="border-collapse: collapse; border: none; width: 100%;">
-                        <tr v-if="i == 0">
-                            <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">物流名称</td>
-                            <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">单号</td>
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">运费</td>
-                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">联系方式</td>
-                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">创建时间</td>
-                        </tr>
-                        <tr>
-                            <td width="5%" v-text="(i+1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.express.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="25%" v-text="item.logisticsNumber" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.money" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="20%" v-text="item.express.phone" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="20%" v-text="item.ctime" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                        </tr>
-                    </table>
-                </div>
+            <el-card shadow="hover" style="text-align: left">
+                <el-row>
+                    <span>制单人：{{sell.cuser.realName}}</span>
+                </el-row>
+                <el-row>
+                    <span>制单日期：{{sell.ctime}}</span>
+                </el-row>
             </el-card>
         </el-form>
     </div>
 </template>
 
 <script>
+
     export default {
         name: "SellCheckPrintFormwork",
         props: {
@@ -154,7 +142,26 @@
                 immediate: true
             }
         },
+        mounted(){
+            this.total();
+        },
         methods: {
+            total(){
+                let table = document.getElementById("table");
+                let trs = table.getElementsByTagName('tr');
+                let start=1,end = trs.length-1;
+                let number=0,totalMoney = 0;
+                for (let i=start;i<end;i++){
+                    let numbertd = trs[i].getElementsByTagName('td')[4];
+                    let totalmoneytd = trs[i].getElementsByTagName('td')[6];
+                    let td_number = parseFloat(numbertd.innerHTML);
+                    let td_totalMoney = parseFloat(totalmoneytd.innerHTML);
+                    number+=td_number;
+                    totalMoney+=td_totalMoney;
+                }
+                trs[end].getElementsByTagName('td')[4].innerHTML=number;
+                trs[end].getElementsByTagName('td')[6].innerHTML=totalMoney;
+            }
 
         },
         data() {

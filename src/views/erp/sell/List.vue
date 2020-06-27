@@ -103,7 +103,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                            label="操作">
+                            label="操作" width="200px">
                         <template slot-scope="scope">
                             <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
                             <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
@@ -392,7 +392,7 @@
                 currentPage:1,
                 totalCount:-1,
                 sort:'ctime',
-                order:'',
+                order:'desc',
                 pageSize:10,
                 dialogTitle:'',
                 dialogVisible:false,

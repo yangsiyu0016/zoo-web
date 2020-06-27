@@ -98,7 +98,7 @@
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                         <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
 
                         <el-table-column label="发货仓库" prop="warehouse.name"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
@@ -142,7 +142,7 @@
                                     <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                                     <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                                     <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                                    <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                                    <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
                                     <el-table-column label="数量" prop="number"></el-table-column>
                                 </el-table>
                             </template>
@@ -323,7 +323,7 @@
                         sums[index]='总额';
                         //return;
                     }
-                    if(column.property=='totalMoney'){
+                    if(column.property=='totalMoney'||column.property=='number'){
                         const values = data.map(item => Number(item[column.property]));
                         sums[index]= values.reduce((prev,curr)=>{
                             const value = Number(curr);
