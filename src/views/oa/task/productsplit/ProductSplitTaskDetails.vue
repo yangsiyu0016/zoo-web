@@ -83,10 +83,49 @@
                     <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                     <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
                     <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
-
+                    <el-table-column label="操作" width="150px" v-show="isOperate">
+                        <template slot-scope="scope">
+                            <el-button icon="el-icon-plus" size="mini" @click="showAddInBound(scope.row)" type="primary">添加入库信息</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </el-card>
-            <el-card shadow="hover">
+
+            <el-card shadow="hover" v-show="isOperate">
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">拆分材料明细</span>
+                </div>
+                <el-table
+                        :data="productSplit.details"
+                        size="mini"
+                        style="width:100%" >
+                    <!-- <el-table-column
+                             type="selection"
+                             align="left"
+                             width="80">
+                     </el-table-column>-->
+                    <el-table-column prop="product.imageUrl" label="图片">
+                        <template slot-scope="scope">
+                            <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                    <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                    <el-table-column label="拆分单数" prop="number"></el-table-column>
+                    <el-table-column label="拆分总数" prop="totalNumber" ></el-table-column>
+                    <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                    <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                    <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                    <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                    <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                    <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                    <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                    <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                </el-table>
+            </el-card>
+
+            <el-card shadow="hover" v-show="isIn">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">入库信息</span>
                 </div>
@@ -100,15 +139,15 @@
                                 </el-table>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="splitDetail.product.imageUrl" label="图片">
+                        <el-table-column label="产品名称" prop="splitDetail.product.name"></el-table-column>
+                        <el-table-column label="单位" prop="splitDetail.product.unit.name"></el-table-column>
+                        <el-table-column label="数量" prop="splitDetail.totalNumber"></el-table-column>
+                        <el-table-column label="状态">
                             <template slot-scope="scope">
-                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                                <el-tag v-if="scope.row.splitDetail.notInNumber === 0 ? true:false" type="success" size="mini" effect="dark">已入库</el-tag>
+                                <el-tag v-if="scope.row.splitDetail.notInNumber === 0 ? false:true" type="danger" size="mini" effect="dark">未入库</el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column label="产品名称" prop="splitDetail.product.name"></el-table-column>
-                        <el-table-column prop="splitDetail.product.typeName" label="分类"></el-table-column>
-                        <el-table-column label="品牌" prop="splitDetail.product.productBrand.name"></el-table-column>
-                        <el-table-column label="数量" prop="splitDetail.totalNumber"></el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -125,13 +164,11 @@
                         <el-table-column label="状态">
                             <template slot-scope="scope">
                                 <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已出库</el-tag>
-                                <el-tag v-if="scope.row.status=='CGJLSH'" type="danger" size="mini" effect="dark">未出库</el-tag>
-
                             </template>
                         </el-table-column>
                         <el-table-column label="操作">
                             <template slot-scope="scope">
-                                <el-button @click="deleteOut(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -198,14 +235,18 @@
         <el-dialog :title="gaDialogTitle" :visible.sync="gaDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <product-split-outbound-form :notOutNumber="productSplit.notOutNumber" @cancel="cancel" @callback="callbackGa" :warehouseId="productSplit.warehouse.id"></product-split-outbound-form>
         </el-dialog>
+        <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <product-split-inbound-form :splitDetail="detail" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productSplit.warehouse.id"></product-split-inbound-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import ProductSplitOutboundForm from "./ProductSplitOutboundForm";
+    import ProductSplitInboundForm from "./ProductSplitInboundForm";
     export default {
         name: "ProductSplitTaskDetails",
-        components: {ProductSplitOutboundForm},
+        components: {ProductSplitOutboundForm, ProductSplitInboundForm},
         props:{
             task:{
                 type:Object,
@@ -233,11 +274,23 @@
                     if (val.taskKey === 'productsplitrk') {
                         this.isSplitMan = false;
                         this.isShowMaterial = true;
+                        this.isIn = true;
+                        this.loadIn(val.businessKey);
+                    }else if (val.taskKey === 'productsplitckll'){
+                        this.isShowMaterial = false;
+                        this.isIn = false;
+                        this.loadOut(val.businessKey);
+                    }else if (val.taskKey === 'productsplit') {
+                        this.isSplitMan = false;
+                        this.isIn = false;
+                        this.isShowMaterial = false;
+                        this.isOperate = true;
                     }
-                    this.loadOut(val.businessKey);
+
                     this.getRequest('/erp/split/getProducrSplitById?id=' + val.businessKey).then(resp => {
                         if (resp && resp.status == 200) {
                             this.productSplit = resp.data;
+                            this.loadHistory();
                         }else {
                             this.$message.error('获取表单信息失败');
                         }
@@ -247,10 +300,48 @@
                 immediate:true
             }
         },
-        mounted() {
 
-        },
         methods: {
+            //加载审批过程
+            loadHistory(){
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.productSplit.processInstanceId).then((resp)=>{
+                    this.histories = resp.data;
+                })
+            },
+            cancelGaIn() {
+                this.gaInDialogVisible = false;
+            },
+            callbackGaIn(row) {
+                this.cancelGaIn();
+                this.addInbound(row);
+                this.updateNotInNumberById(row);
+                this.loadIn(this.productSplit.id);
+                this.$emit('showDetailView', this.task);
+            },
+            loadIn(id) {
+                this.getRequest('/erp/splitDetail/getInboundByProductSplitId?id=' + id).then(resp=> {
+                    if (resp&&resp.data.status===200) {
+                        this.newInbounds = resp.data.inbounds;
+                    }
+                })
+            },
+            updateNotInNumberById(row) {
+                let num = row.detail.notInNumber - row.number;
+                this.getRequest('/erp/splitDetail/updateNotInNumberById?notInNumber=' + num + '&id=' + row.detail.id);
+            },
+            addInbound(row) {
+                Object.assign(this.inbound,{foreignKey:row.detail.id, taskId:this.task.id});
+                this.postNoEnCodeRequest('/erp/splitDetail/addInbound?goodsAllocationId=' + row.goodsAllocation.id + '&number=' + row.number, this.inbound);
+            },
+            showAddInBound(row) {
+                this.detail = row;
+                if (row.notInNumber !== 0) {
+                    this.gaInDialogVisible = true;
+                } else {
+                    this.gaInDialogVisible = false;
+                }
+                this.gaInDialogTitle = '添加入库信息'
+            },
             //删除出库信息
             deleteOut() {
 
@@ -270,7 +361,6 @@
                 this.addOutbound(row.number);
                 this.updateNotOutNumber();
                 this.loadOut(this.productSplit.id);
-                this.$emit('showDetailView', this.task);
             },
             addOutbound(number) {
                 Object.assign(this.outbound,{foreignKey:this.productSplit.id, taskId:this.task.id});
@@ -284,7 +374,14 @@
             },
             //办理
             handle(){
-                if (this.productSplit.status !== 'CKLL') {
+                let isInFlag = true;
+                for (let num in this.newInbounds) {
+                    if (this.newInbounds[num].splitDetail.notInNumber !== 0) {
+                        isInFlag = false;
+                        break;
+                    }
+                }
+                if (this.productSplit.status !== 'CKLL' && this.productSplit.status !== 'CLRK') {
                     this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
@@ -296,19 +393,36 @@
                         });
                     })
                 }else {
-                    if (this.productSplit.notOutNumber == 0) {
-                        this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
-                            confirmButtonText: '确定',
-                            cancelButtonText: '取消',
-                            type: 'warning'
-                        }).then(()=>{
-                            this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
-                                this.$emit("close");
-                                this.$emit("refresh");
-                            });
-                        })
-                    }else  {
-                        this.$message.error('有产品未出库')
+                    if (this.productSplit.status === 'CKLL') {
+                        if (this.productSplit.notOutNumber == 0) {
+                            this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(()=>{
+                                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
+                                    this.$emit("close");
+                                    this.$emit("refresh");
+                                });
+                            })
+                        }else {
+                            this.$message.error('有产品未出库')
+                        }
+                    }else if (this.productSplit.status === 'CLRK'){
+                        if (isInFlag && this.newInbounds.length > 0) {
+                            this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(()=>{
+                                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
+                                    this.$emit("close");
+                                    this.$emit("refresh");
+                                });
+                            })
+                        }else {
+                            this.$message.error('有产品未入库')
+                        }
                     }
                 }
 
@@ -335,7 +449,7 @@
             //驳回任务
             doReject(){
 
-                this.postRequest('/flow/task/reject?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
                     if(resp&&resp.data.status=="200"){
                         this.$emit("close");
                         this.$emit("refresh");
@@ -362,13 +476,12 @@
             },
             //作废
             destory(){
-                console.log(this.task)
                 this.$confirm("确定要作废该任务嘛？", "提示", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
                     type: 'warning'
                 }).then(()=> {
-                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE&id=" + this.oi.id + '&code=QC').then((resp)=>{
+                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE&id=" + this.oi.id + '&code=QC').then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$emit("close");
                             this.$emit("refresh");
@@ -397,7 +510,7 @@
                             if(this.productSplit.status === 'REJECT') {
                                 this.editVisible = true;
                             }
-                            //this.loadHistory();
+                            this.loadHistory();
                             this.$emit("refresh");
                         }
                     })
@@ -410,6 +523,11 @@
         },
         data() {
             return {
+                isOperate:false,
+                detail: {},
+                gaInDialogVisible: false,
+                gaInDialogTitle: '',
+                isIn:false,
                 newInbounds: [],
                 isSplitMan: true,
                 newOutbound: {
@@ -423,6 +541,9 @@
                 },
                 goodsAllocation:{},
                 outbound:{
+
+                },
+                inbound:{
 
                 },
                 gaDialogTitle: '',
@@ -442,7 +563,8 @@
                 dialogVisible: false,
                 isEdit: false,
                 histories:[],
-                oldProductSplit:{}
+                oldProductSplit:{},
+                histories:[]
             }
         }
     }

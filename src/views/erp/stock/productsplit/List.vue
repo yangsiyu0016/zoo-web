@@ -147,12 +147,12 @@
                         <el-table-column prop="" label="状态" width="120px">
                             <template slot-scope="scope">
                                 <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
-                                <el-tag v-if="scope.row.status=='CKZG'" type="info" size="mini" effect="dark">仓库主管审核</el-tag>
+                                <el-tag v-if="scope.row.status=='CKZG'" color="#B03060" size="mini" effect="dark">仓库主管审核</el-tag>
                                 <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
-                                <el-tag v-if="scope.row.status=='CKLL'"  type="success" size="mini" effect="dark">仓库领料</el-tag>
-                                <el-tag v-if="scope.row.status=='CF'"  type="success" size="mini" effect="dark">产品拆分中。。。</el-tag>
-                                <el-tag v-if="scope.row.status=='CLRK'"  type="success" size="mini" effect="dark">材料入库</el-tag>
-                                <el-tag v-if="scope.row.status=='DDTZ'"  type="success" size="mini" effect="dark">订单调整</el-tag>
+                                <el-tag v-if="scope.row.status=='CKLL'"  color="#7b1fa2" size="mini" effect="dark">仓库领料</el-tag>
+                                <el-tag v-if="scope.row.status=='CF'"  type="warning" size="mini" effect="dark">产品拆分中。。。</el-tag>
+                                <el-tag v-if="scope.row.status=='CLRK'"  type="danger" size="mini" effect="dark">材料入库</el-tag>
+                                <el-tag v-if="scope.row.status=='DDTZ'"  type="primary" size="mini" effect="dark">订单调整</el-tag>
                                 <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                             </template>
                         </el-table-column>
@@ -354,11 +354,11 @@
                     end_splitTime = '',
                     start_ctime = '',
                     end_ctime = '';
-                if (this.productSplit && this.productSplit.splitTime.length > 0) {
+                if (this.productSplit.splitTime && this.productSplit.splitTime.length > 0) {
                     start_splitTime = this.productSplit.splitTime[0];
                     end_splitTime = this.productSplit.splitTime[1];
                 }
-                if (this.productSplit && this.productSplit.ctime.length > 0) {
+                if (this.productSplit.ctime && this.productSplit.ctime.length > 0) {
                     start_ctime = this.productSplit.ctime[0];
                     end_ctime = this.productSplit.ctime[1];
                 }
