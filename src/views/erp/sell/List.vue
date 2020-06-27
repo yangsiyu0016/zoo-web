@@ -96,7 +96,7 @@
                         </el-row>
                     </div>
                 </transition>
-                <el-table v-loading="loading" :data="sells"  size="mini" style="width:100%" @row-dblclick="dblclick">
+                <el-table @sort-change="sortChange" v-loading="loading" :data="sells"  size="mini" style="width:100%" @row-dblclick="dblclick">
                     <el-table-column type="index" width="80px">
                         <template scope="scope">
                             <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
@@ -145,7 +145,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="cuser.realName" label="创建人"></el-table-column>
-                    <el-table-column prop="ctime" label="创建时间"></el-table-column>
+                    <el-table-column prop="ctime" label="创建时间" sortable></el-table-column>
                     <el-table-column prop="etime" label="完成时间"></el-table-column>
 
                 </el-table>
@@ -184,6 +184,15 @@
             this.loadSells();
         },
         methods:{
+            sortChange(column){
+                this.sort=column.prop;
+                if(column.order==='descending'){
+                    this.order = "desc";
+                }else{
+                    this.order = "asc";
+                }
+                this.loadSells();
+            },
             showData(val){
                 val = val+'';
                 if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
@@ -321,7 +330,29 @@
             //加载 订单
             loadSells(){
                 this.loading = true;
-                this.getRequest('/erp/sell/page?page='+this.currentPage+"&size="+this.pageSize).then((resp)=>{
+                if(this.searchData.initDate&&this.searchData.initDate.length>0){
+                    start_initDate = this.searchData.initDate[0];
+                    end_initDate=this.searchData.initDate[1];
+                }
+                if(this.searchData.ctime&&this.searchData.ctime.length>0){
+                    start_ctime = this.searchData.ctime[0];
+                    end_ctime = this.searchData.ctime[1];
+                }
+                let start_initDate='',end_initDate='',start_ctime='',end_ctime='';
+                this.getRequest('/erp/sell/page?page='+
+                    this.currentPage+
+                    "&size="+this.pageSize+
+                    "&sort="+this.sort+
+                    "&order="+this.order+
+                    "&keywords="+this.keywords+
+                    "&code="+this.searchData.code+
+                    "&productCode="+this.searchData.productCode+
+                    "&productName="+this.searchData.productName+
+                    "&customerName="+this.searchData.customerName+
+                    "&start_initDate="+start_initDate+
+                    "&end_initDate="+end_initDate+
+                    "&start_ctime="+start_ctime+
+                    "&end_ctime="+end_ctime+"&status="+this.searchData.status).then((resp)=>{
                     this.sells = resp.data.sells;
                     this.totalCount = resp.data.count;
                     this.loading = false;
@@ -360,6 +391,8 @@
                 sells:[],
                 currentPage:1,
                 totalCount:-1,
+                sort:'ctime',
+                order:'',
                 pageSize:10,
                 dialogTitle:'',
                 dialogVisible:false,
