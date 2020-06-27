@@ -29,17 +29,17 @@
                 <transition name="slide-fade">
                     <div v-show="searchViewVisible" style="margin-bottom: 10px;border: 1px;border-radius: 5px;border-style: solid;padding: 5px 0px 5px 0px;box-sizing:border-box;border-color: #20a0ff">
                         <el-row :gutter="20" style="margin-top: 20px">
-                        <el-col :span="8" style="padding-left: 40px">
-                            单号：<el-input v-model="searchData.code" size="mini" style="width: 400px" placeholder="单号" ></el-input>
-                        </el-col>
-                        <el-col :span="8">
-                            产品编号：<el-input v-model="searchData.productCode" size="mini" style="width: 400px" placeholder="产品编号" ></el-input>
-                        </el-col>
-                        <el-col :span="8">
-                            产品名称：<el-input v-model="searchData.productName" size="mini" style="width: 400px" placeholder="产品名称" ></el-input>
-                        </el-col>
+                            <el-col :span="8" style="padding-left: 40px">
+                                单号：<el-input v-model="searchData.code" size="mini" style="width: 400px" placeholder="单号" ></el-input>
+                            </el-col>
+                            <el-col :span="8">
+                                产品编号：<el-input v-model="searchData.productCode" size="mini" style="width: 400px" placeholder="产品编号" ></el-input>
+                            </el-col>
+                            <el-col :span="8">
+                                产品名称：<el-input v-model="searchData.productName" size="mini" style="width: 400px" placeholder="产品名称" ></el-input>
+                            </el-col>
 
-                    </el-row>
+                        </el-row>
                         <el-row :gutter="20" style="margin-top: 20px">
                             <el-col :span="8">
                                 客户名称：
@@ -72,7 +72,7 @@
                                         range-separator="至"
                                         start-placeholder="开始日期"
                                         end-placeholder="结束日期"
-                                        value-format="yyyy-MM-dd"
+                                        value-format="yyyy-MM-dd HH:mm:ss"
                                         :picker-options="pickerOptions">
                                 </el-date-picker>
                             </el-col>
