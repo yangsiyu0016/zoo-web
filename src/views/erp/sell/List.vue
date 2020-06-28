@@ -212,7 +212,7 @@
                             this.$message.success("删除成功");
                             this.loadSells();
                         }else {
-                            this.$message.error("删除失败");
+                            this.$message.error(resp.data.msg);
                         }
                     })
                 })
@@ -241,10 +241,10 @@
                         this.currentSell = resp.data;
                         this.detailsDialogVisible = true;
                         this.detailsDialogTitle="订单查看";
-                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
-                            this.isReception = true;
-                        }else {
+                        if (resp.data.status === 'WTJ' || resp.data.status === 'DESTROY') {
                             this.isReception = false;
+                        }else {
+                            this.isReception = true;
                         }
                     }else{
                         this.$message.error("获取订单失败");
@@ -273,12 +273,20 @@
             },
             //编辑订单
             showEditSellView(row){
-                this.isEdit = true;
+
                 this.getRequest('/erp/sell/'+row.id).then((resp)=>{
-                    this.oldSell = resp.data;
+                    if(!resp.data.processInstanceId){
+                        this.isEdit = true;
+                        this.oldSell = resp.data;
+                        this.dialogVisible = true;
+                        this.dialogTitle = "编辑订单";
+                    }else{
+                        this.$message.error("流程已启动,不能编辑");
+                        this.loadSells();
+                    }
+
                 })
-                this.dialogVisible = true;
-                this.dialogTitle = "编辑订单";
+
             },
             //添加订单
             showAddSellView(){
