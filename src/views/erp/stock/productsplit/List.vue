@@ -156,7 +156,7 @@
                                 <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="splitMan.realName" label="拆分人"></el-table-column>
+                        <el-table-column prop="splitMan.realName" label="创建人"></el-table-column>
                         <el-table-column prop="ctime" label="创建日期" width="200px"></el-table-column>
                         <el-table-column prop="etime" label="完成日期" width="200px"></el-table-column>
                         <el-table-column prop="description" label="备注" :show-tooltip-when-overflow="true" :show-overflow-tooltip='true'></el-table-column>
@@ -189,7 +189,7 @@
             <product-split-form   @close="closeDialog" :isEdit="isEdit" @callback="callback" :oldProductSplit="oldProductSplit"></product-split-form>
         </el-dialog>
         <el-dialog :visible.sync="detailsDialogVisible" :title="detailsDialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-details   @close="closeDetailDialog" :isEdit="isDetailsEdit" :oldProductSplit="oldProductSplit"></product-split-details>
+            <product-split-details   @close="closeDetailDialog" :isEdit="isDetailsEdit" :oldProductSplit="oldProductSplit" @callback="detailsCallback"></product-split-details>
         </el-dialog>
     </div>
 </template>
@@ -303,6 +303,10 @@
             },
             closeDetailDialog() {
                 this.detailsDialogVisible = false;
+            },
+            detailsCallback() {
+                this.loadSplit();
+                this.closeDetailDialog();
             },
 
             showDetails(row) {
