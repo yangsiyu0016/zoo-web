@@ -270,7 +270,12 @@
                     type: "warning"
                 }).then(() => {
                     this.getRequest('/erp/sell/reset?id=' + this.oldSell.id).then(resp => {
-                        this.$emit("callback");
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$emit("callback");
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+
                     });
 
                 })

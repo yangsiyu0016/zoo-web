@@ -89,19 +89,19 @@
                 }else{
                     this.order = "asc";
                 }
-                this.loadData();
+                this.loadTask();
             },
             sizeChange(size){
                 this.pageSize = size;
-                this.loadData();
+                this.loadTask();
             },
             currentChange(page) {
                 this.currentPage = page;
-                this.loadData();
+                this.loadTask();
             },
             keywordsChange(val){
                 if(val==''){
-                    this.loadData();
+                    this.loadTask();
                 }
             },
             searchTask(){
