@@ -119,7 +119,7 @@
                     <el-table-column prop="initDate" label="下单日期"></el-table-column>
                     <el-table-column prop="supplier.supplierName" label="供应商">
                         <template slot-scope="scope">
-                            <span v-html="showData(scope.row.code)"></span>
+                            <span v-html="showData(scope.row.supplier.supplierName)"></span>
                         </template>
                     </el-table-column>
                     <el-table-column prop="status" label="状态">
@@ -323,6 +323,7 @@
             },
             loadPurchases(){
                 this.loading = true;
+                let start_initDate='',end_initDate='',start_ctime='',end_ctime='';
                 if(this.searchData.initDate&&this.searchData.initDate.length>0){
                     start_initDate = this.searchData.initDate[0];
                     end_initDate=this.searchData.initDate[1];
@@ -331,7 +332,7 @@
                     start_ctime = this.searchData.ctime[0];
                     end_ctime = this.searchData.ctime[1];
                 }
-                let start_initDate='',end_initDate='',start_ctime='',end_ctime='';
+
                 this.getRequest('/erp/purchase/page?page='+this.currentPage+
                     "&size="+this.pageSize+
                     "&sort="+this.sort+

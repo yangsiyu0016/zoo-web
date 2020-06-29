@@ -118,7 +118,7 @@
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                         <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                        <el-table-column prop="product.description" align="left" label="备注"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
                         <el-table-column label="收货仓库" prop="warehouse.name"></el-table-column>
 
 

@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <div style="width: 100%; text-align: center">
+        <span style="text-align: center; font-size: 24px; font-weight: bold">采购订单</span>
         <el-form label-width="120px">
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
@@ -63,77 +64,47 @@
                     <span style="float: left;">产品清单</span>
                 </div>
                 <div>
-                    <!--<el-table :data="purchase.details" size="mini" style="width: 100%">
-                        <el-table-column type="index" align="left" width="30" ></el-table-column>
-                        <el-table-column label="产品编号" prop="productSku.code" ></el-table-column>
-                        <el-table-column label="产品名称" prop="productSku.product.name" ></el-table-column>
-                        <el-table-column prop="productSku.product.productDetail.genericSpec" align="left" width="300"  label="通用规格参数" ></el-table-column>
-                        <el-table-column prop="productSku.ownSpec" align="left"  label="特殊规格参数" width="400"  ></el-table-column>
-
-                        <el-table-column label="数量" prop="number"></el-table-column>
-                        <el-table-column label="价格" prop="price"></el-table-column>
-                        <el-table-column label="总额" prop="totalMoney"></el-table-column>
-                    </el-table>-->
-                    <table v-for="(item, i) in purchase.details" style="border-collapse: collapse; border: none; width: 100%;">
-                        <tr v-if="i==0">
+                    <table  style="border-collapse: collapse; border: none; width: 100%;">
+                        <tr >
                             <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
-                            <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
+                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
                             <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品名称</td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品图片</td>
+                            <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
+                            <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">价格</td>
+                            <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">总额</td>
+                        </tr>
+                        <tr v-for="(item, i) in purchase.details">
 
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">价格</td>
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">总额</td>
+                            <td width="5%" v-text="(i + 1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="15%" v-text="item.product.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="25%" v-text="item.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">
+                                <el-image style="width: 100px;height: 100px"  v-if="item.product.imageUrl" :src="item.product.imageUrl" ></el-image>
+                            </td>
+                            <td width="10%" v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%" v-text="item.price" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%" v-text="item.totalMoney" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                         </tr>
                         <tr>
-                            <td width="5%" v-text="(i+1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="25%" v-text="item.productSku.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="25%" v-text="item.productSku.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.price" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.totalMoney" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="5%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">合计</td>
+                            <td width="15%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="25%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">{{totalNumber}}</td>
+                            <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">{{totalMoney}}</td>
                         </tr>
                     </table>
                 </div>
             </el-card>
-            <el-card shadow="hover">
-                <div slot="header" class="clearfix">
-                    <span style="float: left;">物流信息</span>
-                </div>
-                <div>
-                    <!--<el-table :data="costs" size="mini">
-
-                        <el-table-column type="index" width="80px"></el-table-column>
-                        <el-table-column label="物流名称" prop="express.name"></el-table-column>
-                        <el-table-column label="单号" prop="logisticsNumber"></el-table-column>
-                        <el-table-column label="运费" prop="money"></el-table-column>
-                        <el-table-column label="联系方式" prop="express.phone"></el-table-column>
-                        <el-table-column label="创建时间" prop="ctime"></el-table-column>
-                        <el-table-column label="操作">
-                            <template slot-scope="scope">
-                                <el-tag size="mini" type="info" v-show="!scope.row.finished">等待收货</el-tag>
-                                <el-tag size="mini" type="success" v-show="scope.row.finished">收货完成</el-tag>
-                            </template>
-                        </el-table-column>
-                    </el-table>-->
-                    <table v-for="(item, i) in costs" style="border-collapse: collapse; border: none; width: 100%;">
-                        <tr v-if="i == 0">
-                            <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">物流名称</td>
-                            <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">单号</td>
-                            <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">运费</td>
-                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">联系方式</td>
-                            <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">创建时间</td>
-                        </tr>
-                        <tr>
-                            <td width="5%" v-text="(i+1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.express.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="25%" v-text="item.logisticsNumber" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="15%" v-text="item.money" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="20%" v-text="item.express.phone" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="20%" v-text="item.ctime" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                        </tr>
-                    </table>
-                </div>
+            <el-card shadow="hover" style="text-align: left">
+                <el-row>
+                    <span>制单人：{{purchase.cuser.realName}}</span>
+                </el-row>
+                <el-row>
+                    <span>制单日期：{{purchase.ctime}}</span>
+                </el-row>
             </el-card>
         </el-form>
     </div>
@@ -156,6 +127,14 @@
             oldPurchase:{
                 handler(val) {
                     this.purchase = JSON.parse(JSON.stringify(val));
+                    this.totalNumber = 0;
+                    this.totalMoney = 0;
+                    if(val.details&&val.details.length>0){
+                        val.details.forEach((detail)=>{
+                            this.totalNumber+=detail.number;
+                            this.totalMoney+=detail.totalMoney;
+                        })
+                    }
                 },
                 deep:true,
                 immediate: true
@@ -171,7 +150,9 @@
         data() {
             return{
                 purchase: {},
-                costs: []
+                costs: [],
+                totalNumber:0,
+                totalMoney:0
             }
         }
     }
