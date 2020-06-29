@@ -33,7 +33,7 @@
                                 </el-col>
                                 <el-col :span="8">
                                     拥有人：
-                                    <el-select v-model="searchData.owner" size="mini" style="width: 400px" placeholder="选择拥有人">
+                                    <el-select clearable v-model="searchData.owner" size="mini" style="width: 400px" placeholder="选择拥有人">
                                         <el-option v-for="item in users" :label="item.realName" :value="item.id">
 
                                         </el-option>
@@ -43,7 +43,7 @@
                             </el-row>
                             <el-row :gutter="20" style="margin-top: 20px;margin-left: 40px">
                                 <el-col :span="8" >
-                                    下单日期：
+                                    获取日期：
                                     <el-date-picker
                                             v-model="searchData.gtime"
                                             size="mini"

@@ -9,7 +9,7 @@
                     </el-button>
                 </div>
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                    <el-input size="mini" placeholder="通过单号、产品编码、产品名称、客户名称搜索，记得回车呦..."
+                    <el-input size="mini" placeholder="通过单号、产品编码、产品名称、供应商名称搜索，记得回车呦..."
                               clearable
                               style="width: 350px;margin: 0px;padding: 0px;"
                               prefix-icon="el-icon-search"
