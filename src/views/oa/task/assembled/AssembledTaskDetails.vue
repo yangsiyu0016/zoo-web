@@ -106,14 +106,14 @@
                 <el-input type="textarea" v-model="comment"></el-input>
             </el-card>
             <el-card shadow="hover">
-                <!--<el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'" size="mini" @click="addLogistics" type="primary">添加物流信息</el-button>
+                <!--<el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'" size="mini" @click="addLogistics" type="primary">添加物流信息</el-button>-->
 
 
-                <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
-                <el-button v-show="purchase.status=='REJECT'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
-                <el-button v-show="purchase.status=='REJECT'" type="primary" size="mini" @click="destory">作废</el-button>-->
+                <!--<el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>-->
+                <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
+                <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="destory">作废</el-button>
                 <el-button v-show="rejectVisible" @click="reject" type="primary" size="mini">驳回</el-button>
-                <el-button v-show="handleVisible && productAssembled.status !== 'REJECT'" @click="handle" type="primary" size="mini">通过</el-button>
+                <el-button v-show="handleVisible && productAssembled.status !== 'DDTZ'" @click="handle" type="primary" size="mini">通过</el-button>
                 <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
                 <el-button @click="close" type="info" size="mini">关闭</el-button>
             </el-card>
@@ -159,6 +159,9 @@
             }
         },
         methods:{
+            reSubmit() {
+                this.handle();
+            },
             reject(){
                 this.$confirm("确定要驳回任务嘛？将此任务返回至创建人！", "提示", {
                     confirmButtonText: "确定",
@@ -182,8 +185,18 @@
 
                 })
             },
-            handle(){
 
+            handle(){
+                this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(()=>{
+                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
+                        this.$emit("close");
+                        this.$emit("refresh");
+                    });
+                })
             },
             claim(){
                 this.$confirm("签收后只能由签收人处理该任务，确定要签收吗？","提示",{
@@ -195,10 +208,13 @@
                         if(resp.data.status==200){
                             this.claimVisible = false;
                             this.handleVisible = true;
-                            if(val.taskkey==='assembledckzg') this.rejectVisible = true;
+                            /*if(val.taskkey==='assembledckzg') this.rejectVisible = true;*/
                             /*if(this.sell.status === 'REJECT') {
                                 this.editVisible = true;
                             }*/
+                            if (this.productAssembled.status === 'ZGSH') {
+                                this.rejectVisible = true;x``
+                            }
                             this.loadHistory();
                             this.$emit("refresh");
                         }

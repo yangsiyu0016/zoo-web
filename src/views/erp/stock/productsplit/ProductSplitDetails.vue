@@ -104,10 +104,9 @@
             </el-card>
         </el-form>
         <div v-show="false">
-
             <vue-easy-print table-show ref="easyPrint" style="width: 65%">
                 <template slot-scope="func">
-                    <product-assembled-print-formwork :product-assembled="oldProductSplit"></product-assembled-print-formwork>
+                    <product-split-print-formwork :productSplit="oldProductSplit"></product-split-print-formwork>
                 </template>
             </vue-easy-print>
         </div>
@@ -115,8 +114,13 @@
 </template>
 
 <script>
+
+    import vueEasyPrint from "vue-easy-print";
+    import ProductSplitPrintFormwork from "@/views/erp/stock/productsplit/ProductSplitPrintFormwork"
+
     export default {
         name: "ProductSplitDetails",
+        components:{vueEasyPrint, ProductSplitPrintFormwork},
         props:{
             oldProductSplit:{
                 type:Object,
@@ -125,6 +129,7 @@
         },
         methods: {
             print(){
+                console.log(this.oldProductSplit)
                 this.$refs.easyPrint.print();
             },
             cancel(){
