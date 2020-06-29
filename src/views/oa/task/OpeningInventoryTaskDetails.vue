@@ -228,7 +228,7 @@
                     cancelButtonText: "取消",
                     type: 'warning'
                 }).then(()=> {
-                        this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE" ).then((resp)=>{
+                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE" ).then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$emit("close");
                             this.$emit("refresh");

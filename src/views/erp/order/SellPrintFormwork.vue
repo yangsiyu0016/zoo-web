@@ -78,6 +78,7 @@
                             <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">总额</td>
                         </tr>
                         <tr v-for="(item, i) in sell.details">
+
                             <td width="5%" v-text="(i + 1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                             <td width="15%" v-text="item.product.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                             <td width="25%" v-text="item.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
@@ -93,9 +94,9 @@
                             <td width="15%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                             <td width="25%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                             <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="10%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">{{totalNumber}}</td>
                             <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                            <td width="10%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                            <td width="10%"  style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">{{totalMoney}}</td>
                         </tr>
                     </table>
                 </div>
@@ -115,7 +116,7 @@
 <script>
 
     export default {
-        name: "SellCheckPrintFormwork",
+        name: "SellPrintFormwork",
         props: {
             oldSell: {
                 type:Object,
@@ -130,6 +131,14 @@
             oldSell:{
                 handler(val) {
                     this.sell = JSON.parse(JSON.stringify(val));
+                    this.totalNumber = 0;
+                    this.totalMoney = 0;
+                    if(val.details&&val.details.length>0){
+                        val.details.forEach((detail)=>{
+                            this.totalNumber+=detail.number;
+                            this.totalMoney+=detail.totalMoney;
+                        })
+                    }
                 },
                 deep:true,
                 immediate: true
@@ -137,28 +146,33 @@
             oldCosts: {
                 handler(val) {
                     this.costs = JSON.parse(JSON.stringify(val));
+
                 },
                 deep: true,
                 immediate: true
             }
         },
         mounted(){
-            this.total();
+
+            //this.total();
         },
         methods: {
             total(){
                 let table = document.getElementById("table");
                 let trs = table.getElementsByTagName('tr');
+
                 let start=1,end = trs.length-1;
                 let number=0,totalMoney = 0;
                 for (let i=start;i<end;i++){
                     let numbertd = trs[i].getElementsByTagName('td')[4];
+                    console.log(numbertd);
                     let totalmoneytd = trs[i].getElementsByTagName('td')[6];
                     let td_number = parseFloat(numbertd.innerHTML);
                     let td_totalMoney = parseFloat(totalmoneytd.innerHTML);
                     number+=td_number;
                     totalMoney+=td_totalMoney;
                 }
+
                 trs[end].getElementsByTagName('td')[4].innerHTML=number;
                 trs[end].getElementsByTagName('td')[6].innerHTML=totalMoney;
             }
@@ -167,7 +181,9 @@
         data() {
             return{
                 sell:{},
-                costs:[]
+                costs:[],
+                totalNumber:0,
+                totalMoney:0
             }
         }
     }

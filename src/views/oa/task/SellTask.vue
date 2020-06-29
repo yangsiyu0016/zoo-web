@@ -8,6 +8,7 @@
                               clearable
                               style="width: 350px;margin: 0px;padding: 0px;"
                               prefix-icon="el-icon-search"
+
                               @keyup.enter.native="searchTask"
                               v-model="keywords"
                               @change="keywordsChange"

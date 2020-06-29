@@ -1,5 +1,13 @@
 <template>
     <div>
+        <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+            <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                <el-button type="primary" size="mini" icon="el-icon-printer"
+                           @click="print">
+                    打印
+                </el-button>
+            </div>
+        </el-header>
         <el-form label-width="120px">
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
@@ -204,6 +212,13 @@
         <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <sell-form :isEdit="isEdit" :oldSell="sell" @close="closeDialog" @callback="editCallback"></sell-form>
         </el-dialog>
+        <div v-show="false">
+            <vue-easy-print table-show ref="easyPrint" style="width: 65%">
+                <template slot-scope="func">
+                    <sell-print-formwork :getChineseNumber="func.getChineseNumber" :oldSell="sell" :oldCosts="costs"></sell-print-formwork>
+                </template>
+            </vue-easy-print>
+        </div>
     </div>
 </template>
 
@@ -211,9 +226,11 @@
 
     import SellLogisticsForm from "@/views/oa/task/SellLogisticsForm";
     import SellForm from "../../erp/sell/SellForm";
+    import SellPrintFormwork from "@/views/erp/order/SellPrintFormwork";
+    import vueEasyPrint from "vue-easy-print";
     export default {
         name: "SellTaskDetails",
-        components: {SellForm, SellLogisticsForm},
+        components: {vueEasyPrint,SellPrintFormwork, SellForm, SellLogisticsForm},
         props:{
             task:{
                 type:Object,
@@ -253,6 +270,11 @@
             }
         },
         methods:{
+            //打印
+            print(){
+
+                this.$refs.easyPrint.print();
+            },
             downloadAnnex(row) {
 
                 window.open(row.url + "?fileName=" + row.fileName);
@@ -274,7 +296,7 @@
                     cancelButtonText: "取消",
                     type: 'warning'
                 }).then(()=> {
-                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE&id=" + this.sell.id + '&code=XS').then((resp)=>{
+                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$emit("close");
                             this.$emit("refresh");
@@ -312,7 +334,7 @@
             //驳回任务
             doReject(){
 
-                this.postRequest('/flow/task/reject?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
                     if(resp&&resp.data.status=="200"){
                         this.$emit("close");
                         this.$emit("refresh");
@@ -416,8 +438,13 @@
             //完成任务
             doComponent(){
                 this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment+ "&idea=AGREE").then((resp)=>{
-                    this.$emit("close");
-                    this.$emit("refresh");
+                    if(resp&&resp.data.status=="200"){
+                        this.$emit("close");
+                        this.$emit("refresh");
+                        this.$message.success(resp.data.msg);
+                    }else{
+                        this.$message.error(resp.data.msg);
+                    }
                 })
             },
             //签收
@@ -470,6 +497,9 @@
                 sell:{
                     customer:{
                         name:''
+                    },
+                    cuser:{
+                        realName:''
                     }
                 },
                 claimVisible:false,
