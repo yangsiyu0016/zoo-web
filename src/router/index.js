@@ -66,7 +66,7 @@ export const asyncRouterMap = [{
         path: 'productSplit',
         name: 'productSplit',
         component: ()=>import("@/views/oa/task/productsplit/ProductSplitTask"),
-        meta: {title: '拆分代办'}
+        meta: {title: '产品拆分待办'}
     }]
 },
 {
