@@ -180,7 +180,7 @@
                 }else{
                     this.order = "asc";
                 }
-                this.loadSells();
+                this.loadPurchases();
             },
             showData(val){
                 val = val+'';

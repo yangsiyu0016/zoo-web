@@ -199,8 +199,9 @@
                 </div>
             </el-card>
             <el-card>
-                <el-button @click="resetPurchaseDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
-                <el-button @click="close" size="mini" type="info">关闭</el-button>
+                <el-button @click="destroyPurchase" size="mini" type="danger" v-show="canDestroy" icon="el-icon-delete">作废</el-button>
+                <el-button @click="resetPurchaseDetail" size="mini" type="danger" v-show="isReception" icon="el-icon-caret-right">取回</el-button>
+                <el-button @click="close" size="mini" type="info" icon="el-icon-close">关闭</el-button>
             </el-card>
         </el-form>
         <div v-show="false">
