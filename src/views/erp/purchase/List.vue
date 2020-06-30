@@ -127,6 +127,7 @@
                             <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
                             <el-tag v-if="scope.row.status=='CGJLSH'" type="danger" size="mini" effect="dark">采购经理审核</el-tag>
                             <el-tag v-if="scope.row.status=='CWSH'" type="warning" size="mini" effect="dark">财务审核</el-tag>
+                            <el-tag v-if="scope.row.status=='REJECT'" type="danger" size="mini" effect="dark">驳回</el-tag>
                             <el-tag v-if="scope.row.status=='IN'"  color="#7b1fa2" size="mini" effect="dark">入库中...</el-tag>
                             <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
                             <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
@@ -218,12 +219,13 @@
                 this.getRequest('/erp/purchase/'+row.id).then((resp)=>{
                     if(resp&&resp.data){
                         this.currentPurchase = resp.data;
-                        this.detailDialogVisible = true;
-                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
-                            this.isReception = true;
-                        }else {
+
+                        if (resp.data.status === 'WTJ' || resp.data.status === 'DESTROY') {
                             this.isReception = false;
+                        }else {
+                            this.isReception = true;
                         }
+                        this.detailDialogVisible = true;
                         this.detailDialogTitle="订单查看";
                     }else{
                         this.$message.error("获取订单信息失败");
@@ -268,9 +270,15 @@
                 this.isEdit = true;
                 this.getRequest('/erp/purchase/'+row.id).then((resp)=>{
                     if(resp&&resp.data){
-                        this.oldPurchase = resp.data;
-                        this.dialogTitle = "编辑订单";
-                        this.dialogVisible = true;
+                        if(!resp.data.processInstanceId){
+                            this.oldPurchase = resp.data;
+                            this.dialogTitle = "编辑订单";
+                            this.dialogVisible = true;
+                        }else{
+                            this.$message.error("流程已启动,不能编辑");
+                            this.loadPurchases();
+                        }
+
                     }else{
                         this.$message.error("获取订单失败");
                     }

@@ -1,5 +1,13 @@
 <template>
     <div>
+        <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+            <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                <el-button type="primary" size="mini" icon="el-icon-printer"
+                           @click="print">
+                    打印
+                </el-button>
+            </div>
+        </el-header>
         <el-form label-width="120px">
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
@@ -60,7 +68,7 @@
                     <span style="float: left;">产品清单</span>
                 </div>
                 <div>
-                    <el-table :data="purchase.details" size="mini">
+                    <el-table :data="purchase.details" size="mini" show-summary :summary-method="getSummaries">
                         <el-table-column type="index" align="left" width="80"></el-table-column>
                         <el-table-column prop="product.imageUrl" label="图片">
                             <template slot-scope="scope">
@@ -210,6 +218,13 @@
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <purchase-form :isEdit="isEdit" :oldPurchase="purchase" @close="closeWin" @callback="editCallback"></purchase-form>
         </el-dialog>
+        <div v-show="false">
+            <vue-easy-print table-show ref="easyPrint" style="width: 65%">
+                <template slot-scope="func">
+                    <purchase-print-formwork :getChineseNumber="func.getChineseNumber" :oldPurchase="purchase" :oldCosts="costs"></purchase-print-formwork>
+                </template>
+            </vue-easy-print>
+        </div>
     </div>
 </template>
 
@@ -217,9 +232,11 @@
     import PurchaseLogisticsForm from "@/views/oa/task/PurchaseLogisticsForm";
     import InboundSet from "@/views/oa/task/InboundSet";
     import PurchaseForm from "@/views/erp/purchase/PurchaseForm";
+    import PurchasePrintFormwork from "@/views/erp/order/PurchasePrintFormwork";
+    import vueEasyPrint from "vue-easy-print";
     export default {
         name: "PurchaseTaskDetails",
-        components: {InboundSet, PurchaseLogisticsForm, PurchaseForm},
+        components: {vueEasyPrint,PurchasePrintFormwork, InboundSet, PurchaseLogisticsForm, PurchaseForm},
         props:{
             task:{
                 type:Object,
@@ -260,7 +277,12 @@
                 immediate:true
             }
         },
-        methods:{
+        methods:{//打印
+            print(){
+
+                this.$refs.easyPrint.print();
+            },
+
             downloadAnnex(row) {
 
                 window.open(row.url + "?fileName=" + row.fileName);
@@ -366,7 +388,7 @@
                     cancelButtonText: "取消",
                     type: 'warning'
                 }).then(()=> {
-                    this.postRequest('/flow/task/destory?taskId='+this.task.id+"&comment="+this.comment + "&idea=AGREE&id=" + this.purchase.id + '&code=CG').then((resp)=>{
+                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$emit("close");
                             this.$emit("refresh");
@@ -391,7 +413,7 @@
             //驳回任务
             doReject(){
 
-                this.postRequest('/flow/task/reject?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
+                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
                     if(resp&&resp.data.status=="200"){
                         this.$emit("close");
                         this.$emit("refresh");
@@ -478,12 +500,33 @@
                     this.histories = resp.data;
                 })
             },
+            getSummaries(param){
+                const {columns,data}  = param;
+                const sums =[];
+                columns.forEach((column,index)=>{
+                    if(index===0){
+                        sums[index]='总额';
+                        //return;
+                    }
+                    if(column.property=='totalMoney'){
+                        const values = data.map(item => Number(item[column.property]));
+                        sums[index]= values.reduce((prev,curr)=>{
+                            const value = Number(curr);
+                            return prev+curr;
+                        },0);
+                    }
+                });
+                return sums;
+            }
         },
         data(){
             return{
                 purchase:{
                     supplier:{
                         supplierName:''
+                    },
+                    cuser:{
+                        realName:''
                     }
                 },
                 claimVisible:false,
