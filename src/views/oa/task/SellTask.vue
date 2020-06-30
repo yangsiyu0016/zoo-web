@@ -28,7 +28,8 @@
                     </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
-                            <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                            <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看订单</el-button>
+                            <el-button @click="showFLowImage(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看流程图</el-button>
                         </template>
                     </el-table-column>
                     <el-table-column  prop="code" align="left"  label="单号">
@@ -66,11 +67,15 @@
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
             <sell-task-details @refresh="refresh" @close="closeWin" :task="currentTask" :rejectVisible="rejectVisible" :canEdit="canEdit"></sell-task-details>
         </el-dialog>
+        <el-dialog :visible.sync="imageDialogVisible" :title="imageDialogTitle" :close-on-click-modal="false" width="77%">
+            <el-image :src="imageSrc"></el-image>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import SellTaskDetails from "@/views/oa/task/SellTaskDetails";
+    import {getBlobRequest} from "@/utils/api";
     export default {
         name: "PurchaseTask",
         components: {SellTaskDetails},
@@ -116,6 +121,15 @@
             },
             closeWin(){
                 this.dialogVisible = false;
+            },
+            showFLowImage(row){
+               this.getBlobRequest('/flow/image/getFlowImg?taskId='+row.id).then((resp)=>{
+                   let blob = new Blob([resp.data]);
+                   let url = window.URL.createObjectURL(blob);
+                   this.imageSrc = url;
+                   this.imageDialogTitle = row.name;
+                   this.imageDialogVisible = true;
+               })
             },
             //显示任务办理页面
             showDetailView(row){
@@ -179,7 +193,10 @@
                 rejectVisible: false,
                 canEdit: false,
                 sort:'createTime',
-                order:'desc'
+                order:'desc',
+                imageSrc:'',
+                imageDialogVisible:false,
+                imageDialogTitle:''
             }
         }
     }

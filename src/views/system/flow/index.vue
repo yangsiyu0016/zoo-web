@@ -68,9 +68,10 @@
                     let blob = new Blob([resp.data]);
                     let url = window.URL.createObjectURL(blob);
                     this.imageSrc = url;
+                    this.imageDialogTitle = row.name;
+                    this.imageDialogVisible = true;
                 })
-                this.imageDialogTitle = row.name;
-                this.imageDialogVisible = true;
+
             },
             closeWin(){
                 this.dialogVisible = false;
