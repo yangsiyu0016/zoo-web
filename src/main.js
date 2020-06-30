@@ -12,6 +12,7 @@ import {postNoEnCodeRequest} from './utils/api'
 import {putNoEnCodeRequest} from './utils/api'
 import {putRequest} from './utils/api'
 import {uploadFileRequest} from  './utils/api'
+import {getBlobRequest} from "./utils/api";
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import './assets/material.css'
@@ -27,6 +28,7 @@ Vue.prototype.postNoEnCodeRequest = postNoEnCodeRequest;
 Vue.prototype.putNoEnCodeRequest = putNoEnCodeRequest;
 Vue.prototype.putRequest = putRequest;
 Vue.prototype.uploadFileRequest = uploadFileRequest;
+Vue.prototype.getBlobRequest = getBlobRequest;
 import './permission'
 new Vue({
   router,

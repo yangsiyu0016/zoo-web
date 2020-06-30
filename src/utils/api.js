@@ -33,7 +33,13 @@ export const getRequest=(url)=>{
         url:base+url
     })
 }
-
+export const getBlobRequest=(url)=>{
+    return axios({
+        method:'get',
+        url:base+url,
+        responseType:'blob'
+    })
+}
 export const deleteRequest = (url) => {
     return axios({
         method: 'delete',

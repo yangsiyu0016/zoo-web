@@ -15,7 +15,13 @@
                         <el-table-column
                                 type="selection"
                                 align="left"
-                                width="30">
+                                width="80">
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template slot-scope="scope">
+                                <el-button @click="showImageView(scope.row)" size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px">查看流程图</el-button>
+                            </template>
+
                         </el-table-column>
                         <el-table-column prop="companyName" align="left"  label="公司名称" ></el-table-column>
                         <el-table-column prop="name" align="left"  label="流程名称" ></el-table-column>
@@ -41,6 +47,9 @@
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false">
             <upload-deployment-form @close="closeWin"></upload-deployment-form>
         </el-dialog>
+        <el-dialog :visible.sync="imageDialogVisible" :title="imageDialogTitle" :close-on-click-modal="false" width="77%">
+            <el-image :src="imageSrc"></el-image>
+        </el-dialog>
     </div>
 </template>
 
@@ -53,6 +62,16 @@
             this.loadDeployments();
         },
         methods:{
+            showImageView(row){
+
+                this.getBlobRequest("/flow/deployment/viewImage?processDefinitionId="+row.id+"&type=image").then((resp)=>{
+                    let blob = new Blob([resp.data]);
+                    let url = window.URL.createObjectURL(blob);
+                    this.imageSrc = url;
+                })
+                this.imageDialogTitle = row.name;
+                this.imageDialogVisible = true;
+            },
             closeWin(){
                 this.dialogVisible = false;
             },
@@ -80,6 +99,9 @@
         },
         data(){
             return{
+                imageSrc:'',
+                imageDialogVisible:false,
+                imageDialogTitle:'',
                 deployments:[],
                 currentPage:1,
                 totalCount:-1,
