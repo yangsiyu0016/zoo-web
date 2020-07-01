@@ -1,6 +1,12 @@
 <template>
     <div>
         <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
+            <div style="margin-left: 5px;margin-right: 20px;display: inline">
+                <el-button type="primary" size="mini" icon="el-icon-printer"
+                           @click="print">
+                    打印
+                </el-button>
+            </div>
         </el-header>
         <el-form size="mini"  label-width="120px">
             <el-card shadow="hover">
@@ -60,11 +66,11 @@
                         :data="productSplit.details"
                         size="mini"
                         style="width:100%" >
-                   <!-- <el-table-column
-                            type="selection"
+                   <el-table-column
+                            type="index"
                             align="left"
                             width="80">
-                    </el-table-column>-->
+                    </el-table-column>
                     <el-table-column prop="product.imageUrl" label="图片">
                         <template slot-scope="scope">
                             <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
@@ -91,7 +97,7 @@
                 </el-table>
             </el-card>
 
-            <el-card shadow="hover" v-show="isOperate">
+            <el-card shadow="hover">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">拆分材料明细</span>
                 </div>
@@ -99,11 +105,11 @@
                         :data="productSplit.details"
                         size="mini"
                         style="width:100%" >
-                    <!-- <el-table-column
-                             type="selection"
+                    <el-table-column
+                             type="index"
                              align="left"
                              width="80">
-                     </el-table-column>-->
+                     </el-table-column>
                     <el-table-column prop="product.imageUrl" label="图片">
                         <template slot-scope="scope">
                             <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
@@ -157,7 +163,7 @@
                 </div>
                 <div>
                     <el-table :data="newOutbound.details">
-                        <!--<el-table-column label="产品名称" prop="product.name"></el-table-column>-->
+                        <el-table-column type="index" width="80"></el-table-column>
                         <el-table-column label="出库货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="出库数量" prop="number"></el-table-column>
                         <el-table-column label="未出库数量" prop="notOutNumber"></el-table-column>
@@ -173,28 +179,6 @@
                         </el-table-column>
                     </el-table>
                 </div>
-                <!--<el-row :gutter="20">
-                    <el-col :span="6">
-                        <el-form-item label="产品名称:">
-                            <span style="float: left">{{productSplit.product.name}}</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="6">
-                        <el-form-item label="出库货位:">
-                            <span style="float: left">{{productSplit.goodsAllocation ? productSplit.goodsAllocation.name : ''}}</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="6">
-                        <el-form-item label="出库数量:">
-                            <span style="float: left">{{productSplit.number - productSplit.notOutNumber}}</span>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="6">
-                        <el-form-item label="拆分数量:" >
-                            <span style="float: left">{{productSplit.number}}</span>
-                        </el-form-item>
-                    </el-col>
-                </el-row>-->
 
             </el-card>
             <el-card shadow="hover">
@@ -232,25 +216,38 @@
                 </div>
             </el-card>
         </el-form>
-        <el-dialog :title="gaDialogTitle" :visible.sync="gaDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-outbound-form :notOutNumber="productSplit.notOutNumber" @cancel="cancel" @callback="callbackGa" :warehouseId="productSplit.warehouse.id"></product-split-outbound-form>
+        <el-dialog :title="gaDialogTitle" :visible.sync="gaDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="40%">
+            <product-split-inbound-table></product-split-inbound-table>
+            <!--<product-split-outbound-form :notOutNumber="productSplit.notOutNumber" @cancel="cancel" @callback="callbackGa" :warehouseId="productSplit.warehouse.id"></product-split-outbound-form>-->
         </el-dialog>
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <product-split-inbound-form :splitDetail="detail" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productSplit.warehouse.id"></product-split-inbound-form>
         </el-dialog>
         <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-form :idEdit="isEdit" :oldProductSplit="oldProductSplit" @close="closeEditWin" @callback="callbackEdit"></product-split-form>
+            <product-split-form :isEdit="isEdit" :oldProductSplit="productSplit" @close="closeEditWin" @callback="callbackEdit"></product-split-form>
         </el-dialog>
+        <div v-show="false">
+            <vue-easy-print table-show ref="easyPrint" style="width: 65%">
+                <template slot-scope="func">
+                    <product-split-print-formwork :getChineseNumber="func.getChineseNumber" :productSplit="productSplit"></product-split-print-formwork>
+                </template>
+            </vue-easy-print>
+        </div>
     </div>
 </template>
 
 <script>
     import ProductSplitOutboundForm from "./ProductSplitOutboundForm";
-    import ProductSplitInboundForm from "./ProductSplitInboundForm";
     import ProductSplitForm from "../../../erp/stock/productsplit/ProductSplitForm";
+    import vueEasyPrint from "vue-easy-print";
+    import ProductSplitPrintFormwork from "@/views/erp/stock/productsplit/ProductSplitPrintFormwork";
+    import ProductSplitInboundTable from "@/views/oa/task/productsplit/ProductSplitInboundTable";
     export default {
         name: "ProductSplitTaskDetails",
-        components: {ProductSplitForm, ProductSplitOutboundForm, ProductSplitInboundForm},
+        components: {
+            ProductSplitInboundTable,
+            ProductSplitPrintFormwork,
+            vueEasyPrint,ProductSplitForm, ProductSplitOutboundForm},
         props:{
             task:{
                 type:Object,
@@ -291,7 +288,7 @@
                         this.isOperate = true;
                     }
 
-                    this.getRequest('/erp/split/getProducrSplitById?id=' + val.businessKey).then(resp => {
+                    this.getRequest('/erp/split/getProductSplitById?id=' + val.businessKey).then(resp => {
                         if (resp && resp.status == 200) {
                             this.productSplit = resp.data;
                             this.loadHistory();
@@ -306,16 +303,21 @@
         },
 
         methods: {
+            //打印
+            print(){
+
+                this.$refs.easyPrint.print();
+            },
             closeEditWin() {
                 this.editDialogVisible = false;
             },
             callbackEdit() {
-                this.closeWin();
+                this.closeEditWin();
             },
             edit() {
                 this.isEdit = true;
                 this.getRequest('/erp/split/getProductSplitById?id=' + this.productSplit.id).then(resp => {
-                    this.oldProductSplit = resp.data;
+                    this.productSplit = resp.data;
                 });
                 this.editDialogVisible = true;
                 this.editDialogTitle = '编辑单据'
@@ -496,7 +498,7 @@
                     cancelButtonText: "取消",
                     type: 'warning'
                 }).then(()=> {
-                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE&id=" + this.oi.id + '&code=QC').then((resp)=>{
+                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + "&idea=UNAGREE").then((resp)=>{
                         if(resp&&resp.data.status=="200"){
                             this.$emit("close");
                             this.$emit("refresh");
@@ -569,6 +571,13 @@
                 productSplit: {
                     warehouse: {
                         name: ''
+                    },
+                    product:{
+                        code:'',
+                        name:''
+                    },
+                    splitMan:{
+                        realName:''
                     }
                 },
                 claimVisible:false,
@@ -579,8 +588,6 @@
                 dialogTitle: '',
                 dialogVisible: false,
                 isEdit: false,
-                histories:[],
-                oldProductSplit:{},
                 histories:[]
             }
         }

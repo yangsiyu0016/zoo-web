@@ -96,9 +96,25 @@
                 </el-table>
             </el-card>
             <el-card shadow="hover">
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">审批流程</span>
+                </div>
+                <div>
+                    <el-table :data="histories">
+                        <el-table-column type="index" width="80px"></el-table-column>
+                        <el-table-column label="节点名称" prop="actName"></el-table-column>
+                        <el-table-column label="意见" prop="message"></el-table-column>
+                        <el-table-column label="办理人" prop="assigneeName"></el-table-column>
+                        <el-table-column label="开始时间" prop="stime"></el-table-column>
+                        <el-table-column label="结束时间" prop="etime"></el-table-column>
+                        <el-table-column label="用时" prop="duration"></el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
+            <el-card shadow="hover">
                 <div style="text-align: center">
                     <el-button @click="resetProductSplitDetail" size="mini" type="danger" >取回</el-button>
-                    <el-button @click="destroyProductSplit" v-show="oldProductSplit.status!='DESTROY'"  size="mini" type="danger" >作废</el-button>
+                    <el-button @click="destroyProductSplit" v-show="canDestroy"  size="mini" type="danger" >作废</el-button>
                     <el-button @click="cancel" type="info" size="mini">关闭</el-button>
                 </div>
             </el-card>
@@ -125,11 +141,17 @@
             oldProductSplit:{
                 type:Object,
                 default:()=>{}
+            },
+            canDestroy:{
+                type:Boolean,
+                default:false
             }
+        },
+        mounted(){
+            this.loadHistory();
         },
         methods: {
             print(){
-                console.log(this.oldProductSplit)
                 this.$refs.easyPrint.print();
             },
             cancel(){
@@ -166,6 +188,17 @@
                         }
                     })
                 })
+            },
+            //加载审批过程
+            loadHistory(){
+                this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.oldProductSplit.processInstanceId).then((resp)=>{
+                    this.histories = resp.data;
+                })
+            },
+        },
+        data(){
+            return{
+                histories:[]
             }
         }
     }

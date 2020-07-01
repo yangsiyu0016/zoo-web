@@ -48,11 +48,6 @@ export const asyncRouterMap = [{
         component:()=>import("@/views/oa/task/PurchaseTask"),
         meta:{title:"采购待办"}
     },{
-        path:'assembledTask',
-        name:'assembledTask',
-        component:()=>import("@/views/oa/task/assembled/AssembledTask"),
-        meta:{title:'产品组装待办'}
-    },{
         path:'inventoryCheckTask',
         name:'inventoryCheckTask',
         component:()=>import("@/views/oa/task/inventorycheck/InventoryCheckTask"),

@@ -12,7 +12,7 @@
     	font-weight: bold;
     	line-height: 1.5;
    	 	color: #000833;
-    	text-shadow: 0px 1px 3px #CCC;">牧疆南北组装订单</span>
+    	text-shadow: 0px 1px 3px #CCC;">拆分订单</span>
                 </el-col>
                 <!-- <td  class="middle pageTitle" style="font-size: 25px; vertical-align: top;">订单</td>-->
             </el-row>
@@ -119,6 +119,15 @@
             productSplit: {
                 type:Object,
                 default: ()=>{}
+            }
+        },
+        watch:{
+            productSplit: {
+                handler(val){
+                    //console.log(val);
+                },
+                deep:true,
+                immediate:true
             }
         },
         data() {

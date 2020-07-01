@@ -81,7 +81,8 @@
             saveCdga() {
                 this.$refs['gaForm'].validate((valid)=>{
                     if(valid){
-                        this.$emit('callback',this.cdga);
+
+                        //this.$emit('callback',this.cdga);
                     }else{
                         return false;
                     }

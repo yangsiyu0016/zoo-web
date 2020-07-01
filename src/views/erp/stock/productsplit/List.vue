@@ -4,13 +4,6 @@
             <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
                 <div style="display: inline">
                     <el-button type="primary" size="mini" icon="el-icon-plus" @click="showAddView">添加</el-button>
-                    <!--<el-input size="mini" placeholder="通过产品名称搜索，记得回车呦..." clearable style="width: 300px;margin: 0px;padding: 0px;" prefix-icon="el-icon-search"></el-input>
-                    <el-button type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
-                    <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
-                               @click="showSearchView">
-                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
-                    </el-button>-->
-
                 </div>
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
                     <el-input size="mini" placeholder="通过单号、产品编码、产品名称搜索，记得回车呦..."
@@ -78,7 +71,7 @@
                                             range-separator="至"
                                             start-placeholder="开始日期"
                                             end-placeholder="结束日期"
-                                            value-format="yyyy-MM-dd"
+                                            value-format="yyyy-MM-dd HH:mm:ss"
                                             :picker-options="pickerOptions">
                                     </el-date-picker>
                                 </el-col>
@@ -101,11 +94,7 @@
                             </el-row>
                         </div>
                     </transition>
-                    <el-table @sort-change="sortChange" v-loading="loading" :data="productSplits" @row-dblclick="dblclick" tooltip-effect="dark" ref="multipleTable" style="width: 100%" id="table" >
-                        <!--<el-table-column
-                                type="selection"
-                                width="40">
-                        </el-table-column>-->
+                    <el-table size="mini" @sort-change="sortChange" v-loading="loading" :data="productSplits" @row-dblclick="dblclick" tooltip-effect="dark" ref="multipleTable" style="width: 100%" id="table" >
                         <el-table-column type="index" width="20px">
                             <template slot-scope="scope" >
                                 <span>{{(currentPage - 1) * 10 + scope.$index + 1}}</span>
@@ -152,7 +141,7 @@
                                 <el-tag v-if="scope.row.status=='CKLL'"  color="#7b1fa2" size="mini" effect="dark">仓库领料</el-tag>
                                 <el-tag v-if="scope.row.status=='CF'"  type="#B03060" size="mini" effect="dark">产品拆分中...</el-tag>
                                 <el-tag v-if="scope.row.status=='CLRK'"  type="danger" size="mini" effect="dark">材料入库</el-tag>
-                                <el-tag v-if="scope.row.status=='DDTZ'"  type="primary" size="mini" effect="dark">订单调整</el-tag>
+                                <el-tag v-if="scope.row.status=='REJECT'"  type="primary" size="mini" effect="dark">订单调整</el-tag>
                                 <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                             </template>
                         </el-table-column>
@@ -160,15 +149,7 @@
                         <el-table-column prop="ctime" label="创建日期" width="200px"></el-table-column>
                         <el-table-column prop="etime" label="完成日期" width="200px"></el-table-column>
                         <el-table-column prop="description" label="备注" :show-tooltip-when-overflow="true" :show-overflow-tooltip='true'></el-table-column>
-                        <!--<el-table-column width="200px"
-                                         label="操作">
-                            <template slot-scope="scope">
-                                <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                                <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                                <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                                <el-button v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteProductAssembled(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
-                            </template>
-                        </el-table-column>-->
+
                     </el-table>
                     <div style="display: flex;justify-content: space-between;margin: 2px">
                         <el-pagination
@@ -323,18 +304,27 @@
                     this.getRequest('/erp/split/startFlow?id=' + row.id).then(resp => {
                         if (resp && resp.data.status == '200') {
                             this.$message.success('启动成功');
-                            this.loadSplit();
+
                         }else {
                             this.$message.error(resp.data.msg);
                         }
+                        this.loadSplit();
                     })
                 })
             },
             showEditView(row) {
-                this.isEdit = true;
-                this.oldProductSplit = row;
-                this.dialogVisible = true;
-                this.dialogTitle = "编辑拆分单";
+                this.getRequest('/erp/split/getProducrSplitById?id='+row.id).then(resp=>{
+                    if(!resp.data.processInstanceId){
+                        this.isEdit = true;
+                        this.oldProductSplit = resp.data;
+                        this.dialogVisible = true;
+                        this.dialogTitle = "编辑拆分单";
+                    }else{
+                        this.$message.error("流程已启动,不能编辑");
+                        this.loadSplit();
+                    }
+                })
+
             },
             deleteProductSplit(row) {
                 this.$confirm("确定要删除吗？删除后不可恢复！","提示",{

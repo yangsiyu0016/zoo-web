@@ -277,7 +277,8 @@
                 immediate:true
             }
         },
-        methods:{//打印
+        methods:{
+            //打印
             print(){
 
                 this.$refs.easyPrint.print();
