@@ -238,15 +238,19 @@
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <product-split-inbound-form :splitDetail="detail" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productSplit.warehouse.id"></product-split-inbound-form>
         </el-dialog>
+        <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <product-split-form :idEdit="isEdit" :oldProductSplit="oldProductSplit" @close="closeEditWin" @callback="callbackEdit"></product-split-form>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import ProductSplitOutboundForm from "./ProductSplitOutboundForm";
     import ProductSplitInboundForm from "./ProductSplitInboundForm";
+    import ProductSplitForm from "../../../erp/stock/productsplit/ProductSplitForm";
     export default {
         name: "ProductSplitTaskDetails",
-        components: {ProductSplitOutboundForm, ProductSplitInboundForm},
+        components: {ProductSplitForm, ProductSplitOutboundForm, ProductSplitInboundForm},
         props:{
             task:{
                 type:Object,
@@ -302,6 +306,20 @@
         },
 
         methods: {
+            closeEditWin() {
+                this.editDialogVisible = false;
+            },
+            callbackEdit() {
+                this.closeWin();
+            },
+            edit() {
+                this.isEdit = true;
+                this.getRequest('/erp/split/getProductSplitById?id=' + this.productSplit.id).then(resp => {
+                    this.oldProductSplit = resp.data;
+                });
+                this.editDialogVisible = true;
+                this.editDialogTitle = '编辑单据'
+            },
             //加载审批过程
             loadHistory(){
                 this.getRequest('/flow/history/action/getHistory?processInstanceId='+this.productSplit.processInstanceId).then((resp)=>{
@@ -437,9 +455,6 @@
                     this.$message.error('已添加全部出库产品');
                 }
             },
-            edit() {
-
-            },
             callback() {
                 this.closeWin();
             },
@@ -523,6 +538,8 @@
         },
         data() {
             return {
+                editDialogTitle: '',
+                editDialogVisible: false,
                 isOperate:false,
                 detail: {},
                 gaInDialogVisible: false,

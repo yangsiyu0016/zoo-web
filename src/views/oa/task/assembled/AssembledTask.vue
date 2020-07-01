@@ -4,8 +4,22 @@
             <el-table-column
                     type="index"
                     align="left"
-                    width="30"></el-table-column>
-            <el-table-column  prop="code" align="left"  label="单号"></el-table-column>
+                    width="30">
+                <template scope="scope">
+                    <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                    <el-button @click="showFLowImage(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看流程图</el-button>
+                </template>
+            </el-table-column>
+            <el-table-column  prop="code" align="left"  label="单号">
+                <template slot-scope="scope">
+                    <span v-html="showData(scope.row.code)"></span>
+                </template>
+            </el-table-column>
             <el-table-column  prop="name" align="left"  label="当前步骤"></el-table-column>
             <el-table-column prop="originatorName" align="left" label="任务发起人"></el-table-column>
             <el-table-column label="流程状态">
@@ -16,23 +30,25 @@
             </el-table-column>
             <el-table-column prop="createTime" align="left" label="创建时间" ></el-table-column>
             <el-table-column prop="stateTime" align="left" label="停留时间" :formatter="getDuration"></el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                    <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                </template>
-            </el-table-column>
+
         </el-table>
         <div style="display: flex;justify-content: space-between;margin: 2px">
             <el-pagination
                     background
+                    :page-sizes="[10,20,50,100,200]"
                     :page-size="10"
+                    @size-change="sizeChange"
+                    @current-change="currentChange"
                     :current-page="currentPage"
-                    layout="prev,pager,next"
+                    layout="total,sizes,prev,pager,next,jumper"
                     :total="totalCount">
             </el-pagination>
         </div>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
-            <assembled-task-details @refresh="refresh" @close="closeWin" :task="currentTask"></assembled-task-details>
+            <assembled-task-details @refresh="refresh" @close="closeWin" :task="currentTask" :rejectVisible="rejectVisible" :canEdit="canEdit"></assembled-task-details>
+        </el-dialog>
+        <el-dialog :visible.sync="imageDialogVisible" :title="imageDialogTitle" :close-on-click-modal="false" width="77%">
+            <el-image :src="imageSrc"></el-image>
         </el-dialog>
     </div>
 </template>
@@ -46,6 +62,31 @@
             this.loadTask();
         },
         methods:{
+            sizeChange(size){
+                this.pageSize = size;
+                this.loadTask();
+            },
+            currentChange(page) {
+                this.currentPage = page;
+                this.loadTask();
+            },
+            showData(val){
+                val = val+'';
+                if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
+                    return val.replace(this.keywords,'<font color="red">' + this.keywords + '</font>')
+                }else{
+                    return val;
+                }
+            },
+            showFLowImage(row){
+                this.getBlobRequest('/flow/image/getFlowImg?taskId='+row.id).then((resp)=>{
+                    let blob = new Blob([resp.data]);
+                    let url = window.URL.createObjectURL(blob);
+                    this.imageSrc = url;
+                    this.imageDialogTitle = row.name;
+                    this.imageDialogVisible = true;
+                })
+            },
             refresh(){
                 this.loadTask();
             },
@@ -59,16 +100,16 @@
                         this.currentTask = resp.data;
                         this.dialogVisible = true;
 
-                        /*if ((this.currentTask.taskKey === 'purchasecw' || this.currentTask.taskKey === 'purchasecgjl') && row.assigneeName != null) {
+                        if (this.currentTask.taskKey === 'assembledckzg' && row.assigneeName != null) {
                             this.rejectVisible = true;
                         }else {
                             this.rejectVisible = false;
                         }
-                        if (this.currentTask.taskKey === 'purchasereject') {
+                        if (this.currentTask.taskKey === 'reject') {
                             this.canEdit = true;
                         }else {
                             this.canEdit = false;
-                        }*/
+                        }
                         this.dialogTitle="任务办理";
                     }else{
                         this.$message.error("获取任务失败");
@@ -105,7 +146,13 @@
                 dialogVisible:false,
                 dialogTitle:'',
                 rejectVisible: false,
-                canEdit: false
+                imageDialogVisible: false,
+                imageDialogTitle: '',
+                imageSrc:'',
+                canEdit: false,
+                sort:'createTime',
+                order:'desc',
+                pageSize: 10
             }
         }
     }
