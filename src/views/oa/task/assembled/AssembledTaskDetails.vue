@@ -141,6 +141,30 @@
                     </el-table>
                 </div>
             </el-card>
+            <el-card shadow="hover" v-show="isIn">
+                <div slot="header" class="clearfix">
+                    <span style="float: left;">入库信息</span>
+                </div>
+                <div>
+                    <el-table :data="newInbound.details">
+                        <!--<el-table-column label="产品名称" prop="product.name"></el-table-column>-->
+                        <el-table-column label="入库货位" prop="goodsAllocation.name"></el-table-column>
+                        <el-table-column label="入库数量" prop="number"></el-table-column>
+                        <el-table-column label="未入库数量" prop="notInNumber"></el-table-column>
+                        <el-table-column label="状态">
+                            <template slot-scope="scope">
+                                <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已出库</el-tag>
+                                <el-tag v-if="scope.row.number === 0 ? true:false" type="success" size="mini" effect="dark">未出库</el-tag>
+                            </template>
+                        </el-table-column>
+                        <!--<el-table-column label="操作">
+                            <template slot-scope="scope">
+                                <el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            </template>
+                        </el-table-column>-->
+                    </el-table>
+                </div>
+            </el-card>
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">审批流程</span>
@@ -167,10 +191,10 @@
                 <!--<el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'" size="mini" @click="addLogistics" type="primary">添加物流信息</el-button>-->
 
 
-                <!--<el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>-->
+                <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
                 <el-button v-show="handleVisible && task.taskKey === 'inbound' " @click="showAddInBound" type="primary" size="mini">添加入库信息</el-button>
                 <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
-                <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="destory">作废</el-button>
+                <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="destroy">作废</el-button>
                 <el-button v-show="rejectVisible" @click="reject" type="primary" size="mini">驳回</el-button>
                 <el-button v-show="handleVisible && productAssembled.status !== 'DDTZ'" @click="handle" type="primary" size="mini">通过</el-button>
                 <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
@@ -181,7 +205,10 @@
             <assembled-outbound-form :assembledMaterial="material" @cancel="cancelGaOut" @callback="callbackGaOut" :warehouseId="productAssembled.warehouse.id"></assembled-outbound-form>
         </el-dialog>
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <assembled-inbound-form :assembled="productAssembled" @cancel="cancelGaOut" @callback="callbackGaOut" :warehouseId="productAssembled.warehouse.id"></assembled-inbound-form>
+            <assembled-inbound-form :assembled="productAssembled" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productAssembled.warehouse.id"></assembled-inbound-form>
+        </el-dialog>
+        <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <product-assembled-form :idEdit="isEdit"  @close="closeEditWin" @callback="callbackEdit"></product-assembled-form>
         </el-dialog>
     </div>
 </template>
@@ -189,13 +216,22 @@
 <script>
     import AssembledOutboundForm from "./AssembledOutboundForm";
     import AssembledInboundForm from "./AssembledInboundForm";
+    import ProductAssembledForm from "../../../erp/stock/productassembled/ProductAssembledForm";
     export default {
         name: "AssembledTaskDetails",
-        components: {AssembledOutboundForm, AssembledInboundForm},
+        components: {ProductAssembledForm, AssembledOutboundForm, AssembledInboundForm},
         props:{
             task:{
                 type:Object,
                 default:()=>{}
+            },
+            rejectVisible:{
+                type:Boolean,
+                default: false
+            },
+            canEdit: {
+                type: Boolean,
+                default: false
             }
         },
         watch:{
@@ -208,13 +244,15 @@
                         this.isMaterials = false;
                         this.loadOut(val.businessKey);
                     }else if(val.taskKey === 'inbound'){
-                        this.isMaterials = true;
-                        this.isOut = true;
+                        this.isMaterials = false;
+                        this.isOut = false;
                         this.isOperate = false;
+                        this.isIn = true;
                         this.loadIn(val.businessKey);
                     }else {
                         this.isMaterials = true;
                         this.isOut = false;
+                        this.isIn = false;
                         this.isOperate = false;
                     }
                     if(val.assignee){
@@ -242,9 +280,54 @@
             }
         },
         methods:{
-            showAddInBound() {
-
+            closeEditWin() {
+                this.editDialogVisible = false;
             },
+            callbackEdit() {
+                this.closeWin();
+            },
+            edit() {
+                this.isEdit = true;
+                this.getRequest('/erp/assembled/getAssembledById?id=' + this.productAssembled.id).then(resp => {
+                    this.oldProductAssembled = resp.data;
+                })
+                this.editDialogVisible = true;
+                this.editDialogTitle = '编辑单据';
+            },
+            callbackGaIn(row) {
+                this.cancelGaIn();
+                this.addInbound(row);
+                this.updateNotInNumberById(row);
+                this.loadIn(this.productAssembled.id);
+            },
+            loadIn(id) {
+                this.getRequest('/erp/inbound/getInboundByForeignKey?foreignKey=' + id).then(resp => {
+                    if (resp && resp.status == 200) {
+                        this.newInbound = resp.data;
+                    }
+                })
+            },
+            cancelGaIn() {
+                this.gaInDialogVisible = true;
+            },
+            addInbound(row){
+                  Object.assign(this.inbound, {foreignKey: this.productAssembled.id, taskId: this.task.id});
+                  this.postNoEnCodeRequest('/erp/assembled/addInbound?goodsAllocationId=' + row.goodsAllocation.id + '&number=' + row.number, this.inbound);
+            },
+            updateNotInNumberById(row) {
+                let  num = this.productAssembled.notInNumber - row.number;
+                 this.getRequest('/erp/assembled/updateNotInNumber?notInNumber=' + num + '&id=' + this.productAssembled.id);
+            },
+            showAddInBound() {
+                if (this.productAssembled.notInNumber !== 0) {
+                    this.gaInDialogVisible = true;
+                }else {
+                    this.gaInDialogVisible = false;
+                    this.$message.error('已添加全部入库产品');
+                }
+                this.gaInDialogTitle = '添加入库信息';
+            },
+
             destroy() {
 
             },
@@ -310,16 +393,57 @@
             },
 
             handle(){
-                this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(()=>{
-                    this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
-                        this.$emit("close");
-                        this.$emit("refresh");
-                    });
-                })
+                let isOutFlag = true;
+                for (let number in this.newOutbounds){
+                    if (this.newOutbounds[number].productAssembledMaterial.notOutNumber !== 0) {
+                        isOutFlag = false;
+                        break;
+                    }
+                }
+                if (this.productAssembled.status !== 'CKLL' && this.productAssembled.status !== 'CLRK') {
+                    this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(()=>{
+                        this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
+                            this.$emit("close");
+                            this.$emit("refresh");
+                        });
+                    })
+                }else {
+                    if (this.productAssembled.status === 'CKLL') {
+                        if (isOutFlag && this.newOutbounds.length >0) {
+                            this.$confirm("确定要完成任务吗？完成后暂时不可取回！", "提示", {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(() => {
+                                this.postRequest('/flow/task/complete?taskId=' + this.task.id + "&comment=" + this.comment + '&idea=AGREE').then((resp) => {
+                                    this.$emit("close");
+                                    this.$emit("refresh");
+                                });
+                            })
+                        }else {
+                            this.$message.error('有产品未出库');
+                        }
+                    }else if (this.productAssembled.status === 'CLRK') {
+                        if (this.productAssembled.notInNumber == 0) {
+                            this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(()=>{
+                                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
+                                    this.$emit("close");
+                                    this.$emit("refresh");
+                                });
+                            })
+                        }else {
+                            this.$message.error('有产品未入库');
+                        }
+                    }
+                }
             },
             claim(){
                 this.$confirm("签收后只能由签收人处理该任务，确定要签收吗？","提示",{
@@ -356,6 +480,13 @@
         },
         data(){
             return{
+                editVisible: false,
+                isEdit: false,
+                editDialogTitle: '',
+                editDialogVisible: false,
+                oldProductAssembled:{},
+                isIn: false,
+                inbound: {},
                 outbound: {},
                 isMaterials: true,
                 isOperate: false,
@@ -366,6 +497,7 @@
                 material: {},
                 isOut: false,
                 newOutbounds: [],
+                newInbound: {},
                 productAssembled:{
                     warehouse:{
                         name:''

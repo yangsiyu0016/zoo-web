@@ -11,7 +11,7 @@
                         ref="upload"
                         class="upload-demo"
                         :auto-upload="false"
-                        action="http://192.168.1.237:8081/flow/deployment/upload"
+                        action="http://192.168.1.177:8081/flow/deployment/upload"
                         :file-list="fileList"
                         :multiple="false"
                         :on-success="upFile"

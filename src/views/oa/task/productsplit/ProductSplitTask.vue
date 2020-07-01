@@ -1,11 +1,25 @@
 <template>
     <div>
-        <el-table :data="tasks" size="mini" @row-dblclick="showDetailView">
+        <el-table :data="tasks" size="mini" v-loading="loading" @row-dblclick="showDetailView">
             <el-table-column
                     type="index"
                     align="left"
-                    width="30"></el-table-column>
-            <el-table-column  prop="code" align="left"  label="单号"></el-table-column>
+                    width="30">
+                <template scope="scope">
+                    <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                    <el-button @click="showFLowImage(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看流程图</el-button>
+                </template>
+            </el-table-column>
+            <el-table-column  prop="code" align="left"  label="单号">
+                <template slot-scope="scope">
+                    <span v-html="showData(scope.row.code)"></span>
+                </template>
+            </el-table-column>
             <el-table-column  prop="name" align="left"  label="当前步骤"></el-table-column>
             <el-table-column prop="originatorName" align="left" label="任务发起人"></el-table-column>
             <el-table-column label="流程状态">
@@ -16,23 +30,24 @@
             </el-table-column>
             <el-table-column prop="createTime" align="left" label="创建时间" ></el-table-column>
             <el-table-column prop="stateTime" align="left" label="停留时间" :formatter="getDuration"></el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                    <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                </template>
-            </el-table-column>
         </el-table>
         <div style="display: flex;justify-content: space-between;margin: 2px">
             <el-pagination
                     background
-                    :page-size="10"
+                    :page-sizes="[10,20,50,100,200]"
+                    :page-size="pageSize"
+                    @size-change="sizeChange"
+                    @current-change="currentChange"
                     :current-page="currentPage"
-                    layout="prev,pager,next"
+                    layout="total,sizes,prev,pager,next,jumper"
                     :total="totalCount">
             </el-pagination>
         </div>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
             <product-split-task-details :task="currentTask" @close="closeWin" @refresh="refresh" :rejectVisible="rejectVisible" :canEdit="canEdit"></product-split-task-details>
+        </el-dialog>
+        <el-dialog :visible.sync="imageDialogVisible" :title="imageDialogTitle" :close-on-click-modal="false" width="77%">
+            <el-image :src="imageSrc"></el-image>
         </el-dialog>
     </div>
 </template>
@@ -46,6 +61,22 @@
             this.loadTask();
         },
         methods: {
+            sizeChange(size){
+                this.pageSize = size;
+                this.loadTask();
+            },
+            currentChange(page) {
+                this.currentPage = page;
+                this.loadTask();
+            },
+            showData(val){
+                val = val+'';
+                if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
+                    return val.replace(this.keywords,'<font color="red">' + this.keywords + '</font>')
+                }else{
+                    return val;
+                }
+            },
             //刷新列表
             refresh(){
                 this.loadTask();
@@ -53,6 +84,15 @@
             //关闭窗口
             closeWin(){
                 this.dialogVisible = false;
+            },
+            showFLowImage(row){
+                this.getBlobRequest('/flow/image/getFlowImg?taskId='+row.id).then((resp)=>{
+                    let blob = new Blob([resp.data]);
+                    let url = window.URL.createObjectURL(blob);
+                    this.imageSrc = url;
+                    this.imageDialogTitle = row.name;
+                    this.imageDialogVisible = true;
+                })
             },
             showDetailView(row) {
                 this.getRequest('/flow/task/getProductSplitTaskById?taskId=' + row.id).then(resp => {
@@ -76,9 +116,11 @@
                 })
             },
             loadTask() {
+                this.loading = true;
                 this.getRequest('/flow/task/getProductSplitTask?page=' + this.currentPage + '&size=10').then(resp => {
                     this.tasks = resp.data.tasks;
                     this.totalCount = resp.data.count;
+                    this.loading = false;
                 })
             },
             getDuration(row){
@@ -97,6 +139,7 @@
         },
         data() {
             return {
+                loading: false,
                 tasks:[],
                 currentPage:1,
                 totalCount:-1,
@@ -106,7 +149,13 @@
 
                 },
                 rejectVisible: false,
-                canEdit: false
+                canEdit: false,
+                imageDialogVisible: false,
+                imageDialogTitle: '',
+                imageSrc:'',
+                sort:'createTime',
+                order:'desc',
+                pageSize: 10
             }
         }
     }
