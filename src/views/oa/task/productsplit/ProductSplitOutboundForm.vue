@@ -7,11 +7,11 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="数量:" prop="number">
-                <el-input-number :min="0" :max="max" :precision="4" v-model="cdga.number"></el-input-number>
+                <el-input-number :min="0" :max="notOutNumber" :precision="4" v-model="cdga.number"></el-input-number>
             </el-form-item>
             <el-form-item>
-                <el-button @click="saveCdga" type="primary">保存</el-button>
-                <el-button @click="cancel" type="info">取消</el-button>
+                <el-button @click="saveCdga" type="primary" icon="el-icon-check">保存</el-button>
+                <el-button @click="cancel" type="info" icon="el-icon-close">取消</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -21,30 +21,35 @@
     export default {
         name: "ProductSplitOutboundForm",
         props:{
+            oldData:{
+                type:Object,
+                default:()=>{}
+            },
             warehouseId:{
                 type:String,
-                default:()=>{}
+                default:''
             },
             notOutNumber: {
                 type: Number,
-                default:()=>{}
+                default:0
             }
         },
-        /*watch: {
-            notOutNumber: {
-                handler(val) {
+        watch:{
 
-                    this.max = val;
-
-                }
+            oldData:{
+                handler(val){
+                    this.cdga=JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
             }
-        },*/
+        },
         mounted() {
             this.loadGas();
         },
         methods: {
             loadGas(){
-                this.max = this.notOutNumber;
+                //this.max = this.notOutNumber;
 
                 this.getRequest('/warehouse/ga/getGaByWarehouseId?warehouseId='+this.warehouseId).then((resp)=>{
                     this.gas = resp.data;
@@ -85,7 +90,7 @@
                     goodsAllocation:{},
                     number:0
                 },
-                max:0,
+               // max:0,
                 rules:{
                     'goodsAllocation.id':[{required:true,message:"选择货位",trigger:'blur'}],
                     number:[{required:true,validator:checkNumber,trigger:'blur'}]

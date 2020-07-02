@@ -78,6 +78,7 @@
                             <el-tag v-if="scope.row.type=='LOSSES'" type="success" size="mini" effect="dark">盘亏</el-tag>
                             <el-tag v-if="scope.row.type=='QCDESTROY'" type="info" size="mini" effect="dark">期初作废</el-tag>
                             <el-tag v-if="scope.row.type=='PURCHASEDESTROY'" type="info" size="mini" effect="dark">采购作废</el-tag>
+                            <el-tag v-if="scope.row.type=='SPLITCK'" type="warning" size="mini" effect="dark">拆分出库</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="orderCode" align="left"  label="单号" width="180" ></el-table-column>

@@ -27,21 +27,10 @@
             warehouseId:{
                 type:String,
                 default:()=>{}
-            },
-            splitDetail: {
-                type: Object,
-                default: ()=>{}
             }
         },
         watch: {
-            splitDetail: {
-                handler(val) {
-                    this.cdga.detail = JSON.parse(JSON.stringify(val));
-                    this.max = val.notInNumber;
-                },
-                deep:true,
-                immediate:true
-            }
+
         },
         data() {
             let checkNumber = (rule,value,callback)=>{

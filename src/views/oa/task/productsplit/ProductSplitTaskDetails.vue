@@ -162,11 +162,10 @@
                     <span style="float: left;">出库信息</span>
                 </div>
                 <div>
-                    <el-table :data="newOutbound.details">
+                    <el-table :data="outboundDetails">
                         <el-table-column type="index" width="80"></el-table-column>
                         <el-table-column label="出库货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="出库数量" prop="number"></el-table-column>
-                        <el-table-column label="未出库数量" prop="notOutNumber"></el-table-column>
                         <el-table-column label="状态">
                             <template slot-scope="scope">
                                 <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已出库</el-tag>
@@ -217,7 +216,7 @@
             </el-card>
         </el-form>
         <el-dialog :title="gaDialogTitle" :visible.sync="gaDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="40%">
-            <product-split-inbound-table></product-split-inbound-table>
+            <product-split-outbound-table @callback="callbackGa" @close="cancel" :splitId="productSplit.id" :warehouseId="productSplit.warehouse.id" :notOutNumber="productSplit.notOutNumber"></product-split-outbound-table>
             <!--<product-split-outbound-form :notOutNumber="productSplit.notOutNumber" @cancel="cancel" @callback="callbackGa" :warehouseId="productSplit.warehouse.id"></product-split-outbound-form>-->
         </el-dialog>
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
@@ -242,9 +241,11 @@
     import vueEasyPrint from "vue-easy-print";
     import ProductSplitPrintFormwork from "@/views/erp/stock/productsplit/ProductSplitPrintFormwork";
     import ProductSplitInboundTable from "@/views/oa/task/productsplit/ProductSplitInboundTable";
+    import ProductSplitOutboundTable from "@/views/oa/task/productsplit/ProductSplitOutboundTable";
     export default {
         name: "ProductSplitTaskDetails",
         components: {
+            ProductSplitOutboundTable,
             ProductSplitInboundTable,
             ProductSplitPrintFormwork,
             vueEasyPrint,ProductSplitForm, ProductSplitOutboundForm},
@@ -292,6 +293,7 @@
                         if (resp && resp.status == 200) {
                             this.productSplit = resp.data;
                             this.loadHistory();
+                            this.loadOut(this.productSplit.id);
                         }else {
                             this.$message.error('获取表单信息失败');
                         }
@@ -368,29 +370,17 @@
             },
             //加载出库信息
             loadOut(id) {
-                this.getRequest('/erp/outbound/getOutboundByForeignKey?foreignKey=' + id).then(resp=> {
-                    if (resp && resp.status == 200) {
-                        this.newOutbound = resp.data;
-                    }
+                this.getRequest('/erp/outbound/detail/getDetailByOuboundForeignKey?foreignKey=' + id).then(resp=> {
+                        this.outboundDetails = resp.data;
                 })
             },
-            callbackGa(row) {
-                this.goodsAllocation = row.goodsAllocation;
-                this.productSplit.notOutNumber = this.productSplit.notOutNumber - row.number;
+            callbackGa(notOutNumber) {
                 this.cancel();
-                this.addOutbound(row.number);
-                this.updateNotOutNumber();
+                this.productSplit.notOutNumber = notOutNumber;
                 this.loadOut(this.productSplit.id);
-            },
-            addOutbound(number) {
-                Object.assign(this.outbound,{foreignKey:this.productSplit.id, taskId:this.task.id});
-                this.postNoEnCodeRequest('/erp/split/addOutbound?goodsAllocationId=' + this.goodsAllocation.id + '&number=' + number, this.outbound);
             },
             cancel() {
                 this.gaDialogVisible = false;
-            },
-            updateNotOutNumber() {
-                this.getRequest('/erp/split/updateNotOutNumberById?notOutNumber=' + this.productSplit.notOutNumber + '&id=' + this.productSplit.id);
             },
             //办理
             handle(){
@@ -549,15 +539,8 @@
                 isIn:false,
                 newInbounds: [],
                 isSplitMan: true,
-                newOutbound: {
-                    details: [],
-                    product:{
-                        name: ''
-                    },
-                    goodsAllocation:{
-                        name:''
-                    }
-                },
+                outboundDetails:[],
+
                 goodsAllocation:{},
                 outbound:{
 
