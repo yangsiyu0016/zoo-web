@@ -173,7 +173,7 @@
                         </el-table-column>
                         <el-table-column label="操作">
                             <template slot-scope="scope">
-                                <el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -365,8 +365,36 @@
                 this.gaInDialogTitle = '添加入库信息'
             },
             //删除出库信息
-            deleteOut() {
+            deleteOut(row) {
+                this.$confirm("是否同时删除其它一起出库的数据？","提示",{
+                    confirmButtonText:'同时删除',
+                    cancelButtonText:"只删除此一条",
+                    type:"warning"
+                }).then(()=>{
+                    this.doDeleteOut(row,"all");
 
+                }).catch(()=>{
+                    this.doDeleteOut(row,"only");
+                })
+
+            },
+            doDeleteOut(row,type){
+                this.$confirm("此操作不可恢复，是否继续?","提示",{
+
+                    confirmButtonText:"继续",
+                    cancelButtonText:"取消",
+                    type:"warning"
+                }).then(()=>{
+                    this.deleteRequest('/erp/split/deleteOut?splitId='+this.productSplit.id+"&outboundDetailId="+row.id+"&type="+type).then(resp=>{
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadOut(this.productSplit.id);
+                            this.productSplit.notOutNumber = resp.data.notOutNumber;
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                })
             },
             //加载出库信息
             loadOut(id) {

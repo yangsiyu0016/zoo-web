@@ -80,7 +80,7 @@
                         </el-row>
                     </div>
                 </transition>
-                <el-table @sort-change="sortChange" v-loading="loading" :data="outbounds" size="mini" style="width:100%">
+                <el-table @sort-change="sortChange" v-loading="loading" :data="outbounds" size="mini" style="width:100%" @row-dblclick="showDetails">
                     <el-table-column type="index"  width="50">
                         <template scope="scope">
                             <span>{{(currentPage - 1) * 10 + scope.$index + 1}}</span>
