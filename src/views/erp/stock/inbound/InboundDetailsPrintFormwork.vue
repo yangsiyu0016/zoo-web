@@ -60,20 +60,22 @@
                     <tr v-if="i==0">
                         <td width="5%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">序号</td>
                         <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品图片</td>
-                        <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
-                        <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品名称</td>
+                        <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品编号</td>
+                        <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">产品名称</td>
                         <td width="10%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">单位</td>
-                        <td width="30%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">规格</td>
+                        <td width="25%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">规格</td>
+                        <td width="15%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">数量</td>
                     </tr>
                     <tr>
                         <td width="5%" v-text="(i + 1)" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                         <td width="20%" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;">
                             <el-image style="width: 100px;height: 100px"  v-if="item.product.imageUrl" :src="item.product.imageUrl" ></el-image>
                         </td>
-                        <td width="20%" v-text="item.product.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                        <td width="15%" v-text="item.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                        <td width="15%" v-text="item.product.code" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                        <td width="10%" v-text="item.product.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
                         <td width="10%" v-text="item.product.unit==null?'':item.product.unit.name" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
-                        <td width="30%" v-text="item.product.spec" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                        <td width="25%" v-text="item.product.spec" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
+                        <td width="15%" v-text="item.number" style="border: solid #BCB0B0 1px; vertical-align: middle; text-align: center;"></td>
 
                     </tr>
                 </table>
