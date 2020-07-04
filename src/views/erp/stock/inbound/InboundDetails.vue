@@ -59,13 +59,13 @@
                     <el-table-column label="产品名称" prop="product.name" ></el-table-column>
                     <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
                     <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
-
                     <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
                     <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
                     <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                     <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                     <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
                     <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                    <el-table-column prop="number" align="left"  label="数量" ></el-table-column>
                 </el-table>
             </el-card>
             <el-card shadow="hover">
