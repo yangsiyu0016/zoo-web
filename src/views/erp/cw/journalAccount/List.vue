@@ -70,7 +70,7 @@
                             <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="type" align="left"  label="类型" >
+                    <el-table-column prop="type" align="left"  label="类型" width="120px">
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.type=='QC'" type="info" size="mini" effect="dark">期初</el-tag>
                             <el-tag v-if="scope.row.type=='PURCHASE'"  color="#7b1fa2" size="mini" effect="dark">采购</el-tag>
@@ -79,6 +79,7 @@
                             <el-tag v-if="scope.row.type=='QCDESTROY'" type="info" size="mini" effect="dark">期初作废</el-tag>
                             <el-tag v-if="scope.row.type=='PURCHASEDESTROY'" type="info" size="mini" effect="dark">采购作废</el-tag>
                             <el-tag v-if="scope.row.type=='SPLITCK'" type="warning" size="mini" effect="dark">拆分出库</el-tag>
+                            <el-tag v-if="scope.row.type=='SPLITCKDELETE'" type="warning" size="mini" effect="dark">拆分出库删除</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="orderCode" align="left"  label="单号" width="180" ></el-table-column>

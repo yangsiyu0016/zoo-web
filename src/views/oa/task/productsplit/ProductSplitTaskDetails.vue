@@ -58,7 +58,7 @@
                     </el-row>
                 </div>
             </el-card>
-            <el-card shadow="hover" v-show="isShowMaterial">
+            <el-card shadow="hover" >
                 <div slot="header" class="clearfix">
                     <span style="float: left;">拆分材料明细</span>
                 </div>
@@ -71,45 +71,6 @@
                             align="left"
                             width="80">
                     </el-table-column>
-                    <el-table-column prop="product.imageUrl" label="图片">
-                        <template slot-scope="scope">
-                            <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="产品编号" prop="product.code" ></el-table-column>
-                    <el-table-column label="产品名称" prop="product.name" ></el-table-column>
-                    <el-table-column label="拆分单数" prop="number"></el-table-column>
-                    <el-table-column label="拆分总数" prop="totalNumber" ></el-table-column>
-                    <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
-                    <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
-
-                    <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
-                    <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
-                    <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
-                    <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
-                    <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                    <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
-                    <el-table-column label="操作" width="150px" v-show="isOperate">
-                        <template slot-scope="scope">
-                            <el-button icon="el-icon-plus" size="mini" @click="showAddInBound(scope.row)" type="primary">添加入库信息</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </el-card>
-
-            <el-card shadow="hover">
-                <div slot="header" class="clearfix">
-                    <span style="float: left;">拆分材料明细</span>
-                </div>
-                <el-table
-                        :data="productSplit.details"
-                        size="mini"
-                        style="width:100%" >
-                    <el-table-column
-                             type="index"
-                             align="left"
-                             width="80">
-                     </el-table-column>
                     <el-table-column prop="product.imageUrl" label="图片">
                         <template slot-scope="scope">
                             <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
@@ -157,7 +118,7 @@
                     </el-table>
                 </div>
             </el-card>
-            <el-card shadow="hover" v-show="isSplitMan">
+            <el-card shadow="hover">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">出库信息</span>
                 </div>
@@ -204,6 +165,7 @@
             </el-card>
             <el-card shadow="hover">
                 <div style="text-align: center">
+                    <el-button v-show="handleVisible && task.taskKey === 'productsplitrk' " @click="showAddInBound" type="primary" size="mini">添加入库库信息</el-button>
                     <el-button v-show="handleVisible && task.taskKey === 'productsplitckll' " @click="showAddOutBound" type="primary" size="mini">添加出库信息</el-button>
                     <el-button v-show="handleVisible && productSplit.status !== 'REJECT' " @click="handle" type="primary" size="mini">通过</el-button>
                     <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini">驳回</el-button>
@@ -274,18 +236,13 @@
                         this.claimVisible = true;
                     }
                     if (val.taskKey === 'productsplitrk') {
-                        this.isSplitMan = false;
-                        this.isShowMaterial = true;
                         this.isIn = true;
                         this.loadIn(val.businessKey);
                     }else if (val.taskKey === 'productsplitckll'){
-                        this.isShowMaterial = false;
                         this.isIn = false;
                         this.loadOut(val.businessKey);
                     }else if (val.taskKey === 'productsplit') {
-                        this.isSplitMan = false;
                         this.isIn = false;
-                        this.isShowMaterial = false;
                         this.isOperate = true;
                     }
 
@@ -558,6 +515,7 @@
         },
         data() {
             return {
+                oldDetails:[],
                 editDialogTitle: '',
                 editDialogVisible: false,
                 isOperate:false,
@@ -566,7 +524,6 @@
                 gaInDialogTitle: '',
                 isIn:false,
                 newInbounds: [],
-                isSplitMan: true,
                 outboundDetails:[],
 
                 goodsAllocation:{},
@@ -578,7 +535,6 @@
                 },
                 gaDialogTitle: '',
                 gaDialogVisible: false,
-                isShowMaterial: false,
                 productSplit: {
                     warehouse: {
                         name: ''

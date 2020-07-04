@@ -40,6 +40,10 @@
                 type:String,
                 default:''
             },
+            oldDetails:{
+                type:Array,
+                default:[]
+            },
             notOutNumber:{
                 type:Number,
                 default: 0
@@ -49,6 +53,7 @@
                 default:''
             }
         },
+
         watch:{
             notOutNumber:{
                 handler(val){
@@ -77,6 +82,7 @@
                     if(resp.data&&resp.data.status==200){
                         this.$message.success("保存成功");
                         this.$emit("callback",this.maxNumber)
+                        this.details = [];
                     }else{
                         this.$message.error(resp.data.msg);
                     }
@@ -98,6 +104,7 @@
             },
             close(){
                 this.$emit("close");
+                this.details = [];
             },
             showAddView(){
                 this.oldData={
