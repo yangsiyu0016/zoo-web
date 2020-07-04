@@ -97,7 +97,7 @@
                     <span style="float: left;">入库信息</span>
                 </div>
                 <div>
-                    <el-table :data="newInbounds" size="mini">
+                    <el-table :data="inboundDetails" size="mini">
                         <el-table-column type="expand">
                             <template slot-scope="props">
                                 <el-table :data="props.row.details">
@@ -132,7 +132,7 @@
                                 <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已出库</el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作">
+                        <el-table-column label="操作" v-if="handleVisible && task.taskKey === 'productsplitckll' ">
                             <template slot-scope="scope">
                                 <el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>
                             </template>
@@ -235,7 +235,9 @@
                         this.handleVisible = false;
                         this.claimVisible = true;
                     }
-                    if (val.taskKey === 'productsplitrk') {
+                   // this.loadIn(val.businessKey);
+                    //this.loadOut(val.businessKey);
+                    /*if (val.taskKey === 'productsplitrk') {
                         this.isIn = true;
                         this.loadIn(val.businessKey);
                     }else if (val.taskKey === 'productsplitckll'){
@@ -244,12 +246,13 @@
                     }else if (val.taskKey === 'productsplit') {
                         this.isIn = false;
                         this.isOperate = true;
-                    }
+                    }*/
 
                     this.getRequest('/erp/split/getProductSplitById?id=' + val.businessKey).then(resp => {
                         if (resp && resp.status == 200) {
                             this.productSplit = resp.data;
                             this.loadHistory();
+                            this.loadIn(this.productSplit.id);
                             this.loadOut(this.productSplit.id);
                         }else {
                             this.$message.error('获取表单信息失败');
@@ -298,9 +301,9 @@
                 this.$emit('showDetailView', this.task);
             },
             loadIn(id) {
-                this.getRequest('/erp/splitDetail/getInboundByProductSplitId?id=' + id).then(resp=> {
+                this.getRequest('/erp/inbound/detail/getDetailByInboundForeignKey?foreignKey=' + id).then(resp=> {
                     if (resp&&resp.data.status===200) {
-                        this.newInbounds = resp.data.inbounds;
+                        this.inboundDetails = resp.data;
                     }
                 })
             },
@@ -355,7 +358,7 @@
             },
             //加载出库信息
             loadOut(id) {
-                this.getRequest('/erp/outbound/detail/getDetailByOuboundForeignKey?foreignKey=' + id).then(resp=> {
+                this.getRequest('/erp/outbound/detail/getDetailByOutboundForeignKey?foreignKey=' + id).then(resp=> {
                         this.outboundDetails = resp.data;
                 })
             },
@@ -523,7 +526,7 @@
                 gaInDialogVisible: false,
                 gaInDialogTitle: '',
                 isIn:false,
-                newInbounds: [],
+                inboundDetails: [],
                 outboundDetails:[],
 
                 goodsAllocation:{},
