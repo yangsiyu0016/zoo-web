@@ -92,7 +92,7 @@
                 </el-table>
             </el-card>
 
-            <el-card shadow="hover" v-show="isIn">
+            <el-card shadow="hover">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">入库信息</span>
                 </div>
@@ -123,8 +123,24 @@
                     <span style="float: left;">出库信息</span>
                 </div>
                 <div>
-                    <el-table :data="outboundDetails">
+                    <el-table :data="outboundDetails" size="mini">
                         <el-table-column type="index" width="80"></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
                         <el-table-column label="出库货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="出库数量" prop="number"></el-table-column>
                         <el-table-column label="状态">
@@ -146,7 +162,7 @@
                     <span style="float: left;">审批流程</span>
                 </div>
                 <div>
-                    <el-table :data="histories">
+                    <el-table :data="histories" size="mini">
                         <el-table-column type="index" width="80px"></el-table-column>
                         <el-table-column label="节点名称" prop="actName"></el-table-column>
                         <el-table-column label="意见" prop="message"></el-table-column>
@@ -165,24 +181,24 @@
             </el-card>
             <el-card shadow="hover">
                 <div style="text-align: center">
-                    <el-button v-show="handleVisible && task.taskKey === 'productsplitrk' " @click="showAddInBound" type="primary" size="mini">添加入库库信息</el-button>
-                    <el-button v-show="handleVisible && task.taskKey === 'productsplitckll' " @click="showAddOutBound" type="primary" size="mini">添加出库信息</el-button>
-                    <el-button v-show="handleVisible && productSplit.status !== 'REJECT' " @click="handle" type="primary" size="mini">通过</el-button>
-                    <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini">驳回</el-button>
+                    <el-button v-show="handleVisible && task.taskKey === 'productsplitrk' " @click="showAddInBound" type="primary" size="mini" icon="el-icon-plus">添加入库库信息</el-button>
+                    <el-button v-show="handleVisible && task.taskKey === 'productsplitckll' " @click="showAddOutBound" type="primary" size="mini" icon="el-icon-plus">添加出库信息</el-button>
+                    <el-button v-show="handleVisible && productSplit.status !== 'REJECT' " @click="handle" type="primary" size="mini" icon="el-icon-check">通过</el-button>
+                    <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="danger" size="mini" icon="el-icon-close">驳回</el-button>
                     <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
                     <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
                     <el-button v-show="productSplit.status=='REJECT'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
                     <el-button v-show="productSplit.status=='REJECT'" type="primary" size="mini" @click="destory">作废</el-button>
-                    <el-button @click="close" type="info" size="mini">关闭</el-button>
+                    <el-button @click="close" type="info" size="mini" icon="el-icon-close">关闭</el-button>
                 </div>
             </el-card>
         </el-form>
         <el-dialog :title="gaDialogTitle" :visible.sync="gaDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="40%">
             <product-split-outbound-table @callback="callbackGa" @close="cancel" :splitId="productSplit.id" :warehouseId="productSplit.warehouse.id" :notOutNumber="productSplit.notOutNumber"></product-split-outbound-table>
-            <!--<product-split-outbound-form :notOutNumber="productSplit.notOutNumber" @cancel="cancel" @callback="callbackGa" :warehouseId="productSplit.warehouse.id"></product-split-outbound-form>-->
         </el-dialog>
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-inbound-form :splitDetail="detail" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productSplit.warehouse.id"></product-split-inbound-form>
+            <product-split-inbound-table :warehouseId = "productSplit.warehouse.id" :waitInProducts="waitInProducts"></product-split-inbound-table>
+            <!--<product-split-inbound-form :splitDetail="detail" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productSplit.warehouse.id"></product-split-inbound-form>-->
         </el-dialog>
         <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <product-split-form :isEdit="isEdit" :oldProductSplit="productSplit" @close="closeEditWin" @callback="callbackEdit"></product-split-form>
@@ -311,18 +327,23 @@
                 let num = row.detail.notInNumber - row.number;
                 this.getRequest('/erp/splitDetail/updateNotInNumberById?notInNumber=' + num + '&id=' + row.detail.id);
             },
-            addInbound(row) {
-                Object.assign(this.inbound,{foreignKey:row.detail.id, taskId:this.task.id});
-                this.postNoEnCodeRequest('/erp/splitDetail/addInbound?goodsAllocationId=' + row.goodsAllocation.id + '&number=' + row.number, this.inbound);
-            },
             showAddInBound(row) {
-                this.detail = row;
-                if (row.notInNumber !== 0) {
-                    this.gaInDialogVisible = true;
-                } else {
-                    this.gaInDialogVisible = false;
-                }
-                this.gaInDialogTitle = '添加入库信息'
+               let flag = false;
+               let waitInProducts = [];
+               this.productSplit.details.forEach(detail=>{
+                    if(detail.notInNumber>0){
+                        flag = true;
+                        waitInProducts.push(detail);
+                    }
+               });
+               if(flag){
+                   this.waitInProducts = waitInProducts;
+                   this.gaInDialogVisible = true;
+                   this.gaInDialogTitle = '添加入库信息'
+               }else{
+                   this.$message.error("入库信息已添加完成");
+               }
+
             },
             //删除出库信息
             deleteOut(row) {
@@ -518,6 +539,7 @@
         },
         data() {
             return {
+                waitInProducts:[],
                 oldDetails:[],
                 editDialogTitle: '',
                 editDialogVisible: false,
@@ -525,11 +547,9 @@
                 detail: {},
                 gaInDialogVisible: false,
                 gaInDialogTitle: '',
-                isIn:false,
                 inboundDetails: [],
                 outboundDetails:[],
 
-                goodsAllocation:{},
                 outbound:{
 
                 },
