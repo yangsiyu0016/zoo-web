@@ -201,8 +201,11 @@
                 <el-button @click="close" type="info" size="mini">关闭</el-button>
             </el-card>
         </el-form>
-        <el-dialog :title="gaOutDialogTitle" :visible.sync="gaOutDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+        <!--<el-dialog :title="gaOutDialogTitle" :visible.sync="gaOutDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <assembled-outbound-form :assembledMaterial="material" @cancel="cancelGaOut" @callback="callbackGaOut" :warehouseId="productAssembled.warehouse.id"></assembled-outbound-form>
+        </el-dialog>-->
+        <el-dialog :title="gaOutDialogTitle" :visible.sync="gaOutDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <assembled-outbound-table @cancel="cancelGaOut" @callback="callbackGaOut" :oldProductAssembled="productAssembled"></assembled-outbound-table>
         </el-dialog>
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <assembled-inbound-form :assembled="productAssembled" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productAssembled.warehouse.id"></assembled-inbound-form>
@@ -217,9 +220,10 @@
     import AssembledOutboundForm from "./AssembledOutboundForm";
     import AssembledInboundForm from "./AssembledInboundForm";
     import ProductAssembledForm from "../../../erp/stock/productassembled/ProductAssembledForm";
+    import AssembledOutboundTable from "./AssembledOutboundTable";
     export default {
         name: "AssembledTaskDetails",
-        components: {ProductAssembledForm, AssembledOutboundForm, AssembledInboundForm},
+        components: {AssembledOutboundTable, ProductAssembledForm, AssembledOutboundForm, AssembledInboundForm},
         props:{
             task:{
                 type:Object,

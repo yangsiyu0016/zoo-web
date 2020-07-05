@@ -1,8 +1,10 @@
 <template>
     <div>
         <el-form ref="gaForm" :rules="rules" :model="cdga" label-width="120px" size="mini">
-            <el-form-item label="产品名称：" prop="material.product.id">
-                <span>{{cdga.material.product.name}}</span>
+            <el-form-item label="产品名称：" prop="orderDetailId">
+                <el-select v-model="cdga.orderDetailId" value-key="id" @change="selectChange">
+                    <el-option v-for="item in assembled.materials" :key="item.product.id" :value="item.id" :label="item.product.name"></el-option>
+                </el-select>
             </el-form-item>
             <el-form-item label="货位："  prop="goodsAllocation.id">
                 <el-select v-model="cdga.goodsAllocation" value-key="id">
@@ -10,7 +12,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="数量：" prop="number">
-                <el-input-number :min="0" :max="max" :precision="4" v-model="cdga.number"></el-input-number>
+                <el-input-number :min="0" :max="notOutNumber" :precision="4" v-model="cdga.number"></el-input-number>
             </el-form-item>
             <el-form-item>
                 <el-button @click="saveCdga" type="primary">保存</el-button>
@@ -24,24 +26,30 @@
     export default {
         name: "AssembledOutboundForm",
         props: {
-            warehouseId:{
-                type:String,
-                default:()=>{}
-            },
-            assembledMaterial: {
+            oldProductAssembled: {
                 type: Object,
                 default: ()=>{}
+            },
+            oldData:{
+                type:Object,
+                default:()=>{}
             }
         },
         watch: {
-            assembledMaterial: {
+            oldProductAssembled: {
                 handler(val) {
-                    this.cdga.material = JSON.parse(JSON.stringify(val));
-                    this.max = val.notOutNumber;
+                    this.assembled = JSON.parse(JSON.stringify(val));
+                    this.warehouseId = this.assembled.warehouse.id;
+                    this.assembled.materials.some(function (item, i) {
+                        if (item.notOutNumber === 0) {
+                            this.assembled.materials.splice(i,1);
+                        }
+                    })
                 },
                 deep:true,
                 immediate:true
-            }
+            },
+
         },
         data() {
             let checkNumber = (rule,value,callback)=>{
@@ -59,16 +67,21 @@
                 }
             };
             return {
+                warehouseId: '',
+                notOutNumber:0,
                 gas:[],
                 cdga:{
                     goodsAllocation:{},
                     number:0,
-                    material: {
-                        notOutNumber: 0
-                    }
+                    product: {
+                        id: '',
+                        name: ''
+                    },
+                    orderDetailId: ''
                 },
-                max:0,
+                assembled: {},
                 rules:{
+                    orderDetailId: [{required:true,message:"选择产品",trigger:'blur'}],
                     'goodsAllocation.id':[{required:true,message:"选择货位",trigger:'blur'}],
                     number:[{required:true,validator:checkNumber,trigger:'blur'}]
                 }
@@ -78,12 +91,22 @@
             this.loadGas();
         },
         methods: {
+            selectChange(val) {
+                let num = 0;
+                this.assembled.materials.forEach(function (item, i) {
+                    if (item.id === val){
+                        num = item.notOutNumber;
+                    }
+                })
+                this.notOutNumber = num;
+            },
             loadGas(){
                 this.getRequest('/warehouse/ga/getGaByWarehouseId?warehouseId='+this.warehouseId).then((resp)=>{
                     this.gas = resp.data;
                 })
             },
             saveCdga() {
+                console.log(this.cdga)
                 this.$refs['gaForm'].validate((valid)=>{
                     if(valid){
                         this.$emit('callback',this.cdga);
