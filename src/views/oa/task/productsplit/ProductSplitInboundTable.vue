@@ -68,6 +68,22 @@
             }
         },
         methods:{
+            saveInbound(){
+                let length = this.inboundDetails.length;
+                if(length>0){
+                    this.postNoEnCodeRequest("/erp/split/addInbound",{
+                        foreignKey:this.splitId,
+                        details:this.details
+                    }).then((resp)=>{
+                        
+                    })
+                }else{
+                    this.$message.error("入库信息为空");
+                }
+            },
+            close(){
+                this.$emit("cancel");
+            },
             callback(detail){
                 this.inboundDetails.push(detail);
                 this.closeDialog();

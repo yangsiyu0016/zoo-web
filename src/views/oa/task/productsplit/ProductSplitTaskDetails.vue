@@ -197,7 +197,7 @@
             <product-split-outbound-table @callback="callbackGa" @close="cancel" :splitId="productSplit.id" :warehouseId="productSplit.warehouse.id" :notOutNumber="productSplit.notOutNumber"></product-split-outbound-table>
         </el-dialog>
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-inbound-table :warehouseId = "productSplit.warehouse.id" :waitInProducts="waitInProducts"></product-split-inbound-table>
+            <product-split-inbound-table @cancel="cancelGaIn" :warehouseId = "productSplit.warehouse.id" :waitInProducts="waitInProducts"></product-split-inbound-table>
             <!--<product-split-inbound-form :splitDetail="detail" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productSplit.warehouse.id"></product-split-inbound-form>-->
         </el-dialog>
         <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
