@@ -1,9 +1,9 @@
 <template>
     <div>
         <el-form ref="gaForm" :rules="rules" :model="cdga" label-width="120px" size="mini">
-            <el-form-item label="产品名称：" prop="orderDetailId">
-                <el-select v-model="cdga.orderDetailId" value-key="id" @change="selectChange">
-                    <el-option v-for="item in assembled.materials" :key="item.product.id" :value="item.id" :label="item.product.name"></el-option>
+            <el-form-item label="产品名称：" prop="product.id">
+                <el-select v-model="cdga.product" value-key="id" @change="selectChange">
+                    <el-option v-for="item in assembled.materials" :key="item.product.id" :value="item.product" :label="item.product.name"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="货位："  prop="goodsAllocation.id">
@@ -40,15 +40,20 @@
                 handler(val) {
                     this.assembled = JSON.parse(JSON.stringify(val));
                     this.warehouseId = this.assembled.warehouse.id;
-                    this.assembled.materials.some(function (item, i) {
+                    /*this.assembled.materials.some(function (item, i) {
                         if (item.notOutNumber === 0) {
-                            this.assembled.materials.splice(i,1);
+                            this.assembled.materials.splice (i,1);
                         }
-                    })
+                    })*/
                 },
                 deep:true,
                 immediate:true
             },
+            oldData: {
+                handler(val) {
+                    this.cdga = JSON.parse(JSON.stringify(val))
+                }
+            }
 
         },
         data() {
@@ -76,12 +81,11 @@
                     product: {
                         id: '',
                         name: ''
-                    },
-                    orderDetailId: ''
+                    }
                 },
                 assembled: {},
                 rules:{
-                    orderDetailId: [{required:true,message:"选择产品",trigger:'blur'}],
+                    'product.id': [{required:true,message:"选择产品",trigger:'blur'}],
                     'goodsAllocation.id':[{required:true,message:"选择货位",trigger:'blur'}],
                     number:[{required:true,validator:checkNumber,trigger:'blur'}]
                 }
@@ -94,7 +98,7 @@
             selectChange(val) {
                 let num = 0;
                 this.assembled.materials.forEach(function (item, i) {
-                    if (item.id === val){
+                    if (item.product === val){
                         num = item.notOutNumber;
                     }
                 })
@@ -106,7 +110,6 @@
                 })
             },
             saveCdga() {
-                console.log(this.cdga)
                 this.$refs['gaForm'].validate((valid)=>{
                     if(valid){
                         this.$emit('callback',this.cdga);
