@@ -98,21 +98,39 @@
                 </div>
                 <div>
                     <el-table :data="inboundDetails" size="mini">
-                        <el-table-column type="expand">
-                            <template slot-scope="props">
-                                <el-table :data="props.row.details">
-                                    <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
-                                    <el-table-column label="数量" prop="number"></el-table-column>
-                                </el-table>
+                        <el-table-column type="index" width="80"></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
                             </template>
                         </el-table-column>
-                        <el-table-column label="产品名称" prop="splitDetail.product.name"></el-table-column>
-                        <el-table-column label="单位" prop="splitDetail.product.unit.name"></el-table-column>
-                        <el-table-column label="数量" prop="splitDetail.totalNumber"></el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                        <el-table-column label="入库货位" prop="goodsAllocation.name"></el-table-column>
+                        <el-table-column label="入库数量" prop="number"></el-table-column>
+                        <el-table-column v-if="task.taskKey==='productspliteditprice'" label="入库成本" prop="price"></el-table-column>
+                        <el-table-column v-if="task.taskKey==='productspliteditprice'" label="入库总额" prop="totalMoney"></el-table-column>
                         <el-table-column label="状态">
                             <template slot-scope="scope">
-                                <el-tag v-if="scope.row.splitDetail.notInNumber === 0 ? true:false" type="success" size="mini" effect="dark">已入库</el-tag>
-                                <el-tag v-if="scope.row.splitDetail.notInNumber === 0 ? false:true" type="danger" size="mini" effect="dark">未入库</el-tag>
+                                <el-tag v-if="scope.row.finished" type="success" size="mini" effect="dark">已入库</el-tag>
+                                <el-tag v-if="!scope.row.finished" type="danger" size="mini" effect="dark">未入库</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column  label="操作" v-if="(task.taskKey === 'productsplitrk' || task.taskKey==='productspliteditprice')" width="120px">
+                            <template slot-scope="scope">
+                                <el-tag type="danger" size="mini" effect="dark" v-if="task.taskKey === 'productsplitrk'&&!scope.row.finished && (scope.row.price==0 ||scope.row.price==null)">等待录入成本价</el-tag>
+                                <el-button @click="inboundOperation(scope.row)" type="primary" size="mini"  v-if="task.taskKey === 'productsplitrk'&&!scope.row.finished&& scope.row.price>0" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-s-home">入库</el-button>
+                                <el-button @click="editCostPrice(scope.row)" v-if="handleVisible &&task.taskKey==='productspliteditprice'" size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-edit">录入入库成本</el-button>
+                                <!--<el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>-->
                             </template>
                         </el-table-column>
                     </el-table>
@@ -197,7 +215,7 @@
             <product-split-outbound-table @callback="callbackGa" @close="cancel" :splitId="productSplit.id" :warehouseId="productSplit.warehouse.id" :notOutNumber="productSplit.notOutNumber"></product-split-outbound-table>
         </el-dialog>
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-inbound-table @cancel="cancelGaIn" :warehouseId = "productSplit.warehouse.id" :waitInProducts="waitInProducts"></product-split-inbound-table>
+            <product-split-inbound-table :splitId="productSplit.id"  @callback="callbackGaIn" @cancel="cancelGaIn" :warehouseId = "productSplit.warehouse.id" :waitInProducts="waitInProducts"></product-split-inbound-table>
             <!--<product-split-inbound-form :splitDetail="detail" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productSplit.warehouse.id"></product-split-inbound-form>-->
         </el-dialog>
         <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
@@ -263,8 +281,8 @@
                         this.isIn = false;
                         this.isOperate = true;
                     }*/
-
-                    this.getRequest('/erp/split/getProductSplitById?id=' + val.businessKey).then(resp => {
+                    this.loadSplit(val.businessKey);
+                    /*this.getRequest('/erp/split/getProductSplitById?id=' + val.businessKey).then(resp => {
                         if (resp && resp.status == 200) {
                             this.productSplit = resp.data;
                             this.loadHistory();
@@ -273,7 +291,7 @@
                         }else {
                             this.$message.error('获取表单信息失败');
                         }
-                    })
+                    })*/
                 },
                 deep:true,
                 immediate:true
@@ -281,6 +299,53 @@
         },
 
         methods: {
+            inboundOperation(row){
+                this.$confirm("确定入库吗？","提示",{
+                    cancelButtonText:"取消",
+                    confirmButtonText:"确定",
+                    type:"warning"
+                }).then(()=>{
+                    this.
+                }).catch(()=>{})
+            },
+            editCostPrice(row){
+                this.$prompt('请输入成本价','成本价编辑',{
+                    confirmButtonText: '保存',
+                    cancelButtonText: '取消',
+                    inputPattern:/^(?!(0[0-9]{0,}$))[0-9]{1,}[.]{0,}[0-9]{0,}$/,
+                    inputErrorMessage:'成本价格式不正确'
+                }).then(({value})=>{
+                    this.putRequest("/erp/inbound/detail/updatePrice",{
+                        id:row.id,
+                        costPrice:value
+                    }).then((resp)=>{
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("保存成功");
+                            this.inboundDetails.some((item,i)=>{
+                                if(item==row){
+                                    this.inboundDetails.splice(i,1,resp.data.inboundDetail);
+                                }
+                            })
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                }).catch(()=>{
+
+                })
+            },
+            loadSplit(id){
+                this.getRequest('/erp/split/getProductSplitById?id=' + id).then(resp => {
+                    if (resp && resp.status == 200) {
+                        this.productSplit = resp.data;
+                        this.loadHistory();
+                        this.loadIn(this.productSplit.id);
+                        this.loadOut(this.productSplit.id);
+                    }else {
+                        this.$message.error('获取表单信息失败');
+                    }
+                })
+            },
             //打印
             print(){
 
@@ -311,16 +376,13 @@
             },
             callbackGaIn(row) {
                 this.cancelGaIn();
-                this.addInbound(row);
-                this.updateNotInNumberById(row);
                 this.loadIn(this.productSplit.id);
-                this.$emit('showDetailView', this.task);
+                this.loadSplit(this.productSplit.id);
+
             },
             loadIn(id) {
                 this.getRequest('/erp/inbound/detail/getDetailByInboundForeignKey?foreignKey=' + id).then(resp=> {
-                    if (resp&&resp.data.status===200) {
-                        this.inboundDetails = resp.data;
-                    }
+                    this.inboundDetails = resp.data;
                 })
             },
             updateNotInNumberById(row) {

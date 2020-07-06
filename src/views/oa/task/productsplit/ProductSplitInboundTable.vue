@@ -48,6 +48,10 @@
         name: "ProductSplitInboundTable",
         components: {ProductSplitInboundForm},
         props:{
+            splitId:{
+                type:String,
+                default:''
+            },
             waitInProducts:{
                 type:Array,
                 default:()=>[]
@@ -73,9 +77,15 @@
                 if(length>0){
                     this.postNoEnCodeRequest("/erp/split/addInbound",{
                         foreignKey:this.splitId,
-                        details:this.details
+                        details:this.inboundDetails
                     }).then((resp)=>{
-                        
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("保存成功");
+                            this.$emit("callback");``
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+
                     })
                 }else{
                     this.$message.error("入库信息为空");
