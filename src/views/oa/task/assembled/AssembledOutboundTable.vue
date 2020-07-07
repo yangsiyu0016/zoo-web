@@ -67,7 +67,6 @@
             showAddView() {
                 this.dialogVisible = true;
                 this.dialogTitle = '货位设置';
-                console.log(this.oldProductAssembled.materials);
                 this.oldData= {
                     goodsAllocation: {},
                     number: 0,
@@ -86,6 +85,7 @@
                     if (resp && resp.data.status == "200") {
                         this.$message.success("保存成功");
                         this.details = [];
+                        this.close();
                     }else {
                         this.$message.error(resp.data.msg);
                     }

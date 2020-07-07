@@ -52,7 +52,9 @@
             oldData: {
                 handler(val) {
                     this.cdga = JSON.parse(JSON.stringify(val))
-                }
+                },
+                deep:true,
+                immediate:true
             }
 
         },
