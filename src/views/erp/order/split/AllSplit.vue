@@ -3,7 +3,6 @@
         <el-container>
             <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
                 <div style="display: inline">
-                    <el-button type="primary" size="mini" icon="el-icon-plus" @click="showAddView">添加</el-button>
                 </div>
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
                     <el-input size="mini" placeholder="通过单号、产品编码、产品名称搜索，记得回车呦..."
@@ -104,9 +103,6 @@
                                          label="操作">
                             <template slot-scope="scope">
                                 <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                                <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                                <el-button v-show="scope.row.status=='WTJ'"  type="primary" @click="showEditView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                               <!-- <el-button v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteProductSplit(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>-->
                             </template>
                         </el-table-column>
                         <el-table-column label="拆分单编号" width="200px">
@@ -166,37 +162,31 @@
                 </div>
             </el-main>
         </el-container>
-        <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-form   @close="closeDialog" :isEdit="isEdit" @callback="callback" :oldProductSplit="oldProductSplit"></product-split-form>
-        </el-dialog>
         <el-dialog :visible.sync="detailsDialogVisible" :title="detailsDialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-details   @close="closeDetailDialog" :isEdit="isDetailsEdit" :oldProductSplit="oldProductSplit" @callback="detailsCallback"></product-split-details>
+            <product-split-details :can-destroy="canDestroy"   @close="closeDetailDialog"  :oldProductSplit="oldProductSplit" @callback="detailsCallback"></product-split-details>
         </el-dialog>
     </div>
 </template>
 
 <script>
-    import ProductSplitForm from "./ProductSplitForm";
-    import ProductSplitDetails from "./ProductSplitDetails";
+    import ProductSplitDetails from "@/views/erp/stock/productsplit/ProductSplitDetails";
     export default {
-        name: "List",
-        components: {ProductSplitDetails, ProductSplitForm},
+        name: "AllSplit",
+        components: {ProductSplitDetails},
         mounted() {
             this.loadSplit();
             this.loadWarehouse();
         },
         data() {
             return {
+                canDestroy:true,
                 sort:'ctime',
                 order:'desc',
                 loading:false,
                 pageSize:10,
                 keywords: '',
-                isDetailsEdit: false,
                 detailsDialogVisible:false,
                 detailsDialogTitle: '',
-
-                isEdit:false,
                 oldProductSplit:{
 
                 },
@@ -211,8 +201,6 @@
                 },
                 warehouses: [],
                 searchViewVisible:false,
-                dialogVisible:false,
-                dialogTitle: '',
                 productSplits: [],
                 currentPage: 1,
                 totalCount: -1,
@@ -295,53 +283,6 @@
                 this.detailsDialogTitle = "拆分单详情";
                 this.oldProductSplit = row;
             },
-            startFlow(row) {
-                this.$confirm('确定要开启审批流程吗？', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(()=> {
-                    this.getRequest('/erp/split/startFlow?id=' + row.id).then(resp => {
-                        if (resp && resp.data.status == '200') {
-                            this.$message.success('启动成功');
-
-                        }else {
-                            this.$message.error(resp.data.msg);
-                        }
-                        this.loadSplit();
-                    })
-                })
-            },
-            showEditView(row) {
-                this.getRequest('/erp/split/getProducrSplitById?id='+row.id).then(resp=>{
-                    if(!resp.data.processInstanceId){
-                        this.isEdit = true;
-                        this.oldProductSplit = resp.data;
-                        this.dialogVisible = true;
-                        this.dialogTitle = "编辑拆分单";
-                    }else{
-                        this.$message.error("流程已启动,不能编辑");
-                        this.loadSplit();
-                    }
-                })
-
-            },
-            deleteProductSplit(row) {
-                this.$confirm("确定要删除吗？删除后不可恢复！","提示",{
-                    confirmButtonText:"确定",
-                    cancelButtonText:"取消",
-                    type:'warning'
-                }).then(()=>{
-                    this.deleteRequest('/erp/split/'+row.id).then((resp)=>{
-                        if(resp&&resp.data.status=="200"){
-                            this.$message.success("删除成功");
-                            this.loadSplit();
-                        }else {
-                            this.$message.error("删除失败");
-                        }
-                    })
-                })
-            },
             loadSplit() {
                 this.loading = true;
                 let start_splitTime = '',
@@ -385,17 +326,10 @@
             showSearchView() {
                 this.searchViewVisible = !this.searchViewVisible;
                 this.keywords = '';
-                    if(!this.searchViewVisible) {
-                        this.emptyProductSplitData();
-                        this.loadSplit();
-                    }
-            },
-            callback() {
-                this.dialogVisible = false;
-                this.loadSplit();
-            },
-            closeDialog() {
-                  this.dialogVisible = false;
+                if(!this.searchViewVisible) {
+                    this.emptyProductSplitData();
+                    this.loadSplit();
+                }
             },
             search() {
 
@@ -403,23 +337,6 @@
             currentChange(page) {
                 this.currentPage = page;
                 this.loadSplit();
-            },
-            showAddView() {
-                this.isEdit = false;
-                this.oldProductSplit = {
-                    splitTime: '',
-                    product: {
-                        code: ''
-                    },
-                    warehouse:{
-                        name:''
-                    },
-                    details:[],
-                    codeGeneratorType:"AUTO",
-                    number:1
-                };
-                this.dialogVisible = true;
-                this.dialogTitle = "添加拆分单";
             },
             loadWarehouse() {
                 this.getRequest('/erp/warehouse/all').then(resp=> {

@@ -97,6 +97,40 @@
             </el-card>
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
+                    <span style="float: left;">出库信息</span>
+                </div>
+                <div>
+                    <el-table :data="outboundDetails" size="mini">
+                        <el-table-column type="index" width="80"></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                        <el-table-column label="出库货位" prop="goodsAllocation.name"></el-table-column>
+                        <el-table-column label="出库数量" prop="number"></el-table-column>
+                        <el-table-column label="状态">
+                            <template slot-scope="scope">
+                                <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已出库</el-tag>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+
+            </el-card>
+            <el-card shadow="hover">
+                <div slot="header" class="clearfix">
                     <span style="float: left;">审批流程</span>
                 </div>
                 <div>
@@ -113,7 +147,7 @@
             </el-card>
             <el-card shadow="hover">
                 <div style="text-align: center">
-                    <el-button @click="resetProductSplitDetail" size="mini" type="danger" >取回</el-button>
+                    <el-button @click="resetProductSplitDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
                     <el-button @click="destroyProductSplit" v-show="canDestroy"  size="mini" type="danger" >作废</el-button>
                     <el-button @click="cancel" type="info" size="mini">关闭</el-button>
                 </div>
@@ -145,10 +179,15 @@
             canDestroy:{
                 type:Boolean,
                 default:false
+            },
+            isReception:{
+                type:Boolean,
+                default:false
             }
         },
         mounted(){
             this.loadHistory();
+            this.loadOut(this.oldProductSplit.id);
         },
         methods: {
             print(){
@@ -195,9 +234,16 @@
                     this.histories = resp.data;
                 })
             },
+            //加载出库信息
+            loadOut(id) {
+                this.getRequest('/erp/outbound/detail/getDetailByOutboundForeignKey?foreignKey=' + id).then(resp=> {
+                    this.outboundDetails = resp.data;
+                })
+            },
         },
         data(){
             return{
+                outboundDetails:[],
                 histories:[]
             }
         }

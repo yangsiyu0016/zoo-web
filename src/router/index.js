@@ -150,6 +150,11 @@ export const asyncRouterMap = [{
             name:'allAssembled',
             component:()=>import("@/views/erp/order/assembled/AllAssembled"),
             meta:{title:"产品组装单"}
+        },{
+            path:'allSplit',
+            name:'allSplit',
+            component:()=>import("@/views/erp/order/split/AllSplit"),
+            meta:{title:"产品拆分单"}
         }]
     },{
         path: 'statistics',
