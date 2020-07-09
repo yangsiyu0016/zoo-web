@@ -129,6 +129,8 @@
                             <template slot-scope="scope">
                                 <el-tag type="danger" size="mini" effect="dark" v-if="task.taskKey === 'productsplitrk'&&!scope.row.finished && (scope.row.price==0 ||scope.row.price==null)">等待录入成本价</el-tag>
                                 <el-button @click="inboundOperation(scope.row)" type="primary" size="mini"  v-if="task.taskKey === 'productsplitrk'&&!scope.row.finished&& scope.row.price>0" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-s-home">入库</el-button>
+                                <el-button @click="deleteInbound(scope.row)" type="danger" size="mini"  v-if="task.taskKey === 'productsplitrk'&&!scope.row.finished" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">删除</el-button>
+                                <el-button @click="cancelInbound(scope.row)" type="danger" size="mini"  v-if="task.taskKey === 'productsplitrk'&&scope.row.finished" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">取消入库</el-button>
                                 <el-button @click="editCostPrice(scope.row)" v-if="handleVisible &&task.taskKey==='productspliteditprice'" size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-edit">录入入库成本</el-button>
                                 <!--<el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>-->
                             </template>
@@ -299,6 +301,69 @@
         },
 
         methods: {
+            deleteInbound(row){
+                this.$confirm("是否同时删除其它一起添加的数据？","提示",{
+                    confirmButtonText:'同时删除',
+                    cancelButtonText:"只删除此一条",
+                    type:"warning"
+                }).then(()=>{
+                    this.doDeleteIn(row,"all");
+
+                }).catch(()=>{
+                    this.doDeleteIn(row,"only");
+                })
+                /*this.$confirm("确定删除吗?","提示",{
+                    cancelButtonText:"取消",
+                    confirmButtonText:"确定",
+                    type:"warning"
+                }).then(()=>{
+                    this.deleteRequest("/erp/inbound/detail/deleteDetailById?id="+row.id).then((resp)=>{
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadIn(this.productSplit.id);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+
+                })*/
+            },
+            doDeleteIn(row,type){
+                this.$confirm("此操作不可恢复，是否继续?","提示",{
+
+                    confirmButtonText:"继续",
+                    cancelButtonText:"取消",
+                    type:"warning"
+                }).then(()=>{
+                    this.deleteRequest('/erp/split/deleteIn?splitId='+this.productSplit.id+"&inboundDetailId="+row.id+"&type="+type).then(resp=>{
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("删除成功");
+                            this.loadIn(this.productSplit.id);
+                           this.loadSplit(this.productSplit.id);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                })
+            },
+            cancelInbound(row){
+                this.$confirm("确定取消入库吗?","提示",{
+                    cancelButtonText:"取消",
+                    confirmButtonText:"确定",
+                    type:"warning"
+                }).then(()=>{
+                    this.postRequest('/erp/inbound/detail/cancelInbound',{
+                        id:row.id
+                    }).then((resp)=>{
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("取消成功");
+                            this.loadIn(this.productSplit.id);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                })
+            },
             inboundOperation(row){
                 this.$confirm("确定入库吗？","提示",{
                     cancelButtonText:"取消",

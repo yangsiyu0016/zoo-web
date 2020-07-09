@@ -80,7 +80,9 @@
                             <el-tag v-if="scope.row.type=='PURCHASEDESTROY'" type="info" size="mini" effect="dark">采购作废</el-tag>
                             <el-tag v-if="scope.row.type=='SPLITCK'" type="warning" size="mini" effect="dark">拆分出库</el-tag>
                             <el-tag v-if="scope.row.type=='SPLITRK'" type="warning" size="mini" effect="dark">拆分入库</el-tag>
+                            <el-tag v-if="scope.row.type=='CFCANCELRK'" type="warning" size="mini" effect="dark">拆分取消入库</el-tag>
                             <el-tag v-if="scope.row.type=='SPLITCKDELETE'" type="warning" size="mini" effect="dark">拆分出库删除</el-tag>
+                            <el-tag v-if="scope.row.type=='SPLITRKDELETE'" type="warning" size="mini" effect="dark">拆分入库删除</el-tag>
                             <el-tag v-if="scope.row.type=='CFDESTROY'" type="danger" size="mini" effect="dark">拆分单作废</el-tag>
                         </template>
                     </el-table-column>

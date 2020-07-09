@@ -198,7 +198,13 @@
 
                 isEdit:false,
                 oldProductSplit:{
-
+                    warehouse:{
+                        name:''
+                    },
+                    product:{
+                        code:''
+                    },
+                    splitMan:{}
                 },
                 productSplit: {
                     code:'',
@@ -293,7 +299,7 @@
             showDetails(row) {
                 this.detailsDialogVisible = true;
                 this.detailsDialogTitle = "拆分单详情";
-                this.oldProductSplit = row;
+                this.dblclick(row);
             },
             startFlow(row) {
                 this.$confirm('确定要开启审批流程吗？', '提示', {
@@ -430,7 +436,7 @@
             },
             //列表双击事件
             dblclick(row) {
-                this.getRequest('/erp/split/getProducrSplitById?id=' + row.id).then(resp => {
+                this.getRequest('/erp/split/getProductSplitById?id=' + row.id).then(resp => {
                     if (resp&&resp.data) {
                         this.oldProductSplit = resp.data;
                         this.detailsDialogVisible = true;

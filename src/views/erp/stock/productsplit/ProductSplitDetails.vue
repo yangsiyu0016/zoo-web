@@ -220,10 +220,19 @@
                 default:false
             }
         },
+        watch:{
+            oldProductSplit:{
+                handler(val){
+                    this.loadHistory();
+                    this.loadOut(val.id);
+                    this.loadIn(val.id);
+                },
+                deep:true,
+                immediate:true
+            }
+        },
         mounted(){
-            this.loadHistory();
-            this.loadOut(this.oldProductSplit.id);
-            this.loadIn(this.oldProductSplit.id);
+
         },
         methods: {
             print(){
