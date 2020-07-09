@@ -170,7 +170,7 @@
             <product-split-form   @close="closeDialog" :isEdit="isEdit" @callback="callback" :oldProductSplit="oldProductSplit"></product-split-form>
         </el-dialog>
         <el-dialog :visible.sync="detailsDialogVisible" :title="detailsDialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-split-details   @close="closeDetailDialog" :isEdit="isDetailsEdit" :oldProductSplit="oldProductSplit" @callback="detailsCallback"></product-split-details>
+            <product-split-details :isReception="isReception"   @close="closeDetailDialog" :isEdit="isDetailsEdit" :oldProductSplit="oldProductSplit" @callback="detailsCallback"></product-split-details>
         </el-dialog>
     </div>
 </template>
@@ -187,6 +187,7 @@
         },
         data() {
             return {
+                isReception:false,
                 sort:'ctime',
                 order:'desc',
                 loading:false,
@@ -441,10 +442,10 @@
                         this.oldProductSplit = resp.data;
                         this.detailsDialogVisible = true;
                         this.detailsDialogTitle = '订单查看';
-                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
-                            this.isReception = true;
-                        }else {
+                        if (resp.data.status === 'WTJ' || resp.data.status === 'DESTROY') {
                             this.isReception = false;
+                        }else {
+                            this.isReception = true;
                         }
                     }else {
                         this.$message.error("获取订单失败");
