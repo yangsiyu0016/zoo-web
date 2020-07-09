@@ -21,13 +21,32 @@
     export default {
         name: "AssembledInboundForm.vue",
         props:{
-            warehouseId:{
-                type:String,
-                default:()=>{}
-            },
-            assembled: {
+            oldProductAssembled: {
                 type: Object,
                 default:()=>{}
+            },
+            oldData:{
+                type:Object,
+                default:()=>{}
+            }
+        },
+        watch: {
+            oldProductAssembled: {
+                handler(val) {
+                    this.assembled = JSON.parse(JSON.stringify(val));
+                    this.warehouseId = this.assembled.warehouse.id;
+                    this.max = this.assembled.notInNumber;
+                    console.log(val)
+                },
+                deep:true,
+                immediate:true
+            },
+            oldData: {
+                handler(val) {
+                    this.cdga = JSON.parse(JSON.stringify(val));
+                },
+                deep:true,
+                immediate:true
             }
         },
         mounted() {
@@ -35,8 +54,6 @@
         },
         methods: {
             loadGas(){
-                this.max = this.assembled.notInNumber;
-
                 this.getRequest('/warehouse/ga/getGaByWarehouseId?warehouseId='+this.warehouseId).then((resp)=>{
                     this.gas = resp.data;
                 })
@@ -71,6 +88,9 @@
                 }
             };
             return {
+                warehouseId: '',
+                notInNumber:0,
+                assembled: {},
                 gas:[],
                 cdga:{
                     goodsAllocation:{},

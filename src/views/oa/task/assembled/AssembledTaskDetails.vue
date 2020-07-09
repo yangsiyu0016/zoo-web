@@ -54,7 +54,7 @@
                     </el-row>
                 </div>
             </el-card>
-            <el-card shadow="hover" v-show="isMaterials">
+            <el-card shadow="hover" >
                 <div slot="header" class="clearfix">
                     <span style="float: left;">组装材料明细</span>
                 </div>
@@ -82,13 +82,13 @@
                     </el-table>
                 </div>
             </el-card>
-            <el-card shadow="hover" v-show="isOperate">
+            <el-card shadow="hover">
                 <div slot="header" class="clearfix">
-                    <span style="float: left;">组装材料明细</span>
+                    <span style="float: left;">出库信息</span>
                 </div>
                 <div>
-                    <el-table :data="productAssembled.materials" size="mini">
-                        <el-table-column type="index" align="left" width="80"></el-table-column>
+                    <el-table :data="outboundDetails" size="mini">
+                        <el-table-column type="index" width="80"></el-table-column>
                         <el-table-column prop="product.imageUrl" label="图片">
                             <template slot-scope="scope">
                                 <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
@@ -104,64 +104,57 @@
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                         <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
-                        <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
-                        <!--<el-table-column prop="warehouse.name" label="出库仓库"></el-table-column>-->
-                        <el-table-column label="数量" prop="number"></el-table-column>
-                        <el-table-column label="操作" width="150px">
-                            <template slot-scope="scope">
-                                <el-button icon="el-icon-plus" size="mini" @click="showAddOutbound(scope.row)" type="primary">添加出库信息</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </div>
-            </el-card>
-            <el-card shadow="hover" v-show="isOut">
-                <div slot="header" class="clearfix">
-                    <span style="float: left;">出库信息</span>
-                </div>
-                <div>
-                    <el-table :data="newOutbounds" size="mini">
-                        <el-table-column type="expand">
-                            <template slot-scope="props">
-                                <el-table :data="props.row.details">
-                                    <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
-                                    <el-table-column label="出库数量" prop="number"></el-table-column>
-                                </el-table>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="产品名称" prop="productAssembledMaterial.product.name"></el-table-column>
-                        <el-table-column label="单位" prop="productAssembledMaterial.product.unit.name"></el-table-column>
-                        <el-table-column label="出库数量" prop="productAssembledMaterial.needNumber"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                        <el-table-column label="出库货位" prop="goodsAllocation.name"></el-table-column>
+                        <el-table-column label="出库数量" prop="number"></el-table-column>
                         <el-table-column label="状态">
                             <template slot-scope="scope">
-                                <el-tag v-if="scope.row.productAssembledMaterial.notOutNumber === 0 ? true:false" type="success" size="mini" effect="dark">已出库</el-tag>
-                                <el-tag v-if="scope.row.productAssembledMaterial.notOutNumber === 0 ? false:true" type="danger" size="mini" effect="dark">未出库</el-tag>
+                                <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已出库</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" v-if="handleVisible && task.taskKey === 'getmaterials' ">
+                            <template slot-scope="scope">
+                                <el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
                 </div>
             </el-card>
-            <el-card shadow="hover" v-show="isIn">
+            <el-card shadow="hover">
                 <div slot="header" class="clearfix">
                     <span style="float: left;">入库信息</span>
                 </div>
                 <div>
-                    <el-table :data="newInbound.details">
-                        <!--<el-table-column label="产品名称" prop="product.name"></el-table-column>-->
-                        <el-table-column label="入库货位" prop="goodsAllocation.name"></el-table-column>
-                        <el-table-column label="入库数量" prop="number"></el-table-column>
-                        <el-table-column label="未入库数量" prop="notInNumber"></el-table-column>
-                        <el-table-column label="状态">
+                    <el-table :data="inboundDetails" size="mini">
+                        <el-table-column type="index" width="80"></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
                             <template slot-scope="scope">
-                                <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已出库</el-tag>
-                                <el-tag v-if="scope.row.number === 0 ? true:false" type="success" size="mini" effect="dark">未出库</el-tag>
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
                             </template>
                         </el-table-column>
-                        <!--<el-table-column label="操作">
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                        <el-table-column label="入库货位" prop="goodsAllocation.name"></el-table-column>
+                        <el-table-column label="入库数量" prop="number"></el-table-column>
+                        <el-table-column label="状态">
                             <template slot-scope="scope">
-                                <el-button @click="deleteOut(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已入库</el-tag>
                             </template>
-                        </el-table-column>-->
+                        </el-table-column>
+                        <el-table-column label="操作" v-if="handleVisible && task.taskKey === 'inbound' ">
+                            <template slot-scope="scope">
+                                <el-button @click="deleteIn(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -192,7 +185,8 @@
 
 
                 <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
-                <el-button v-show="handleVisible && task.taskKey === 'inbound' " @click="showAddInBound" type="primary" size="mini">添加入库信息</el-button>
+                <el-button v-show="handleVisible && task.taskKey === 'getmaterials' " icon="el-icon-plus" size="mini" @click="showAddOutbound" type="primary">添加出库信息</el-button>
+                <el-button v-show="handleVisible && task.taskKey === 'getmaterials' " @click="showAddInBound" type="primary" size="mini">添加入库信息</el-button>
                 <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
                 <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="destroy">作废</el-button>
                 <el-button v-show="rejectVisible" @click="reject" type="primary" size="mini">驳回</el-button>
@@ -205,10 +199,10 @@
             <assembled-outbound-form :assembledMaterial="material" @cancel="cancelGaOut" @callback="callbackGaOut" :warehouseId="productAssembled.warehouse.id"></assembled-outbound-form>
         </el-dialog>-->
         <el-dialog :title="gaOutDialogTitle" :visible.sync="gaOutDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <assembled-outbound-table @cancel="cancelGaOut" @callback="callbackGaOut" :oldProductAssembled="productAssembled"></assembled-outbound-table>
+            <assembled-outbound-table @close="cancelGaOut" @callback="callbackGaOut" :oldProductAssembled="productAssembled"></assembled-outbound-table>
         </el-dialog>
         <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <assembled-inbound-form :assembled="productAssembled" @cancel="cancelGaIn" @callback="callbackGaIn" :warehouseId="productAssembled.warehouse.id"></assembled-inbound-form>
+            <assembled-inbound-table @callback="callbackGaIn" @close="cancelGaIn" :oldProductAssembled="productAssembled"></assembled-inbound-table>
         </el-dialog>
         <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <product-assembled-form :idEdit="isEdit"  @close="closeEditWin" @callback="callbackEdit"></product-assembled-form>
@@ -217,13 +211,12 @@
 </template>
 
 <script>
-    import AssembledOutboundForm from "./AssembledOutboundForm";
-    import AssembledInboundForm from "./AssembledInboundForm";
     import ProductAssembledForm from "../../../erp/stock/productassembled/ProductAssembledForm";
     import AssembledOutboundTable from "./AssembledOutboundTable";
+    import AssembledInboundTable from "./AssembledInboundTable";
     export default {
         name: "AssembledTaskDetails",
-        components: {AssembledOutboundTable, ProductAssembledForm, AssembledOutboundForm, AssembledInboundForm},
+        components: {AssembledOutboundTable, ProductAssembledForm, AssembledInboundTable},
         props:{
             task:{
                 type:Object,
@@ -241,7 +234,8 @@
         watch:{
             task:{
                 handler(val){
-                    if (val.taskKey === 'getmaterials') {//如果是仓库领料
+                    /*console.log(val.businessKey)
+                    if (val.taskKey === 'getmaterials') {
                         //显示出库信息
                         this.isOut = true;
                         this.isOperate = true;
@@ -258,9 +252,8 @@
                         this.isOut = false;
                         this.isIn = false;
                         this.isOperate = false;
-                    }
+                    }*/
                     if(val.assignee){
-
                         if(val.taskKey==='assembledckzg') {
                             this.rejectVisible = true;
                         }
@@ -273,6 +266,8 @@
                     this.getRequest('/erp/assembled/'+val.businessKey).then((resp)=>{
                         if(resp&&resp.status==200){
                             this.productAssembled = resp.data;
+                            this.loadOut(this.productAssembled.id);
+                            this.loadIn(this.productAssembled.id);
                             this.loadHistory();
                         }else{
                             this.$message.error("获取表单信息失败");
@@ -284,6 +279,36 @@
             }
         },
         methods:{
+            deleteIn(row) {
+
+            },
+            deleteOut(row) {
+                this.$confirm("是否同时删除其他一起出库的数据？", "提示", {
+                    confirmButtonText:"同时删除",
+                    cancelButtonText:"只删除一条",
+                    type:"warning"
+                }).then(() => {
+                    this.doDeleteOut(row, "all");
+                }).catch(() => {
+                    this.doDeleteOut(row, "only")
+                })
+            },
+            doDeleteOut(row, type) {
+                this.$confirm("此操作不可恢复，是否继续", "提示", {
+                    confirmButtonText:"继续",
+                    cancelButtonText:"取消",
+                    type:"warning"
+                }).then(()=> {
+                    this.deleteRequest('/erp/assembledMaterial/deleteOut?assembledId=' + this.productAssembled.id + '&outboundDetailId=' + row.id + '&type=' + type).then(resp => {
+                        if (resp.data && resp.data.status == '200') {
+                            this.$message.success('删除成功');
+                            this.loadOut(this.productAssembled.id);
+                        }else {
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                })
+            },
             closeEditWin() {
                 this.editDialogVisible = false;
             },
@@ -300,28 +325,19 @@
             },
             callbackGaIn(row) {
                 this.cancelGaIn();
-                this.addInbound(row);
-                this.updateNotInNumberById(row);
                 this.loadIn(this.productAssembled.id);
             },
             loadIn(id) {
-                this.getRequest('/erp/inbound/getInboundByForeignKey?foreignKey=' + id).then(resp => {
+                this.getRequest('/erp/inbound/detail/getDetailByInboundForeignKey?foreignKey=' + id).then(resp => {
                     if (resp && resp.status == 200) {
-                        this.newInbound = resp.data;
+                        this.inboundDetails = resp.data;
                     }
                 })
             },
             cancelGaIn() {
-                this.gaInDialogVisible = true;
+                this.gaInDialogVisible = false;
             },
-            addInbound(row){
-                  Object.assign(this.inbound, {foreignKey: this.productAssembled.id, taskId: this.task.id});
-                  this.postNoEnCodeRequest('/erp/assembled/addInbound?goodsAllocationId=' + row.goodsAllocation.id + '&number=' + row.number, this.inbound);
-            },
-            updateNotInNumberById(row) {
-                let  num = this.productAssembled.notInNumber - row.number;
-                 this.getRequest('/erp/assembled/updateNotInNumber?notInNumber=' + num + '&id=' + this.productAssembled.id);
-            },
+
             showAddInBound() {
                 if (this.productAssembled.notInNumber !== 0) {
                     this.gaInDialogVisible = true;
@@ -340,37 +356,33 @@
             },
             callbackGaOut(row) {
                 this.cancelGaOut();
-                this.addOutbound(row);
-                this.updateNotOutNumber(row);
                 this.loadOut(this.productAssembled.id);
             },
+            //加载出库信息
             loadOut(id) {
-                this.getRequest('/erp/assembledMaterial/getOutboundByProductAssembledId?id=' + id).then(resp => {
-                    if (resp && resp.data.status === 200) {
-                        this.newOutbounds = resp.data.outbounds;
-                    }
+                this.getRequest('/erp/outbound/detail/getDetailByOutboundForeignKey?foreignKey=' + id).then(resp=> {
+                    this.outboundDetails = resp.data;
                 })
             },
-            addOutbound(row) {
-                Object.assign(this.outbound, {foreignKey: row.material.id, taskId: this.task.id});
-                this.postNoEnCodeRequest('/erp/assembledMaterial/addOutbound?goodsAllocationId=' + row.goodsAllocation.id + '&number=' + row.number, this.outbound);
-            },
-            updateNotOutNumber(row) {
-                let num = row.material.notOutNumber - row.number;
-                this.getRequest('/erp/assembledMaterial/updateNotOutNumber?notOutNumber=' + num + '&id=' + row.material.id);
-            },
+
             reSubmit() {
                 this.handle();
             },
-            showAddOutbound(row) {
-                this.material = row;
-                if (row.notOutNumber !== 0) {
+            showAddOutbound() {
+                let flag = false;
+                for (let number in this.productAssembled.materials) {
+                    if (this.productAssembled.materials[number].notOutNumber !== 0) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag) {
                     this.gaOutDialogVisible = true;
+                    this.gaOutDialogTitle = '添加出库信息'
                 }else {
                     this.gaOutDialogVisible = false;
-                    this.$message.error('产品已全部出库')
+                    this.$message.error('已添加全部出库产品');
                 }
-                this.gaOutDialogTitle = '添加出库信息'
             },
             reject(){
                 this.$confirm("确定要驳回任务嘛？将此任务返回至创建人！", "提示", {
@@ -398,8 +410,8 @@
 
             handle(){
                 let isOutFlag = true;
-                for (let number in this.newOutbounds){
-                    if (this.newOutbounds[number].productAssembledMaterial.notOutNumber !== 0) {
+                for (let number in this.productAssembled.materials){
+                    if (this.productAssembled.materials[number].notOutNumber !== 0) {
                         isOutFlag = false;
                         break;
                     }
@@ -500,7 +512,6 @@
                 gaInDialogVisible: false,
                 material: {},
                 isOut: false,
-                newOutbounds: [],
                 newInbound: {},
                 productAssembled:{
                     warehouse:{
@@ -515,7 +526,9 @@
                 claimVisible:false,
                 handleVisible:false,
                 rejectVisible:false,
-                comment:''
+                comment:'',
+                outboundDetails: [],
+                inboundDetails: []
             }
         }
     }

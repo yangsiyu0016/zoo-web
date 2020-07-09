@@ -7,7 +7,7 @@
             <el-main>
                 <el-table size="mini" :data="details">
                     <el-table-column type="index" width="80"></el-table-column>
-                    <el-table-column label="产品名称" prop="product.name" width="80"></el-table-column>
+                    <el-table-column label="产品名称" prop="product.name"></el-table-column>
                     <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
                     <el-table-column label="数量" prop="number"></el-table-column>
                     <el-table-column label="操作">
@@ -73,29 +73,43 @@
                     product: {
                         id: '',
                         name: ''
-                    },
-                    orderDetailId: ''
+                    }
                 }
 
             },
             saveOutbound() {
-
+                this.postNoEnCodeRequest('/erp/assembledMaterial/addOutbound', {
+                    foreignKey: this.oldProductAssembled.id,
+                    details: this.details
+                }).then(resp => {
+                    if (resp && resp.data.status == "200") {
+                        this.$message.success("保存成功");
+                        this.details = [];
+                        this.close();
+                    }else {
+                        this.$message.error(resp.data.msg);
+                    }
+                })
             },
-            deleteDetail() {
-
+            deleteDetail(row) {
+                this.details.some((item, i) => {
+                    if (item === row) {
+                        this.details.splice(i, 1);
+                    }
+                })
             },
             callback(data){
                 this.details.push(data);
                 this.oldProductAssembled.materials.forEach((item, i) => {
-                    this.details.forEach((val, j) => {
-                        if (item.notOutNumber === val.number){
+                    if (item.product.id == data.product.id) {
+                        if (item.notOutNumber === data.number){
                             this.oldProductAssembled.materials.splice(i, 1);
                         }else {
-                            item.notOutNumber -= val.number;
+                            item.notOutNumber -= data.number;
                         }
-                    })
-                })
-                this.cancel();
+                    }
+                });
+                this.close();
             },
             cancel(){
                 this.dialogVisible = false;
