@@ -541,27 +541,37 @@
                             this.$message.error('有产品未出库')
                         }
                     }else if(this.productSplit.status === 'CLRK'&&this.task.taskKey=="productspliteditprice"){
-                        let flag = true;
-                        this.inboundDetails.forEach(detail=>{
-                            if(detail.price==undefined||detail.price==0){
-                                flag = false
+                        if(this.inboundDetails.length>0){
+                            let flag = true;
+                            this.inboundDetails.forEach(detail=>{
+                                if(detail.price==undefined||detail.price==0){
+                                    flag = false
+                                }
+                            })
+                            if(!flag){
+                                this.$message.error("产品成本价有误，不能完成");
+                            }else{
+                                this.doComplete(this.task.id,this.comment,"AGREE");
                             }
-                        })
-                        if(!flag){
-                            this.$message.error("产品成本价有误，不能完成");
                         }else{
-                            this.doComplete(this.task.id,this.comment,"AGREE");
+                            this.$message.error("入库信息为空,等待仓库录入入库信息，暂时不能通过 ");
                         }
+
                     }else if(this.productSplit.status === 'CLRK'&&this.task.taskKey=="productsplitrk"){
-                        let flag = true;
-                        this.inboundDetails.forEach(detail=>{
-                            if(!detail.finished) flag = false;
-                        })
-                        if(!flag){
-                            this.$message.error("有产品没有入库，不能完成");
+                        if(this.inboundDetails.length>0){
+                            let flag = true;
+                            this.inboundDetails.forEach(detail=>{
+                                if(!detail.finished) flag = false;
+                            })
+                            if(!flag){
+                                this.$message.error("有产品没有入库，不能完成");
+                            }else{
+                                this.doComplete(this.task.id,this.comment,"AGREE");
+                            }
                         }else{
-                            this.doComplete(this.task.id,this.comment,"AGREE");
+                            this.$message.error("入库信息不能为空");
                         }
+
                     }else{
                         this.doComplete(this.task.id,this.comment,"AGREE");
                     }
