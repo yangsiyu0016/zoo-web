@@ -352,7 +352,7 @@
                     confirmButtonText:"确定",
                     type:"warning"
                 }).then(()=>{
-                    this.postRequest('/erp/inbound/detail/cancelInbound',{
+                    this.postRequest('/erp/splitDetail/cancelInbound',{
                         id:row.id
                     }).then((resp)=>{
                         if(resp.data&&resp.data.status=="200"){
@@ -370,7 +370,7 @@
                     confirmButtonText:"确定",
                     type:"warning"
                 }).then(()=>{
-                    this.postRequest('/erp/inbound/detail/inbound',{
+                    this.postRequest('/erp/splitDetail/inbound',{
                         id:row.id
                     }).then((resp)=>{
                         if(resp.data&&resp.data.status=="200"){
