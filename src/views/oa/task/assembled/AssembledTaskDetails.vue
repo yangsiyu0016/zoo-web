@@ -78,7 +78,7 @@
                         <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
                         <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
                         <el-table-column prop="warehouse.name" label="出库仓库"></el-table-column>
-                        <el-table-column label="数量" prop="number"></el-table-column>
+                        <el-table-column label="数量" prop="needNumber"></el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -145,14 +145,19 @@
                         <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
                         <el-table-column label="入库货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="入库数量" prop="number"></el-table-column>
+                        <el-table-column v-if="task.taskKey==='assemblededitprice'" label="入库成本" prop="price"></el-table-column>
+                        <el-table-column v-if="task.taskKey==='assemblededitprice'" label="入库总额" prop="totalMoney"></el-table-column>
                         <el-table-column label="状态">
                             <template slot-scope="scope">
-                                <el-tag v-if="scope.row.number === 0 ? false:true" type="success" size="mini" effect="dark">已入库</el-tag>
+                                <el-tag v-if="scope.row.finished" type="success" size="mini" effect="dark">已入库</el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" v-if="handleVisible && task.taskKey === 'inbound' ">
+                        <el-table-column label="操作" v-if="handleVisible && (task.taskKey === 'inbound' || task.taskKey == 'assemblededitprice')">
                             <template slot-scope="scope">
-                                <el-button @click="deleteIn(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>
+                                <el-tag type="danger" size="mini" effect="dark" v-if="task.taskKey === 'inbound'&&!scope.row.finished && (scope.row.price==0 ||scope.row.price==null)">等待录入成本价</el-tag>
+                                <el-button @click="inboundOperation(scope.row)" type="primary" size="mini"  v-if="task.taskKey === 'inbound'&&!scope.row.finished&& scope.row.price>0" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-s-home">入库</el-button>
+                                <el-button @click="editCostPrice(scope.row)" v-if="handleVisible && task.taskKey == 'assemblededitprice' " size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-edit">录入入库成本</el-button>
+                                <el-button @click="deleteIn(scope.row)" v-if="task.taskKey === 'inbound' && !scope.row.finished && (scope.row.price==0 ||scope.row.price==null)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -184,9 +189,9 @@
                 <!--<el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'" size="mini" @click="addLogistics" type="primary">添加物流信息</el-button>-->
 
 
-                <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
+                <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini" >编辑</el-button>
                 <el-button v-show="handleVisible && task.taskKey === 'getmaterials' " icon="el-icon-plus" size="mini" @click="showAddOutbound" type="primary">添加出库信息</el-button>
-                <el-button v-show="handleVisible && task.taskKey === 'getmaterials' " @click="showAddInBound" type="primary" size="mini">添加入库信息</el-button>
+                <el-button v-show="handleVisible && task.taskKey === 'inbound' " icon="el-icon-plus" @click="showAddInBound" type="primary" size="mini">添加入库信息</el-button>
                 <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
                 <el-button v-show="productAssembled.status=='DDTZ'" type="primary" size="mini" @click="destroy">作废</el-button>
                 <el-button v-show="rejectVisible" @click="reject" type="primary" size="mini">驳回</el-button>
@@ -205,7 +210,7 @@
             <assembled-inbound-table @callback="callbackGaIn" @close="cancelGaIn" :oldProductAssembled="productAssembled"></assembled-inbound-table>
         </el-dialog>
         <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <product-assembled-form :idEdit="isEdit"  @close="closeEditWin" @callback="callbackEdit"></product-assembled-form>
+            <product-assembled-form :isEdit="isEdit"  @close="closeEditWin" @callback="callbackEdit" :oldProductAssembled="oldProductAssembled"></product-assembled-form>
         </el-dialog>
     </div>
 </template>
@@ -279,8 +284,75 @@
             }
         },
         methods:{
-            deleteIn(row) {
+            inboundOperation(row){
+                this.$confirm("确定入库吗？","提示",{
+                    cancelButtonText:"取消",
+                    confirmButtonText:"确定",
+                    type:"warning"
+                }).then(()=>{//确定入库
+                    this.getRequest('/erp/inbound/detail/inboundOperation?id=' + row.id).then(resp => {
+                        if (resp&& resp.data) {
+                            this.loadIn(this.productAssembled.id);
+                            this.$message.success('入库成功');
+                        }else{
+                            this.$message.error('入库失败');
+                        }
+                    })
+                    //this.
+                }).catch(()=>{})
+            },
+            editCostPrice(row){
+                this.$prompt('请输入成本价','成本价编辑',{
+                    confirmButtonText: '保存',
+                    cancelButtonText: '取消',
+                    inputPattern:/^(?!(0[0-9]{0,}$))[0-9]{1,}[.]{0,}[0-9]{0,}$/,
+                    inputErrorMessage:'成本价格式不正确'
+                }).then(({value})=>{
+                    this.putRequest("/erp/inbound/detail/updatePrice",{
+                        id:row.id,
+                        costPrice:value
+                    }).then((resp)=>{
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("保存成功");
+                            this.inboundDetails.some((item,i)=>{
+                                if(item==row){
+                                    this.inboundDetails.splice(i,1,resp.data.inboundDetail);
+                                }
+                            })
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                }).catch(()=>{
 
+                })
+            },
+            deleteIn(row) {
+                this.$confirm("是否删其他一起入库数据？", "提示", {
+                    confirmButtonText: "同时删除",
+                    cancelButtonText: "只删除一条",
+                    type: "warning"
+                }).then(() => {
+                    this.doDeleteIn(row, 'all');
+                }).then(() => {
+                    this.doDeleteIn(row, 'only');
+                })
+            },
+            doDeleteIn(row, type) {
+                this.$confirm("此操作不可恢复，是否继续？", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                }).then(() => {
+                    this.deleteRequest('/erp/assembled/deleteIn?assembledId=' + this.productAssembled.id + '&inboundDetailId=' + row.id + '&type' + type).then(resp => {
+                        if (resp.data && resp.data.status === "200") {
+                            this.$message.success('删除成功');
+                            this.loadIn(this.productAssembled.id);
+                        }else {
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                })
             },
             deleteOut(row) {
                 this.$confirm("是否同时删除其他一起出库的数据？", "提示", {
@@ -294,7 +366,7 @@
                 })
             },
             doDeleteOut(row, type) {
-                this.$confirm("此操作不可恢复，是否继续", "提示", {
+                this.$confirm("此操作不可恢复，是否继续？", "提示", {
                     confirmButtonText:"继续",
                     cancelButtonText:"取消",
                     type:"warning"
@@ -303,6 +375,7 @@
                         if (resp.data && resp.data.status == '200') {
                             this.$message.success('删除成功');
                             this.loadOut(this.productAssembled.id);
+                            this.$emit('showDetailView', row);
                         }else {
                             this.$message.error(resp.data.msg);
                         }
@@ -313,7 +386,7 @@
                 this.editDialogVisible = false;
             },
             callbackEdit() {
-                this.closeWin();
+                this.closeEditWin();
             },
             edit() {
                 this.isEdit = true;
@@ -429,7 +502,7 @@
                     })
                 }else {
                     if (this.productAssembled.status === 'CKLL') {
-                        if (isOutFlag && this.newOutbounds.length >0) {
+                        if (isOutFlag && this.outboundDetails.length >0) {
                             this.$confirm("确定要完成任务吗？完成后暂时不可取回！", "提示", {
                                 confirmButtonText: '确定',
                                 cancelButtonText: '取消',
@@ -476,7 +549,7 @@
                                 this.editVisible = true;
                             }*/
                             if (this.productAssembled.status === 'ZGSH') {
-                                this.rejectVisible = true;x``
+                                this.rejectVisible = true;
                             }
                             this.loadHistory();
                             this.$emit("refresh");
@@ -496,6 +569,8 @@
         },
         data(){
             return{
+                rejectVisible: false,
+                disabled: false,
                 editVisible: false,
                 isEdit: false,
                 editDialogTitle: '',
@@ -525,7 +600,6 @@
                 histories:[],
                 claimVisible:false,
                 handleVisible:false,
-                rejectVisible:false,
                 comment:'',
                 outboundDetails: [],
                 inboundDetails: []

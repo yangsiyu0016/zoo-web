@@ -36,7 +36,6 @@
                     this.assembled = JSON.parse(JSON.stringify(val));
                     this.warehouseId = this.assembled.warehouse.id;
                     this.max = this.assembled.notInNumber;
-                    console.log(val)
                 },
                 deep:true,
                 immediate:true

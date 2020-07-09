@@ -41,7 +41,6 @@
         watch: {
             details:{
                 handler(val) {
-                    this.maxNumber = this.notOutNumber;
                     this.details.forEach(detail => {
                         this.maxNumber-=detail.number;
                     })
@@ -89,7 +88,7 @@
                     if (resp.data && resp.data.status == "200") {
                         this.$message.success(resp.data.msg);
                         this.details = [];
-                        this.close();
+                        this.$emit('callback')
                     }else {
                         this.$message.error(resp.data.msg)
                     }

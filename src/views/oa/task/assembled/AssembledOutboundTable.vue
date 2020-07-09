@@ -85,7 +85,7 @@
                     if (resp && resp.data.status == "200") {
                         this.$message.success("保存成功");
                         this.details = [];
-                        this.close();
+                        this.$emit('callback');
                     }else {
                         this.$message.error(resp.data.msg);
                     }
@@ -109,7 +109,7 @@
                         }
                     }
                 });
-                this.close();
+                this.cancel();
             },
             cancel(){
                 this.dialogVisible = false;
