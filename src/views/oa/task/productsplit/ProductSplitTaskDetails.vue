@@ -305,7 +305,16 @@
                     confirmButtonText:"确定",
                     type:"warning"
                 }).then(()=>{
-                    this.
+                    this.postRequest('/erp/inbound/detail/inbound',{
+                        id:row.id
+                    }).then((resp)=>{
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("入库成功");
+                            this.loadIn(this.productSplit.id);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
                 }).catch(()=>{})
             },
             editCostPrice(row){
@@ -455,59 +464,49 @@
             },
             //办理
             handle(){
-                let isInFlag = true;
-                for (let num in this.newInbounds) {
-                    if (this.newInbounds[num].splitDetail.notInNumber !== 0) {
-                        isInFlag = false;
-                        break;
-                    }
-                }
-                if (this.productSplit.status !== 'CKLL' && this.productSplit.status !== 'CLRK') {
-                    this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }).then(()=>{
-                        this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
-                            this.$emit("close");
-                            this.$emit("refresh");
-                        });
-                    })
-                }else {
+                this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(()=>{
                     if (this.productSplit.status === 'CKLL') {
                         if (this.productSplit.notOutNumber == 0) {
-                            this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
-                                confirmButtonText: '确定',
-                                cancelButtonText: '取消',
-                                type: 'warning'
-                            }).then(()=>{
-                                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
-                                    this.$emit("close");
-                                    this.$emit("refresh");
-                                });
-                            })
+                            this.doComplete(this.task.id,this.comment,"AGREE");
                         }else {
                             this.$message.error('有产品未出库')
                         }
-                    }else if (this.productSplit.status === 'CLRK'){
-                        if (isInFlag && this.newInbounds.length > 0) {
-                            this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
-                                confirmButtonText: '确定',
-                                cancelButtonText: '取消',
-                                type: 'warning'
-                            }).then(()=>{
-                                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
-                                    this.$emit("close");
-                                    this.$emit("refresh");
-                                });
-                            })
-                        }else {
-                            this.$message.error('有产品未入库')
+                    }else if(this.productSplit.status === 'CLRK'&&this.task.taskKey=="productspliteditprice"){
+                        let flag = true;
+                        this.inboundDetails.forEach(detail=>{
+                            if(detail.price==undefined||detail.price==0){
+                                flag = false
+                            }
+                        })
+                        if(!flag){
+                            this.$message.error("产品成本价有误，不能完成");
+                        }else{
+                            this.doComplete(this.task.id,this.comment,"AGREE");
                         }
+                    }else if(this.productSplit.status === 'CLRK'&&this.task.taskKey=="productsplitrk"){
+                        let flag = true;
+                        this.inboundDetails.forEach(detail=>{
+                            if(!detail.finished) flag = false;
+                        })
+                        if(!flag){
+                            this.$message.error("有产品没有入库，不能完成");
+                        }else{
+                            this.doComplete(this.task.id,this.comment,"AGREE");
+                        }
+                    }else{
+                        this.doComplete(this.task.id,this.comment,"AGREE");
                     }
-                }
-
-
+                })
+            },
+            doComplete(taskId,comment,idea){
+                this.postRequest('/flow/task/complete?taskId='+taskId+"&comment="+comment + '&idea='+idea).then((resp)=>{
+                    this.$emit("close");
+                    this.$emit("refresh");
+                });
             },
             showAddOutBound() {
                 this.gaDialogTitle = '添加出库信息';

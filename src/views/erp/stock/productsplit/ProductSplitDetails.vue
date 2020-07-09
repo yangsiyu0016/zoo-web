@@ -131,6 +131,41 @@
             </el-card>
             <el-card shadow="hover">
                 <div slot="header" class="clearfix">
+                    <span style="float: left;">入库信息</span>
+                </div>
+                <div>
+                    <el-table :data="inboundDetails" size="mini">
+                        <el-table-column type="index" width="80"></el-table-column>
+                        <el-table-column prop="product.imageUrl" label="图片">
+                            <template slot-scope="scope">
+                                <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                        <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
+
+                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                        <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                        <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                        <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                        <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
+                        <el-table-column label="入库货位" prop="goodsAllocation.name"></el-table-column>
+                        <el-table-column label="入库数量" prop="number"></el-table-column>
+
+                        <el-table-column label="状态">
+                            <template slot-scope="scope">
+                                <el-tag v-if="scope.row.finished" type="success" size="mini" effect="dark">已入库</el-tag>
+                                <el-tag v-if="!scope.row.finished" type="danger" size="mini" effect="dark">未入库</el-tag>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </el-card>
+            <el-card shadow="hover">
+                <div slot="header" class="clearfix">
                     <span style="float: left;">审批流程</span>
                 </div>
                 <div>
@@ -188,6 +223,7 @@
         mounted(){
             this.loadHistory();
             this.loadOut(this.oldProductSplit.id);
+            this.loadIn(this.oldProductSplit.id);
         },
         methods: {
             print(){
@@ -234,6 +270,11 @@
                     this.histories = resp.data;
                 })
             },
+            loadIn(id) {
+                this.getRequest('/erp/inbound/detail/getDetailByInboundForeignKey?foreignKey=' + id).then(resp=> {
+                    this.inboundDetails = resp.data;
+                })
+            },
             //加载出库信息
             loadOut(id) {
                 this.getRequest('/erp/outbound/detail/getDetailByOutboundForeignKey?foreignKey=' + id).then(resp=> {
@@ -244,6 +285,7 @@
         data(){
             return{
                 outboundDetails:[],
+                inboundDetails:[],
                 histories:[]
             }
         }
