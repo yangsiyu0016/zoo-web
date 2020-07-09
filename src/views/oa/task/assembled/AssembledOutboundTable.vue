@@ -50,6 +50,16 @@
                 },
                 deep: true,
                 immediate: true
+            },
+            oldProductAssembled: {
+                handler(val) {
+                    this.oldProductAssembled = JSON.parse(JSON.stringify(val));
+                    this.oldProductAssembled.materials.forEach((material, i) => {
+                        if (material.notOutNumber === 0) {
+                            this.oldProductAssembled.materials.splice(i, 1);
+                        }
+                    })
+                }
             }
         },
         data() {

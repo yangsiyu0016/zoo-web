@@ -405,10 +405,10 @@
                         this.oldProductAssembled = resp.data;
                         this.detailsDialogVisible = true;
                         this.detailsDialogTitle="订单查看";
-                        if (resp.data.isClaimed !== 'Y' && (resp.data.status !== 'WTJ' || resp.data.status === 'DESTORY')) {
-                            this.isReception = true;
-                        }else {
+                        if (resp.data.status === 'WTJ' || resp.data.status === 'DESTROY' || resp.data.status === 'FINISHED') {
                             this.isReception = false;
+                        }else {
+                            this.isReception = true;
                         }
                     }else{
                         this.$message.error("获取订单失败");

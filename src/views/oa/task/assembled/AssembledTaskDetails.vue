@@ -152,7 +152,7 @@
                                 <el-tag v-if="scope.row.finished" type="success" size="mini" effect="dark">已入库</el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" v-if="handleVisible && (task.taskKey === 'inbound' || task.taskKey == 'assemblededitprice')">
+                        <el-table-column label="操作" v-if="handleVisible && (task.taskKey === 'inbound' || task.taskKey == 'assemblededitprice')" style="width: 100px">
                             <template slot-scope="scope">
                                 <el-tag type="danger" size="mini" effect="dark" v-if="task.taskKey === 'inbound'&&!scope.row.finished && (scope.row.price==0 ||scope.row.price==null)">等待录入成本价</el-tag>
                                 <el-button @click="inboundOperation(scope.row)" type="primary" size="mini"  v-if="task.taskKey === 'inbound'&&!scope.row.finished&& scope.row.price>0" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-s-home">入库</el-button>
@@ -290,7 +290,7 @@
                     confirmButtonText:"确定",
                     type:"warning"
                 }).then(()=>{//确定入库
-                    this.getRequest('/erp/inbound/detail/inboundOperation?id=' + row.id).then(resp => {
+                    this.getRequest('/erp/assembled/inboundOperation?id=' + row.id).then(resp => {
                         if (resp&& resp.data) {
                             this.loadIn(this.productAssembled.id);
                             this.$message.success('入库成功');
@@ -334,7 +334,7 @@
                     type: "warning"
                 }).then(() => {
                     this.doDeleteIn(row, 'all');
-                }).then(() => {
+                }).catch(() => {
                     this.doDeleteIn(row, 'only');
                 })
             },
@@ -344,10 +344,11 @@
                     cancelButtonText: "取消",
                     type: "warning"
                 }).then(() => {
-                    this.deleteRequest('/erp/assembled/deleteIn?assembledId=' + this.productAssembled.id + '&inboundDetailId=' + row.id + '&type' + type).then(resp => {
+                    this.deleteRequest('/erp/assembled/deleteIn?assembledId=' + this.productAssembled.id + '&inboundDetailId=' + row.id + '&type=' + type).then(resp => {
                         if (resp.data && resp.data.status === "200") {
                             this.$message.success('删除成功');
                             this.loadIn(this.productAssembled.id);
+                            this.productAssembled.notInNumber = resp.data.notInNumber;
                         }else {
                             this.$message.error(resp.data.msg);
                         }
