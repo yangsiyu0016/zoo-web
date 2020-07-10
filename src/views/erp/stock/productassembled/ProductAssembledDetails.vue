@@ -114,6 +114,7 @@
             <el-card shadow="hover">
                 <div style="text-align: center">
                     <el-button @click="takeBack" size="mini" type="danger" v-show="isReception">取回</el-button>
+                    <el-button @click="destroyPa" v-show="currentProductAssembled.status!='DESTROY'"  size="mini" type="danger" >作废</el-button>
                     <el-button @click="cancel" type="info" size="mini">关闭</el-button>
                 </div>
             </el-card>
@@ -164,6 +165,22 @@
         },
 
         methods:{
+            destroyPa() {
+                this.$confirm('确定作废订单吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.getRequest('/erp/assembled/destroy?id=' + this.currentProductAssembled.id).then(resp => {
+                        if (resp && resp.data.status == "200") {
+                            this.$message.success('作废成功');
+                            this.$emit('callback');
+                        }else {
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                })
+            },
             takeBack(){
                 this.$confirm('确定取回该订单吗？', '提示', {
                     confirmButtonText: '确定',
