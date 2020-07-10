@@ -284,6 +284,11 @@
             }
         },
         methods:{
+            loadAssembled() {
+                this.getRequest('/erp/assembled/getAssembledById?id=' + this.productAssembled.id).then(resp => {
+                    this.productAssembled = resp.data;
+                })
+            },
             inboundOperation(row){
                 this.$confirm("确定入库吗？","提示",{
                     cancelButtonText:"取消",
@@ -376,6 +381,7 @@
                         if (resp.data && resp.data.status == '200') {
                             this.$message.success('删除成功');
                             this.loadOut(this.productAssembled.id);
+                            this.loadAssembled();
                             this.$emit('showDetailView', row);
                         }else {
                             this.$message.error(resp.data.msg);
