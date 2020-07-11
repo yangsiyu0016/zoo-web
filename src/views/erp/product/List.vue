@@ -27,6 +27,7 @@
                     <el-table-column prop="weight" align="left"  label="重量"></el-table-column>
                     <el-table-column prop="color" align="left"  label="颜色"></el-table-column>
                     <el-table-column prop="puse" align="left"  label="用途"></el-table-column>
+                    <el-table-column prop="mnemonic" align="left"  label="助记码"></el-table-column>
                     <el-table-column prop="description" align="left" label="备注"  :show-overflow-tooltip='true' ></el-table-column>
                     <el-table-column prop="ctime" label="创建时间"></el-table-column>
                     <el-table-column prop="hasBom" label="BOM">
