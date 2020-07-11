@@ -95,6 +95,7 @@
                     <el-table-column prop="type" label="来自">
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.type=='CF'" size="mini" type="warning" effect="dark">拆分单</el-tag>
+                            <el-tag v-if="scope.row.type=='ZZ'" size="mini" type="success" effect="dark">组装单</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="code" label="出库单号">

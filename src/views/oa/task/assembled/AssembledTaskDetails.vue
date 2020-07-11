@@ -150,14 +150,17 @@
                         <el-table-column label="状态">
                             <template slot-scope="scope">
                                 <el-tag v-if="scope.row.finished" type="success" size="mini" effect="dark">已入库</el-tag>
+                                <el-tag v-if="!scope.row.finished" type="danger" size="mini" effect="dark">未入库</el-tag>
+
                             </template>
                         </el-table-column>
                         <el-table-column label="操作" v-if="handleVisible && (task.taskKey === 'inbound' || task.taskKey == 'assemblededitprice')" style="width: 100px">
                             <template slot-scope="scope">
                                 <el-tag type="danger" size="mini" effect="dark" v-if="task.taskKey === 'inbound'&&!scope.row.finished && (scope.row.price==0 ||scope.row.price==null)">等待录入成本价</el-tag>
                                 <el-button @click="inboundOperation(scope.row)" type="primary" size="mini"  v-if="task.taskKey === 'inbound'&&!scope.row.finished&& scope.row.price>0" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-s-home">入库</el-button>
+                                <el-button @click="cancelInbound(scope.row)" type="danger" size="mini"  v-if="task.taskKey === 'inbound'&&scope.row.finished" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">取消入库</el-button>
                                 <el-button @click="editCostPrice(scope.row)" v-if="handleVisible && task.taskKey == 'assemblededitprice' " size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-edit">录入入库成本</el-button>
-                                <el-button @click="deleteIn(scope.row)" v-if="task.taskKey === 'inbound' && !scope.row.finished && (scope.row.price==0 ||scope.row.price==null)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>
+                                <el-button @click="deleteIn(scope.row)" v-if="task.taskKey === 'inbound' && !scope.row.finished " type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-delete">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -204,10 +207,10 @@
             <assembled-outbound-form :assembledMaterial="material" @cancel="cancelGaOut" @callback="callbackGaOut" :warehouseId="productAssembled.warehouse.id"></assembled-outbound-form>
         </el-dialog>-->
         <el-dialog :title="gaOutDialogTitle" :visible.sync="gaOutDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <assembled-outbound-table @close="cancelGaOut" @callback="callbackGaOut" :oldProductAssembled="productAssembled"></assembled-outbound-table>
+            <assembled-outbound-table @close="cancelGaOut" @callback="callbackGaOut" :waitOutProducts="waitOutProducts" :assembledId="productAssembled.id" :warehouseId="productAssembled.warehouse.id" ></assembled-outbound-table>
         </el-dialog>
-        <el-dialog :title="gaInDialogTitle" :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
-            <assembled-inbound-table @callback="callbackGaIn" @close="cancelGaIn" :oldProductAssembled="productAssembled"></assembled-inbound-table>
+        <el-dialog :title="gaInDialogTitle"  :visible.sync="gaInDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
+            <assembled-inbound-table @callback="callbackGaIn" @close="cancelGaIn" :assembledId="productAssembled.id" :warehouseId="productAssembled.warehouse.id" :notInNumber="productAssembled.notInNumber"></assembled-inbound-table>
         </el-dialog>
         <el-dialog :title="editDialogTitle" :visible.sync="editDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <product-assembled-form :isEdit="isEdit"  @close="closeEditWin" @callback="callbackEdit" :oldProductAssembled="oldProductAssembled"></product-assembled-form>
@@ -268,7 +271,8 @@
                         this.handleVisible = false;
                         this.claimVisible = true;
                     }
-                    this.getRequest('/erp/assembled/'+val.businessKey).then((resp)=>{
+                    this.initData(val.businessKey);
+                   /* this.getRequest('/erp/assembled/'+val.businessKey).then((resp)=>{
                         if(resp&&resp.status==200){
                             this.productAssembled = resp.data;
                             this.loadOut(this.productAssembled.id);
@@ -277,13 +281,43 @@
                         }else{
                             this.$message.error("获取表单信息失败");
                         }
-                    })
+                    })*/
                 },
                 deep:true,
                 immediate:true
             }
         },
         methods:{
+            cancelInbound(row){
+                this.$confirm("确定取消入库吗?","提示",{
+                    cancelButtonText:"取消",
+                    confirmButtonText:"确定",
+                    type:"warning"
+                }).then(()=>{
+                    this.postRequest('/erp/assembledMaterial/cancelInbound',{
+                        id:row.id
+                    }).then((resp)=>{
+                        if(resp.data&&resp.data.status=="200"){
+                            this.$message.success("取消成功");
+                            this.loadIn(this.productAssembled.id);
+                        }else{
+                            this.$message.error(resp.data.msg);
+                        }
+                    })
+                })
+            },
+            initData(productAssembledId){
+                this.getRequest('/erp/assembled/'+productAssembledId).then((resp)=>{
+                    if(resp&&resp.status==200){
+                        this.productAssembled = resp.data;
+                        this.loadOut(productAssembledId);
+                        this.loadIn(productAssembledId);
+                        this.loadHistory();
+                    }else{
+                        this.$message.error("获取表单信息失败");
+                    }
+                })
+            },
             loadAssembled() {
                 this.getRequest('/erp/assembled/getAssembledById?id=' + this.productAssembled.id).then(resp => {
                     this.productAssembled = resp.data;
@@ -296,11 +330,11 @@
                     type:"warning"
                 }).then(()=>{//确定入库
                     this.getRequest('/erp/assembled/inboundOperation?id=' + row.id).then(resp => {
-                        if (resp&& resp.data) {
+                        if (resp&& resp.data.status=="200") {
                             this.loadIn(this.productAssembled.id);
                             this.$message.success('入库成功');
                         }else{
-                            this.$message.error('入库失败');
+                            this.$message.error(resp.data.msg);
                         }
                     })
                     //this.
@@ -358,7 +392,7 @@
                             this.$message.error(resp.data.msg);
                         }
                     })
-                })
+                }).catch(()=>{})
             },
             deleteOut(row) {
                 this.$confirm("是否同时删除其他一起出库的数据？", "提示", {
@@ -403,9 +437,9 @@
                 this.editDialogVisible = true;
                 this.editDialogTitle = '编辑单据';
             },
-            callbackGaIn(row) {
+            callbackGaIn() {
                 this.cancelGaIn();
-                this.loadIn(this.productAssembled.id);
+                this.initData(this.productAssembled.id);
             },
             loadIn(id) {
                 this.getRequest('/erp/inbound/detail/getDetailByInboundForeignKey?foreignKey=' + id).then(resp => {
@@ -420,12 +454,13 @@
 
             showAddInBound() {
                 if (this.productAssembled.notInNumber !== 0) {
+                    this.gaInDialogTitle = '添加入库信息';
                     this.gaInDialogVisible = true;
                 }else {
                     this.gaInDialogVisible = false;
                     this.$message.error('已添加全部入库产品');
                 }
-                this.gaInDialogTitle = '添加入库信息';
+
             },
 
             destroy() {
@@ -434,9 +469,9 @@
             cancelGaOut() {
                 this.gaOutDialogVisible = false;
             },
-            callbackGaOut(row) {
+            callbackGaOut() {
                 this.cancelGaOut();
-                this.loadOut(this.productAssembled.id);
+                this.initData(this.productAssembled.id);
             },
             //加载出库信息
             loadOut(id) {
@@ -450,13 +485,15 @@
             },
             showAddOutbound() {
                 let flag = false;
-                for (let number in this.productAssembled.materials) {
-                    if (this.productAssembled.materials[number].notOutNumber !== 0) {
+                let waitOutProducts = [];
+                this.productAssembled.materials.forEach(material=>{
+                    if(material.notOutNumber>0){
                         flag = true;
-                        break;
+                        waitOutProducts.push(material);
                     }
-                }
+                })
                 if (flag) {
+                    this.waitOutProducts = waitOutProducts;
                     this.gaOutDialogVisible = true;
                     this.gaOutDialogTitle = '添加出库信息'
                 }else {
@@ -487,59 +524,66 @@
 
                 })
             },
-
+            doComplete(taskId, comment, idea) {
+                this.postRequest('/flow/task/complete?taskId='+taskId+"&comment="+comment + '&idea='+idea).then((resp)=>{
+                    this.$emit("close");
+                    this.$emit("refresh");
+                });
+            },
             handle(){
-                let isOutFlag = true;
-                for (let number in this.productAssembled.materials){
-                    if (this.productAssembled.materials[number].notOutNumber !== 0) {
-                        isOutFlag = false;
-                        break;
-                    }
-                }
-                if (this.productAssembled.status !== 'CKLL' && this.productAssembled.status !== 'CLRK') {
-                    this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }).then(()=>{
-                        this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
-                            this.$emit("close");
-                            this.$emit("refresh");
-                        });
-                    })
-                }else {
-                    if (this.productAssembled.status === 'CKLL') {
-                        if (isOutFlag && this.outboundDetails.length >0) {
-                            this.$confirm("确定要完成任务吗？完成后暂时不可取回！", "提示", {
-                                confirmButtonText: '确定',
-                                cancelButtonText: '取消',
-                                type: 'warning'
-                            }).then(() => {
-                                this.postRequest('/flow/task/complete?taskId=' + this.task.id + "&comment=" + this.comment + '&idea=AGREE').then((resp) => {
-                                    this.$emit("close");
-                                    this.$emit("refresh");
-                                });
+                this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(()=>{
+                    if(this.productAssembled.status=='CKLL'){
+                        if(this.outboundDetails.length>0){
+                            let flag = true;
+                            this.productAssembled.materials.forEach(material=>{
+                                if(material.notOutNumber>0) flag = false;
                             })
-                        }else {
-                            this.$message.error('有产品未出库');
+                            if(!flag){
+                                this.$message.error("有产品没有出库，不能完成");
+                            }else{
+                                this.doComplete(this.task.id,this.comment,"AGREE");
+                            }
+                        }else{
+                            this.$message.error("出库信息为空,等待仓库录入出库信息，暂时不能通过 ");
                         }
-                    }else if (this.productAssembled.status === 'CLRK') {
-                        if (this.productAssembled.notInNumber == 0) {
-                            this.$confirm("确定要完成任务吗？完成后暂时不可取回！","提示",{
-                                confirmButtonText: '确定',
-                                cancelButtonText: '取消',
-                                type: 'warning'
-                            }).then(()=>{
-                                this.postRequest('/flow/task/complete?taskId='+this.task.id+"&comment="+this.comment + '&idea=AGREE').then((resp)=>{
-                                    this.$emit("close");
-                                    this.$emit("refresh");
-                                });
+                    }else if(this.productAssembled.status=='CLRK'&&this.task.taskKey=="assemblededitprice"){
+                        if(this.inboundDetails.length>0){
+                            let flag = true;
+                            this.inboundDetails.forEach(detail=>{
+                                if(detail.price==undefined||detail.price==0){
+                                    flag = false
+                                }
                             })
-                        }else {
-                            this.$message.error('有产品未入库');
+                            if(!flag){
+                                this.$message.error("产品成本价有误，不能完成");
+                            }else{
+                                this.doComplete(this.task.id,this.comment,"AGREE");
+                            }
+                        }else{
+                            this.$message.error("入库信息为空,等待仓库录入入库信息，暂时不能通过 ");
                         }
+                    }else if(this.productAssembled.status=='CLRK'&&this.task.taskKey=="inbound"){
+                        if(this.inboundDetails.length>0){
+                            let flag = true;
+                            this.inboundDetails.forEach(detail=>{
+                                if(!detail.finished) flag = false;
+                            })
+                            if(!flag){
+                                this.$message.error("有产品没有入库，不能完成");
+                            }else{
+                                this.doComplete(this.task.id,this.comment,"AGREE");
+                            }
+                        }else{
+                            this.$message.error("入库信息不能为空");
+                        }
+                    }else{
+                        this.doComplete(this.task.id,this.comment,"AGREE");
                     }
-                }
+                })
             },
             claim(){
                 this.$confirm("签收后只能由签收人处理该任务，确定要签收吗？","提示",{
@@ -576,7 +620,7 @@
         },
         data(){
             return{
-                rejectVisible: false,
+                waitOutProducts:[],
                 disabled: false,
                 editVisible: false,
                 isEdit: false,

@@ -23,7 +23,7 @@
             </el-footer>
         </el-container>
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :append-to-body="true" :close-on-click-modal="false" width="40%">
-            <assembled-outbound-form :oldProductAssembled="oldProductAssembled" :oldData="oldData" :not-out-number="maxNumber" @cancel="cancel" @callback="callback"></assembled-outbound-form>
+            <assembled-outbound-form :warehouseId="warehouseId" :waitOutProducts="tempWaitOutProducts" :oldData="oldData"  @cancel="cancel" @callback="callback"></assembled-outbound-form>
         </el-dialog>
     </div>
 </template>
@@ -34,47 +34,59 @@
         name: "AssembledOutboundTable",
         components: {AssembledOutboundForm},
         props:{
-
-            oldProductAssembled: {
-                type: Object,
-                default: ()=>{}
+            assembledId:{
+                type:String,
+                default:''
+            },
+            warehouseId:{
+                type:String,
+                default:''
+            },
+            waitOutProducts:{
+                type:Array,
+                default:()=>[]
             }
         },
         watch: {
-            details: {
-                handler(val) {
-                    this.maxNumber = this.notOutNumber;
-                    this.details.forEach(detail => {
-                        this.maxNumber-=detail.number;
-                    })
+            waitOutProducts:{
+                handler(val){
+                    this.tempWaitOutProducts = JSON.parse(JSON.stringify(val));
+                    this.details = [];
                 },
-                deep: true,
+                deep:true,
                 immediate: true
-            },
-            oldProductAssembled: {
-                handler(val) {
-                    this.oldProductAssembled = JSON.parse(JSON.stringify(val));
-                    this.oldProductAssembled.materials.forEach((material, i) => {
-                        if (material.notOutNumber === 0) {
-                            this.oldProductAssembled.materials.splice(i, 1);
-                        }
-                    })
-                }
             }
         },
         data() {
             return {
+                tempWaitOutProducts:[],
                 details:[],
                 dialogVisible: false,
                 dialogTitle: '',
                 oldData:{
 
-                },
-                maxNumber:0,
+                }
             }
         },
         methods: {
             showAddView() {
+                let newWaitOutProducts = JSON.parse(JSON.stringify(this.waitOutProducts));
+                let tempWaitOutProducts = [];
+
+                for(let i =0;i<newWaitOutProducts.length;i++){
+                    let tempWaitOutProduct = newWaitOutProducts[i];
+                    for(let j=0;j<this.details.length;j++){
+                        if(tempWaitOutProduct.product.id==this.details[j].product.id){
+                            tempWaitOutProduct.notOutNumber-=this.details[j].number;
+                        }
+                    }
+                    if(tempWaitOutProduct.notOutNumber!=0){
+                        tempWaitOutProducts.push(tempWaitOutProduct);
+                    }
+
+                }
+                this.tempWaitOutProducts = tempWaitOutProducts;
+
                 this.dialogVisible = true;
                 this.dialogTitle = '货位设置';
                 this.oldData= {
@@ -89,7 +101,7 @@
             },
             saveOutbound() {
                 this.postNoEnCodeRequest('/erp/assembledMaterial/addOutbound', {
-                    foreignKey: this.oldProductAssembled.id,
+                    foreignKey: this.assembledId,
                     details: this.details
                 }).then(resp => {
                     if (resp && resp.data.status == "200") {
@@ -109,8 +121,11 @@
                 })
             },
             callback(data){
+
+
+
                 this.details.push(data);
-                this.oldProductAssembled.materials.forEach((item, i) => {
+               /* this.oldProductAssembled.materials.forEach((item, i) => {
                     if (item.product.id == data.product.id) {
                         if (item.notOutNumber === data.number){
                             this.oldProductAssembled.materials.splice(i, 1);
@@ -118,7 +133,7 @@
                             item.notOutNumber -= data.number;
                         }
                     }
-                });
+                });*/
                 this.cancel();
             },
             cancel(){

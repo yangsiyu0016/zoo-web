@@ -30,7 +30,7 @@
         props: {
             warehouseId:{
                 type:String,
-                default:()=>{}
+                default:''
             },
             waitInProducts:{
                 type:Array,

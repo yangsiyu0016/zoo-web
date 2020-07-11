@@ -7,7 +7,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="数量:" prop="number">
-                <el-input-number :min="0" :max="max" :precision="4" v-model="cdga.number"></el-input-number>
+                <el-input-number :min="0" :max="notInNumber" :precision="4" v-model="cdga.number"></el-input-number>
             </el-form-item>
             <el-form-item>
                 <el-button @click="saveCdga" type="primary">保存</el-button>
@@ -21,9 +21,13 @@
     export default {
         name: "AssembledInboundForm.vue",
         props:{
-            oldProductAssembled: {
-                type: Object,
-                default:()=>{}
+            warehouseId:{
+                type:String,
+                default:''
+            },
+            notInNumber:{
+              type:Number,
+              default:''
             },
             oldData:{
                 type:Object,
@@ -31,15 +35,6 @@
             }
         },
         watch: {
-            oldProductAssembled: {
-                handler(val) {
-                    this.assembled = JSON.parse(JSON.stringify(val));
-                    this.warehouseId = this.assembled.warehouse.id;
-                    this.max = this.assembled.notInNumber;
-                },
-                deep:true,
-                immediate:true
-            },
             oldData: {
                 handler(val) {
                     this.cdga = JSON.parse(JSON.stringify(val));
@@ -87,9 +82,6 @@
                 }
             };
             return {
-                warehouseId: '',
-                notInNumber:0,
-                assembled: {},
                 gas:[],
                 cdga:{
                     goodsAllocation:{},

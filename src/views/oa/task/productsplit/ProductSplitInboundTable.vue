@@ -25,6 +25,11 @@
                     <el-table-column prop="product.description" align="left" label="备注" :show-tooltip-when-overflow="true"></el-table-column>
                     <el-table-column prop="goodsAllocation.name" label="货位"></el-table-column>
                     <el-table-column prop="number" label="数量"></el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button @click="deleteDetail(scope.row)" icon="el-icon-delete" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </el-main>
             <el-footer style="text-align: center">
@@ -72,6 +77,13 @@
             }
         },
         methods:{
+            deleteDetail(row){
+                this.inboundDetails.some((item,i)=>{
+                    if (row==item){
+                        this.inboundDetails.splice(i,1);
+                    }
+                })
+            },
             saveInbound(){
                 let length = this.inboundDetails.length;
                 if(length>0){

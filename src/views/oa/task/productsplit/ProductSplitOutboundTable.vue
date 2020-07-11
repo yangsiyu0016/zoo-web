@@ -40,10 +40,6 @@
                 type:String,
                 default:''
             },
-            oldDetails:{
-                type:Array,
-                default:[]
-            },
             notOutNumber:{
                 type:Number,
                 default: 0

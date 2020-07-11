@@ -584,8 +584,9 @@
                 });
             },
             showAddOutBound() {
-                this.gaDialogTitle = '添加出库信息';
+
                 if (this.productSplit.notOutNumber > 0) {
+                    this.gaDialogTitle = '添加出库信息';
                     this.gaDialogVisible = true;
                 }else {
                     this.gaDialogVisible = false;

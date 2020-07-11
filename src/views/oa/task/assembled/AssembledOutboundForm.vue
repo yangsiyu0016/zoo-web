@@ -3,7 +3,7 @@
         <el-form ref="gaForm" :rules="rules" :model="cdga" label-width="120px" size="mini">
             <el-form-item label="产品名称：" prop="product.id">
                 <el-select v-model="cdga.product" value-key="id" @change="selectChange">
-                    <el-option v-for="item in assembled.materials" :key="item.product.id" :value="item.product" :label="item.product.name"></el-option>
+                    <el-option v-for="item in products" :key="item.id" :value="item" :label="item.name"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="货位："  prop="goodsAllocation.id">
@@ -12,7 +12,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="数量：" prop="number">
-                <el-input-number :min="0" :max="notOutNumber" :precision="4" v-model="cdga.number"></el-input-number>
+                <el-input-number :min="0" :max="max" :precision="4" v-model="cdga.number"></el-input-number>
             </el-form-item>
             <el-form-item>
                 <el-button @click="saveCdga" type="primary">保存</el-button>
@@ -26,9 +26,13 @@
     export default {
         name: "AssembledOutboundForm",
         props: {
-            oldProductAssembled: {
-                type: Object,
-                default: ()=>{}
+            warehouseId:{
+                type:String,
+                default:''
+            },
+            waitOutProducts:{
+                type:Array,
+                default:()=>[]
             },
             oldData:{
                 type:Object,
@@ -36,15 +40,13 @@
             }
         },
         watch: {
-            oldProductAssembled: {
-                handler(val) {
-                    this.assembled = JSON.parse(JSON.stringify(val));
-                    this.warehouseId = this.assembled.warehouse.id;
-                    /*this.assembled.materials.some(function (item, i) {
-                        if (item.notOutNumber === 0) {
-                            this.assembled.materials.splice (i,1);
-                        }
-                    })*/
+            waitOutProducts: {
+                handler(val){
+                    let products =[]
+                    val.forEach(item=>{
+                        products.push(item.product);
+                    })
+                    this.products = products;
                 },
                 deep:true,
                 immediate:true
@@ -74,8 +76,8 @@
                 }
             };
             return {
-                warehouseId: '',
-                notOutNumber:0,
+                products:[],
+                max:0,
                 gas:[],
                 cdga:{
                     goodsAllocation:{},
@@ -85,7 +87,6 @@
                         name: ''
                     }
                 },
-                assembled: {},
                 rules:{
                     'product.id': [{required:true,message:"选择产品",trigger:'blur'}],
                     'goodsAllocation.id':[{required:true,message:"选择货位",trigger:'blur'}],
@@ -97,14 +98,15 @@
             this.loadGas();
         },
         methods: {
-            selectChange(val) {
-                let num = 0;
-                this.assembled.materials.forEach(function (item, i) {
-                    if (item.product === val){
-                        num = item.notOutNumber;
-                    }
-                })
-                this.notOutNumber = num;
+            selectChange(product) {
+                if(product){
+                    this.waitOutProducts.forEach(item=>{
+                        if(item.product.id==product.id){
+                            this.cdga.number = item.notOutNumber;
+                            this.max = item.notInNumber;
+                        }
+                    })
+                }
             },
             loadGas(){
                 this.getRequest('/warehouse/ga/getGaByWarehouseId?warehouseId='+this.warehouseId).then((resp)=>{

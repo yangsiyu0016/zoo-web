@@ -22,7 +22,7 @@
             </el-footer>
         </el-container>
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :append-to-body="true" :close-on-click-modal="false" width="40%">
-            <assembled-inbound-form :oldData="oldData" :not-in-number="maxNumber" :oldProductAssembled="oldProductAssembled" @cancel="cancel" @callback="callback"></assembled-inbound-form>
+            <assembled-inbound-form :oldData="oldData" :not-in-number="maxNumber" :warehouseId="warehouseId"  @cancel="cancel" @callback="callback"></assembled-inbound-form>
         </el-dialog>
     </div>
 </template>
@@ -33,14 +33,31 @@
         name: "AssembledInboundTable",
         components: {AssembledInboundForm},
         props:{
-            oldProductAssembled: {
-                type: Object,
-                default: () => {}
+            warehouseId:{
+                type:String,
+                default:''
+            },
+            notInNumber:{
+                type:Number,
+                default:0
+            },
+            assembledId:{
+                type:String,
+                default:''
             }
         },
         watch: {
+            notInNumber:{
+                handler(val){
+                    this.maxNumber = val;
+                },
+                deep:true,
+                immediate: true
+            },
             details:{
+
                 handler(val) {
+                    this.maxNumber = this.notInNumber;
                     this.details.forEach(detail => {
                         this.maxNumber-=detail.number;
                     })
@@ -82,13 +99,13 @@
             },
             saveInbound() {
                 this.postNoEnCodeRequest('/erp/assembled/addInbound', {
-                    foreignKey: this.oldProductAssembled.id,
+                    foreignKey: this.assembledId,
                     details: this.details
                 }).then(resp => {
                     if (resp.data && resp.data.status == "200") {
                         this.$message.success(resp.data.msg);
                         this.details = [];
-                        this.$emit('callback')
+                        this.$emit('callback');
                     }else {
                         this.$message.error(resp.data.msg)
                     }
@@ -96,7 +113,6 @@
             },
             callback(data) {
                 this.details.push(data);
-                this.oldProductAssembled.notInNumber -= data.number;
                 this.cancel();
             },
             cancel(){

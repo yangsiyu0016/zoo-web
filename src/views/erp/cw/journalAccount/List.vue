@@ -84,6 +84,12 @@
                             <el-tag v-if="scope.row.type=='SPLITCKDELETE'" type="warning" size="mini" effect="dark">拆分出库删除</el-tag>
                             <el-tag v-if="scope.row.type=='SPLITRKDELETE'" type="warning" size="mini" effect="dark">拆分入库删除</el-tag>
                             <el-tag v-if="scope.row.type=='CFDESTROY'" type="danger" size="mini" effect="dark">拆分单作废</el-tag>
+                            <el-tag v-if="scope.row.type=='ASSEMBLEDCK'" type="success" size="mini" effect="dark">组装出库</el-tag>
+                            <el-tag v-if="scope.row.type=='ASSEMBLEDCKDELETE'" type="success" size="mini" effect="dark">组装出库删除</el-tag>
+                            <el-tag v-if="scope.row.type=='ZZCANCELRK'" type="success" size="mini" effect="dark">组装取消入库</el-tag>
+                            <el-tag v-if="scope.row.type=='ASSEMBLEDDESTROY'" type="success" size="mini" effect="dark">组装单作废</el-tag>
+                            <el-tag v-if="scope.row.type=='ASSEMBLEDRK'" type="success" size="mini" effect="dark">组装单入库</el-tag>
+                            <el-tag v-if="scope.row.type=='ASSEMBLEDRKDELETE'" type="success" size="mini" effect="dark">组装入库删除</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="orderCode" align="left"  label="单号" width="180" ></el-table-column>
