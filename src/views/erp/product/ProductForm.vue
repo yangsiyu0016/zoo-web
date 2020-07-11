@@ -31,9 +31,17 @@
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-form-item label="商品名称:" prop="name">
-                            <el-input v-model="product.name"></el-input>
-                        </el-form-item>
+                        <el-col :span="showMnemonic?12:24">
+                            <el-form-item label="商品名称:" prop="name">
+                                <el-input v-model="product.name" @change="getMnemonic"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="助记码:" prop="mnemonic" v-if="showMnemonic">
+                               <!-- <span>{{newMnemonic}}</span>-->
+                                <el-input v-model="newMnemonic"></el-input>
+                            </el-form-item>
+                        </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="12">
@@ -93,9 +101,10 @@
     import {selectBottomAction} from '@/components/select/SelectBottomAction.js';
     import BrandFrom from "@/views/erp/product/brand/BrandFrom";
     import UnitFrom from "@/views/erp/product/unit/UnitFrom";
+    import ChineseToPinYinAndGetFirst from "@/components/format/ChineseToPinYinAndGetFirst.js"
     export default {
         name: "ProductForm",
-        components: {UnitFrom, BrandFrom},
+        components: {UnitFrom, BrandFrom, ChineseToPinYinAndGetFirst},
         mixins:[selectBottomAction],
         props:{
             oldProduct:{
@@ -114,6 +123,13 @@
                 },
                 deep:true,
                 immediate:true
+            },
+            newMnemonic: {
+                handler(val) {
+                    this.product.mnemonic = val;
+                },
+                deep: true,
+                immediate: true
             }
         },
         mounted(){
@@ -123,6 +139,31 @@
         },
 
         methods:{
+            getMnemonic(val) {
+                this.showMnemonic = true;
+                this.inputPY();
+            },
+            //中文提取首字母
+            inputPY () {
+                let py = ChineseToPinYinAndGetFirst.chineseToPinYin(this.product.name);
+                let SX = '';
+                for (var i = 0; i < py.length; i++) {
+                    var c = py.charAt(i);
+                    if (/^[A-Z]+$/.test(c)) {
+                        SX += c;
+                    }
+                }
+                if(SX !== '') {
+                    this.newMnemonic = SX;
+                }else {
+                    this.newMnemonic = this.product.name;
+                }
+                let date = new  Date();
+                let time = date.getFullYear().toString() + (date.getMonth() + 1).toString() + date.getDate().toString() + date.getHours().toString() + date.getMinutes().toString() + date.getSeconds().toString();
+                let randomNum = Math.floor(Math.random() * 100);
+                this.newMnemonic = this.newMnemonic + time + randomNum;
+            },
+
             saveProduct(formName){
 
                 this.$refs[formName].validate(valid=>{
@@ -245,6 +286,8 @@
         },
         data(){
             return{
+                newMnemonic: '',
+                showMnemonic: false,
                 props:{
                     label:'name',
                     value:'id'
@@ -264,7 +307,8 @@
                     color:'',
                     puse:'',
                     imageUrl:'',
-                    description:''
+                    description:'',
+                    mnemonic: ''
                 },
                 params:new FormData(),//表单要提交的参数
                 rules:{

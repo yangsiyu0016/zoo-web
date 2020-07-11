@@ -1,7 +1,7 @@
 <template>
     <el-form :model="express" ref="expressForm" :rules="rules"  label-width="80px" label-position="right">
         <el-form-item label="名称" prop="name" >
-            <el-input size="mini" v-model="express.name" :disabled="isEdit"></el-input>
+            <el-input size="mini" v-model="express.name"></el-input>
         </el-form-item>
         <el-form-item label="类型" prop="type">
             <el-select size="mini" style="float: left" v-model="express.type">
