@@ -64,25 +64,8 @@
             saveMenu(){
                 this.$refs["menuForm"].validate((valid)=>{
                     if(valid){
-                        if(this.isEdit){
-                            this.putNoEnCodeRequest('/menu/update',this.menu).then(resp=>{
-                                if(resp&&resp.status=="200"){
-                                    this.$message.success("更新成功");
-                                    this.$emit("closeDialog");
-                                }else{
-                                    this.$message.error("更新失败");
-                                }
-                            })
-                        }else{
-                            this.postNoEnCodeRequest('/menu/addMenu',this.menu).then(resp=>{
-                                if(resp&&resp.status=="200"){
-                                    this.$message.success("保存成功");
-                                    this.$emit("closeDialog");
-                                }else{
-                                    this.$message.error("保存失败");
-                                }
-                            })
-                        }
+                        this.$emit("callback",this.menu);
+
 
                     }else{
                         return;
