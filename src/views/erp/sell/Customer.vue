@@ -49,18 +49,28 @@
         },
         data(){
             return{
+                keywords:'',
+                searchData:{
+                    customerName:'',
+                    linkman:'',
+                    owner:'',
+                    gtime:'',
+                    created:''
+                },
                 customers:[],
                 currentPage:1,
                 totalCount:-1,
                 dialogVisible:false,
                 dialogTitle:'',
                 oldCustomer:{},
-                isEdit:false
+                isEdit:false,
+                pageSize:10,
+                sort:'created',
+                order:'desc'
             }
         },
         methods:{
             deleteCustomer(customer){
-                console.log(customer.id);
                 this.$message.info("暂时不考虑实现删除")
             },
             editSuccess(){
@@ -71,7 +81,24 @@
                 this.dialogVisible = false;
             },
             loadCustomer(){
-                this.getRequest('/crm/customer/page?page='+this.currentPage+"&size=10").then((resp)=>{
+                let start_gtime='',end_gtime='',start_created='',end_created='';
+                if(this.searchData.gtime&&this.searchData.gtime.length>0){
+                    start_gtime = this.searchData.gtime[0];
+                    end_gtime = this.searchData.gtime[1];
+                }
+                if(this.searchData.created&&this.searchData.created.length>0){
+                    start_created = this.searchData.created[0];
+                    end_created = this.searchData.created[1];
+                }
+                this.getRequest('/crm/customer/page?page='+this.currentPage+"&size="+this.pageSize+
+                    "&keywords="+this.keywords+
+                    "&customerName="+this.searchData.customerName+
+                    "&linkman="+this.searchData.linkman+
+                    "&owner="+this.searchData.owner+
+                    "&start_gtime="+start_gtime+
+                    "&end_gtime="+end_gtime+
+                    "&start_created="+start_created+
+                    "&end_created="+end_created+"&sort="+this.sort+"&order="+this.order).then((resp)=>{
                     this.customers = resp.data.customers;
                     this.totalCount = resp.data.count;
                 })

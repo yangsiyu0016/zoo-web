@@ -554,12 +554,12 @@
                         if(this.inboundDetails.length>0){
                             let flag = true;
                             this.inboundDetails.forEach(detail=>{
-                                if(detail.price==undefined||detail.price==0){
+                                if(detail.price==undefined||detail.price==0||!detail.finished){
                                     flag = false
                                 }
                             })
                             if(!flag){
-                                this.$message.error("产品成本价有误，不能完成");
+                                this.$message.error("产品成本价有误或产品没有入库完成，不能完成");
                             }else{
                                 this.doComplete(this.task.id,this.comment,"AGREE");
                             }
@@ -572,7 +572,7 @@
                             this.inboundDetails.forEach(detail=>{
                                 if(!detail.finished) flag = false;
                             })
-                            if(!flag){
+                            if(!flag||this.productAssembled.notInNumber!=0){
                                 this.$message.error("有产品没有入库，不能完成");
                             }else{
                                 this.doComplete(this.task.id,this.comment,"AGREE");

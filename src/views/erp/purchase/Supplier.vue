@@ -65,9 +65,20 @@
         },
         data() {
             return {
+                keywords:'',
                 suppliers: [],
                 currentPage: 1,
                 totalCount: -1,
+                pageSize:10,
+                sort:'createTime',
+                order:'desc',
+                searchData:{
+                    supplierName:'',
+                    linkman:'',
+                    owner:'',
+                    gtime:'',
+                    createTime:''
+                },
                 dialogVisible: false,
                 dialogTitle: '',
                 oldSupplier: {},
@@ -97,7 +108,24 @@
             },
             //加载供货商管理页面数据
             loadSupplier() {
-                this.getRequest('/erp/supplier/page?page=' + this.currentPage + '&size=10').then((resp) => {
+                let start_gtime='',end_gtime='',start_createTime='',end_createTime='';
+                if(this.searchData.gtime&&this.searchData.gtime.length>0){
+                    start_gtime = this.searchData.gtime[0];
+                    end_gtime = this.searchData.gtime[1];
+                }
+                if(this.searchData.created&&this.searchData.created.length>0){
+                    start_createTime = this.searchData.createTime[0];
+                    end_createTime = this.searchData.createTime[1];
+                }
+                this.getRequest('/erp/supplier/page?page=' + this.currentPage + '&size='+this.pageSize+
+                    "&keywords="+this.keywords+
+                    "&supplierName="+this.searchData.supplierName+
+                    "&linkman="+this.searchData.linkman+
+                    "&owner="+this.searchData.owner+
+                    "&start_gtime="+start_gtime+
+                    "&end_gtime="+end_gtime+
+                    "&start_createTime="+start_createTime+
+                    "&end_createTime="+end_createTime+"&sort="+this.sort+"&order="+this.order).then((resp) => {
                     this.suppliers = resp.data.suppliers;
                     this.totalCount = resp.data.count;
                 })

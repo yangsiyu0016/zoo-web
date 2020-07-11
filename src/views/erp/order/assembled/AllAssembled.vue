@@ -163,7 +163,7 @@
             <product-assembled-form @close="closeDialog" @callback="callback" :isEdit="isEdit" :oldProductAssembled="oldProductAssembled"></product-assembled-form>
         </el-dialog>
         <el-dialog :title="detailsDialogTitle" :visible.sync="detailsDialogVisible" :close-on-click-modal="false" width="77%">
-            <product-assembled-details @callback="callbackDetails" @close="closeDetailDialog" :productAssembled="oldProductAssembled" :isReception="isReception"></product-assembled-details>
+            <product-assembled-details @callback="callbackDetails" @close="closeDetailDialog" :productAssembled="oldProductAssembled" :can-destroy="canDestroy" :isReception="isReception"></product-assembled-details>
         </el-dialog>
     </div>
 </template>
@@ -176,6 +176,7 @@
         components: {ProductAssembledDetails, ProductAssembledForm},
         data() {
             return {
+                canDestroy:true,
                 searchViewVisible:false,
                 productAssembleds:[],
                 loading:false,
