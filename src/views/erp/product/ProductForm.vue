@@ -38,7 +38,8 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="助记码:" prop="mnemonic" v-if="showMnemonic">
-                                <span>{{newMnemonic}}</span>
+                               <!-- <span>{{newMnemonic}}</span>-->
+                                <el-input v-model="newMnemonic"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
