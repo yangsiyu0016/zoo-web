@@ -47,6 +47,11 @@
                                             <span v-html="showData(scope.row.name)"></span>
                                         </template>
                                     </el-table-column>
+                                    <el-table-column prop="mnemonic" align="left"  label="助记码"  >
+                                        <template slot-scope="scope">
+                                            <span v-html="showData(scope.row.mnemonic)"></span>
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column prop="typeName" align="left" width="100" label="分类"></el-table-column>
                                     <el-table-column prop="productBrand.name" align="left"  label="品牌" ></el-table-column>
 
@@ -104,7 +109,7 @@
                 if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
                     return val.replace(this.keywords,'<font color="red">' + this.keywords + '</font>')
                 }else{
-                    return val;
+                    return val=='undefined'?'':val;
                 }
             },
             keywordsChange(val){
@@ -120,13 +125,14 @@
                 this.$emit("dblclick",row);
             },
             searchProduct(){
+                this.loading = true;
                 this.getRequest('/product/page?page='+this.currentPage+
-                    "&size="+this.pageSize+
-                    "&keywords="+this.keywords +
-                    "&typeId=" + this.typeId).then((resp)=>{
+                    "&size="+this.pageSize+"&sort="+this.sort+"&order="+this.order+
+                    "&keywords="+this.keywords+"&typeId="+this.typeId+"&brandId="+this.searchData.brandId+"&name="+this.searchData.name+"&code="+this.searchData.code+"&mnemonic="+this.searchData.mnemonic).then((resp)=>{
                     this.products = resp.data.products;
                     this.totalCount = resp.data.count;
-                    this.defaultExpandAll = false;
+                    //this.defaultExpandAll = false;
+                    this.loading = false;
                 })
             },
             selectProductByTypeId(data) {
@@ -144,10 +150,13 @@
         },
         data(){
             return{
+                loading:false,
                 keywords:'',
                 searchData:{
-                    productCode:'',
-                    productName:''
+                    name:'',
+                    code:'',
+                    brandId:'',
+                    mnemonic:''
                 },
                 typeId: '',
                 props:{
@@ -162,7 +171,9 @@
                 products:[],
                 currentPage:1,
                 totalCount:-1,
-                pageSize:10
+                pageSize:10,
+                sort:'ctime',
+                order:'desc'
             }
         }
     }
