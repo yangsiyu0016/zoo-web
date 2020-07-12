@@ -31,15 +31,15 @@
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="showMnemonic?12:24">
+                        <el-col :span="12">
                             <el-form-item label="商品名称:" prop="name">
                                 <el-input v-model="product.name" @change="getMnemonic"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="12">
-                            <el-form-item label="助记码:" prop="mnemonic" v-if="showMnemonic">
+                            <el-form-item label="助记码:" prop="mnemonic" >
                                <!-- <span>{{newMnemonic}}</span>-->
-                                <el-input v-model="newMnemonic"></el-input>
+                                <el-input v-model="product.mnemonic"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -84,8 +84,8 @@
             </el-row>
 
             <el-form-item>
-                <el-button type="info" @click="cancel">取消</el-button>
-                <el-button type="primary" @click="saveProduct('productForm')">保存</el-button>
+                <el-button type="info" @click="cancel" icon="el-icon-close">取消</el-button>
+                <el-button type="primary" @click="saveProduct('productForm')" icon="el-icon-check">保存</el-button>
             </el-form-item>
         </el-form>
         <el-dialog :visible.sync="brandEditDialogVisible" :title="brandEditDialogTitle" :close-on-click-modal="false" :append-to-body="true">
@@ -120,16 +120,10 @@
             oldProduct:{
                 handler(val){
                     this.product = JSON.parse(JSON.stringify(val));
+                    console.log(this.product);
                 },
                 deep:true,
                 immediate:true
-            },
-            newMnemonic: {
-                handler(val) {
-                    this.product.mnemonic = val;
-                },
-                deep: true,
-                immediate: true
             }
         },
         mounted(){
@@ -140,7 +134,6 @@
 
         methods:{
             getMnemonic(val) {
-                this.showMnemonic = true;
                 this.inputPY();
             },
             //中文提取首字母
@@ -154,14 +147,14 @@
                     }
                 }
                 if(SX !== '') {
-                    this.newMnemonic = SX;
+                    this.product.mnemonic = SX;
                 }else {
-                    this.newMnemonic = this.product.name;
+                    this.product.mnemonic = this.product.name;
                 }
-                let date = new  Date();
-                let time = date.getFullYear().toString() + (date.getMonth() + 1).toString() + date.getDate().toString() + date.getHours().toString() + date.getMinutes().toString() + date.getSeconds().toString();
-                let randomNum = Math.floor(Math.random() * 100);
-                this.newMnemonic = this.newMnemonic + time + randomNum;
+               // let date = new  Date();
+                //let time = date.getFullYear().toString() + (date.getMonth() + 1).toString() + date.getDate().toString() + date.getHours().toString() + date.getMinutes().toString() + date.getSeconds().toString();
+                //let randomNum = Math.floor(Math.random() * 100);
+                //this.promnemonic = this.mnemonic;
             },
 
             saveProduct(formName){
@@ -192,26 +185,6 @@
                                 }
                             })
                         }
-
-                        /*if(this.isEdit){
-                            this.postNoEnCodeRequest('/product/update',this.product).then(resp=>{
-                                if(resp&&resp.data.status=='200'){
-                                    this.$message.success("更新成功");
-                                    this.$emit("callback");
-                                }else{
-                                    this.$message.error(resp.data.msg);
-                                }
-                            })
-                        }else{
-                            this.postNoEnCodeRequest('/product/add',this.product).then((resp)=>{
-                                if(resp&&resp.data.status=='200'){
-                                    this.$message.success("添加成功");
-                                    this.$emit("callback");
-                                }else{
-                                    this.$message.error(resp.data.msg);
-                                }
-                            })
-                        }*/
 
                     }else{
                         return false;
@@ -287,7 +260,6 @@
         data(){
             return{
                 newMnemonic: '',
-                showMnemonic: false,
                 props:{
                     label:'name',
                     value:'id'
