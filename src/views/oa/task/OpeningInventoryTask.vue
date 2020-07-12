@@ -24,7 +24,8 @@
                     </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
-                            <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                            <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="fa fa-eye">查看</el-button>
+                            <el-button @click="showFLowImage(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="fa fa-eye">查看流程图</el-button>
                         </template>
                     </el-table-column>
                     <el-table-column  prop="code" align="left"  label="单号">
@@ -62,6 +63,9 @@
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" width="77%">
             <opening-inventory-task-details :task="currentTask" @close="closeWin" @refresh="refresh" :rejectVisible="rejectVisible" :canEdit="canEdit"></opening-inventory-task-details>
         </el-dialog>
+        <el-dialog :visible.sync="imageDialogVisible" :title="imageDialogTitle" :close-on-click-modal="false" width="77%">
+            <el-image :src="imageSrc"></el-image>
+        </el-dialog>
     </div>
 </template>
 
@@ -74,6 +78,15 @@
             this.loadTask();
         },
         methods:{
+            showFLowImage(row){
+                this.getBlobRequest('/flow/image/getFlowImg?taskId='+row.id).then((resp)=>{
+                    let blob = new Blob([resp.data]);
+                    let url = window.URL.createObjectURL(blob);
+                    this.imageSrc = url;
+                    this.imageDialogTitle = row.name;
+                    this.imageDialogVisible = true;
+                })
+            },
             showData(val){
                 val = val+'';
                 if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
@@ -180,7 +193,10 @@
 
                 },
                 rejectVisible: false,
-                canEdit: false
+                canEdit: false,
+                imageSrc:'',
+                imageDialogVisible:false,
+                imageDialogTitle:''
             }
         }
     }

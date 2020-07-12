@@ -66,6 +66,7 @@
                         :data="oi.annexs"
                         size="mini"
                         style="width:100%">
+                    <el-table-column type="index"></el-table-column>
                     <el-table-column label="附件名称" prop="title" ></el-table-column>
                     <el-table-column label="附件格式" prop="suffix" ></el-table-column>
                     <el-table-column label="大小" prop="size" ></el-table-column>
@@ -75,7 +76,7 @@
                     <el-table-column
                             label="操作" width="120">
                         <template slot-scope="scope">
-                            <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                            <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-download">下载</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -104,13 +105,13 @@
             <el-input type="textarea" v-model="comment"></el-input>
         </el-card>
         <el-card shadow="hover">
-            <el-button v-show="handleVisible && oi.status !== 'REJECT'" @click="handle" type="primary" size="mini">通过</el-button>
-            <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini">驳回</el-button>
-            <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
-            <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
-            <el-button v-show="oi.status=='REJECT'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
-            <el-button v-show="oi.status=='REJECT'" type="primary" size="mini" @click="destory">作废</el-button>
-            <el-button @click="close" type="info" size="mini">关闭</el-button>
+            <el-button v-show="handleVisible && oi.status !== 'REJECT'" @click="handle" type="primary" size="mini" icon="el-icon-check">通过</el-button>
+            <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini" icon="el-icon-back">驳回</el-button>
+            <el-button v-show="claimVisible" @click="claim" type="primary" size="mini" icon="el-icon-thumb">签收</el-button>
+            <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
+            <el-button v-show="oi.status=='REJECT'" type="primary" size="mini" @click="reSubmit" icon="el-icon-check">重新提交</el-button>
+            <el-button v-show="oi.status=='REJECT'" type="primary" size="mini" @click="destory" icon="el-icon-delete-solid">作废</el-button>
+            <el-button @click="close" type="info" size="mini" icon="el-icon-close">关闭</el-button>
         </el-card>
         <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" :close-on-click-modal="false" :append-to-body="true" width="77%">
             <opening-inventory-form :isEdit="isEdit" :oldOi="oldOi" @close="closeWin" @callback="callback"></opening-inventory-form>

@@ -71,10 +71,10 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="操作">
+                    <el-table-column label="操作" width="200px">
                         <template slot-scope="scope">
-                            <el-button @click="showUpdateProductView(scope.row)"  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button type="danger" size="mini" @click="deleteProduct(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            <el-button @click="showUpdateProductView(scope.row)"  type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-edit">编辑</el-button>
+                            <el-button type="danger" size="mini" @click="deleteProduct(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">删除</el-button>
                         </template>
                     </el-table-column>
                     <el-table-column prop="imageUrl" label="图片">
@@ -106,7 +106,7 @@
                     <el-table-column prop="puse" align="left"  label="用途"></el-table-column>
 
                     <el-table-column prop="description" align="left" label="备注"  :show-overflow-tooltip='true' ></el-table-column>
-                    <el-table-column prop="ctime" label="创建时间" sortable></el-table-column>
+                    <el-table-column prop="ctime" label="创建时间" sortable width="200px"></el-table-column>
                     <el-table-column prop="hasBom" label="BOM">
                         <template slot-scope="scope">
                             <el-tag v-if="!scope.row.hasBom" type="info">未做BOM</el-tag>

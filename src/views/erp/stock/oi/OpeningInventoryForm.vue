@@ -67,7 +67,7 @@
                                 <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
                             </template>
                         </el-table-column>
-                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" width="120px"></el-table-column>
                         <el-table-column label="产品名称" prop="product.name" ></el-table-column>
                         <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
                         <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
@@ -80,10 +80,10 @@
                         <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
                         <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
-                        <el-table-column label="操作">
+                        <el-table-column label="操作" width="200px">
                             <template slot-scope="scope">
-                                <el-button @click="showEditProductView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                                <el-button @click="deleteDetail(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button @click="showEditProductView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-edit">编辑</el-button>
+                                <el-button @click="deleteDetail(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">删除</el-button>
                             </template>
                         </el-table-column>
 
@@ -103,25 +103,26 @@
                             :data="oi.annexs"
                             size="mini"
                             style="width:100%">
+                        <el-table-column type="index"></el-table-column>
                         <el-table-column label="附件名称" prop="title" ></el-table-column>
                         <el-table-column label="格式" prop="suffix" ></el-table-column>
                         <el-table-column label="大小" prop="size" ></el-table-column>
                         <el-table-column label="上传时间" prop="utime" ></el-table-column>
 
                         <el-table-column
-                                label="操作" width="120">
+                                label="操作" width="200">
                             <template slot-scope="scope">
-                                <el-button type="primary" v-show="isEdit"  @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
-                                <el-button type="danger"  @click="deleteAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button type="primary" v-show="isEdit"  @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-download">下载</el-button>
+                                <el-button type="danger"  @click="deleteAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
                 </div>
             </el-card>
             <el-card shadow="hover">
-                <el-button @click="saveOi" size="mini" type="primary">保存</el-button>
+                <el-button @click="saveOi" size="mini" type="primary" icon="el-icon-check">保存</el-button>
                <!-- <el-button @click="saveAndStart" size="mini" type="warning" v-show="oi.status !== 'REJECT'">保存并启动流程</el-button>-->
-                <el-button @click="cancel" size="mini" type="info">取消</el-button>
+                <el-button @click="cancel" size="mini" type="info" icon="el-icon-close">取消</el-button>
             </el-card>
         </el-form>
         <el-dialog :visible.sync="detailDialogVisible" :title="detailDialogTitle" :close-on-click-modal="false" :append-to-body="true">

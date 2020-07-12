@@ -7,20 +7,23 @@
                     <el-button type="primary" size="mini" icon="el-icon-plus" @click="showAddOiView">新增</el-button>
                 </div>
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                    <el-input size="mini" placeholder="通过单号、产品编码、产品名称搜索，记得回车呦..."
-                              clearable
-                              style="width: 350px;margin: 0px;padding: 0px;"
-                              prefix-icon="el-icon-search"
-                              :disabled="searchViewVisible"
-                              @keyup.enter.native="searchOi"
-                              v-model="keywords"
-                              @change="keywordsChange"
-                    ></el-input>
-                    <el-button @click="searchOi" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
-                    <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
-                               @click="showSearchView">
-                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
-                    </el-button>
+                    <el-form @submit.native.prevent>
+                        <el-input size="mini" placeholder="通过单号、产品编码、产品名称搜索，记得回车呦..."
+                                  clearable
+                                  style="width: 350px;margin: 0px;padding: 0px;"
+                                  prefix-icon="el-icon-search"
+                                  :disabled="searchViewVisible"
+
+                                  @keyup.enter.native="searchOi"
+                                  v-model="keywords"
+                                  @change="keywordsChange"
+                        ></el-input>
+                        <el-button @click="searchOi" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                        <el-button  type="primary" size="mini" style="margin-left: 5px"
+                                   @click="showSearchView">
+                            <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
+                        </el-button>
+                    </el-form>
                 </div>
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
@@ -91,19 +94,19 @@
                         </el-row>
                     </div>
                 </transition>
-                <el-table @sort-change="sortChange" v-loading="loading" :data="ois" size="mini" @row-dblclick="dblclick">
+                <el-table @sort-change="sortChange" v-loading="loading" :data="ois" size="mini" @row-dblclick="dblclick"  highlight-current-row >
                     <el-table-column type="index" align="left" width="80">
                         <template scope="scope">
                             <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
                         </template>
 
                     </el-table-column>
-                    <el-table-column label="操作">
-                        <template slot-scope="scope">
-                            <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" @click="showEditOiView(scope.row)" size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteOi(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                    <el-table-column label="操作" width="260px">
+                        <template slot-scope="scope" >
+                            <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px" icon="fa fa-eye">查看</el-button>
+                            <el-button icon="el-icon-video-play" v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
+                            <el-button icon="el-icon-edit" v-show="scope.row.status=='WTJ'" @click="showEditOiView(scope.row)" size="mini" type="primary" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
+                            <el-button icon="el-icon-close" v-show="scope.row.status=='WTJ'||scope.row.status=='DESTROY'" @click="deleteOi(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
                         </template>
                     </el-table-column>
 

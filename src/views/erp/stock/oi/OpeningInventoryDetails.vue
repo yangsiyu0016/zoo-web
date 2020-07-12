@@ -66,6 +66,7 @@
                         :data="oi.annexs"
                         size="mini"
                         style="width:100%">
+                    <el-table-column type="index"></el-table-column>
                     <el-table-column label="附件名称" prop="title" ></el-table-column>
                     <el-table-column label="格式" prop="suffix" ></el-table-column>
                     <el-table-column label="大小" prop="size" ></el-table-column>
@@ -74,7 +75,7 @@
                     <el-table-column
                             label="操作" width="120">
                         <template slot-scope="scope">
-                            <el-button type="primary"   @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                            <el-button type="primary"   @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-download">下载</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -93,14 +94,14 @@
                     <el-table-column label="办理人" prop="assigneeName"></el-table-column>
                     <el-table-column label="开始时间" prop="stime"></el-table-column>
                     <el-table-column label="结束时间" prop="etime"></el-table-column>
-                    <el-table-column label="用时" prop="duration"></el-table-column>
+                    <el-table-column label="用时" prop="duration" :formatter="getDuration"></el-table-column>
                 </el-table>
             </div>
         </el-card>
         <el-card>
-            <el-button @click="resetOiDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
-            <el-button @click="destroyOi" v-show="canDestroy&&currentOi.status!='DESTROY'"  size="mini" type="danger" >作废</el-button>
-            <el-button @click="close" size="mini" type="info">关闭</el-button>
+            <el-button @click="resetOiDetail" size="mini" type="danger" v-show="isReception" icon="el-icon-back">取回</el-button>
+            <el-button @click="destroyOi" v-show="canDestroy&&currentOi.status!='DESTROY'"  size="mini" type="danger" icon="el-icon-delete-solid" >作废</el-button>
+            <el-button @click="close" size="mini" type="info" icon="el-icon-close">关闭</el-button>
         </el-card>
         <div v-show="false">
             <vue-easy-print table-show ref="easyPrint" style="width: 100%">
@@ -115,9 +116,12 @@
 <script>
     import vueEasyPrint from "vue-easy-print";
     import OpeningInventoryPrintFormwork from "@/views/erp/order/OpeningInventoryPrintFormwork";
+    import {DateTimeFormatUtil} from "@/components/format/DateTimeFormaterUtil";
+
     export default {
         name: "OpeningInventoryDetails",
         components:{vueEasyPrint,OpeningInventoryPrintFormwork },
+        mixins:[DateTimeFormatUtil],
         props:{
             oi:{
                 type:Object,
@@ -145,6 +149,9 @@
           this.loadHistory();
         },
         methods:{
+            getDuration(row){
+                return this.getDurationTime(row.duration);
+            },
             downloadAnnex(row) {
                 window.open(row.url + "?fileName=" + row.fileName);
             },
