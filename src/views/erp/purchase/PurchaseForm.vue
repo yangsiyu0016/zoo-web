@@ -368,6 +368,7 @@
                 this.accounts = row.supplierAccounts;
                 this.purchase.supplier = row;
                 this.supplierDialogVisible = false;
+                this.loadAccounts(row.id);
             },
             //close
             closeWin(){

@@ -75,18 +75,18 @@
                                 <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
                             </template>
                         </el-table-column>
-                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品编号" prop="product.code"  width="150px"></el-table-column>
                         <el-table-column label="产品名称" prop="product.name" ></el-table-column>
                         <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
                         <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
 
-                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.spec" align="left" label="规格" width="250px"></el-table-column>
                         <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                         <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
                         <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
-                        <el-table-column prop="warehouse.name" label="入库仓库"></el-table-column>
+                        <el-table-column prop="warehouse.name" label="入库仓库" width="120px"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
                         <el-table-column label="未入库数量" prop="notInNumber"></el-table-column>
@@ -160,6 +160,7 @@
                             :data="purchase.annexs"
                             size="mini"
                             style="width:100%">
+                        <el-table-column type="index"></el-table-column>
                         <el-table-column label="附件名称" prop="title" ></el-table-column>
                         <el-table-column label="附件格式" prop="suffix" ></el-table-column>
 
@@ -170,7 +171,7 @@
                         <el-table-column
                                 label="操作" width="120">
                             <template slot-scope="scope">
-                                <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                                <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-download">下载</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -188,7 +189,7 @@
                         <el-table-column label="办理人" prop="assigneeName"></el-table-column>
                         <el-table-column label="开始时间" prop="stime"></el-table-column>
                         <el-table-column label="结束时间" prop="etime"></el-table-column>
-                        <el-table-column label="用时" prop="duration"></el-table-column>
+                        <el-table-column label="用时" prop="duration" :formatter="getDuration"></el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -199,14 +200,14 @@
                 <el-input type="textarea" v-model="comment"></el-input>
             </el-card>
             <el-card shadow="hover">
-                <el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'" size="mini" @click="addLogistics" type="primary">添加物流信息</el-button>
-                <el-button v-show="handleVisible && purchase.status !== 'REJECT'" @click="handle" type="primary" size="mini">通过</el-button>
-                <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini">驳回</el-button>
-                <el-button v-show="claimVisible" @click="claim" type="primary" size="mini">签收</el-button>
-                <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini">编辑</el-button>
-                <el-button v-show="purchase.status=='REJECT'" type="primary" size="mini" @click="reSubmit">重新提交</el-button>
-                <el-button v-show="purchase.status=='REJECT'" type="primary" size="mini" @click="destory">作废</el-button>
-                <el-button @click="close" type="info" size="mini">关闭</el-button>
+                <el-button v-show="handleVisible&&task.taskKey==='purchasecgnq'" size="mini" @click="addLogistics" type="primary" icon="el-icon-plus">添加物流信息</el-button>
+                <el-button v-show="handleVisible && purchase.status !== 'REJECT'" @click="handle" type="primary" size="mini" icon="el-icon-check">通过</el-button>
+                <el-button v-show="rejectVisible || rejectFlag" @click="reject" type="primary" size="mini" icon="el-icon-back">驳回</el-button>
+                <el-button v-show="claimVisible" @click="claim" type="primary" size="mini" icon="el-icon-thumb">签收</el-button>
+                <el-button v-show="editVisible || canEdit" @click="edit" type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
+                <el-button v-show="purchase.status=='REJECT'" type="primary" size="mini" @click="reSubmit" icon="el-icon-check">重新提交</el-button>
+                <el-button v-show="purchase.status=='REJECT'" type="primary" size="mini" @click="destory" icon="el-icon-delete-solid">作废</el-button>
+                <el-button @click="close" type="info" size="mini" icon="el-icon-close">关闭</el-button>
             </el-card>
         </el-form>
         <el-dialog :visible.sync="logisticsDialogVisible" :title="logisticsDialogTitle" :close-on-click-modal="false" :append-to-body="true" width="77%">
@@ -234,9 +235,11 @@
     import PurchaseForm from "@/views/erp/purchase/PurchaseForm";
     import PurchasePrintFormwork from "@/views/erp/order/PurchasePrintFormwork";
     import vueEasyPrint from "vue-easy-print";
+    import {DateTimeFormatUtil} from "@/components/format/DateTimeFormaterUtil";
     export default {
         name: "PurchaseTaskDetails",
         components: {vueEasyPrint,PurchasePrintFormwork, InboundSet, PurchaseLogisticsForm, PurchaseForm},
+        mixins:[DateTimeFormatUtil],
         props:{
             task:{
                 type:Object,
@@ -278,6 +281,9 @@
             }
         },
         methods:{
+            getDuration(row){
+                return this.getDurationTime(row.duration);
+            },
             //打印
             print(){
 
