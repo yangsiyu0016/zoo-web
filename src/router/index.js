@@ -243,6 +243,11 @@ export const asyncRouterMap = [{
             component:()=>import("@/views/erp/product/spec/index"),
             meta:{title:"规格参数"}
         },{
+            path:'unit',
+            name:'unit',
+            component:()=>import("@/views/erp/product/unit/index"),
+            meta:{title:"单位管理"}
+        },{
             path:'bom',
             name:'bom',
             component:()=>import("@/views/erp/product/bom/List"),

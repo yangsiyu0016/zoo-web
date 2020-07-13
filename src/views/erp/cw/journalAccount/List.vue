@@ -4,20 +4,22 @@
             <div style="display: inline">
             </div>
             <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                <el-input size="mini" placeholder="通过产品编码、产品名称搜索，记得回车呦..."
-                          clearable
-                          style="width: 350px;margin: 0px;padding: 0px;"
-                          prefix-icon="el-icon-search"
-                          :disabled="searchViewVisible"
-                          @keyup.enter.native="searchJa"
-                          v-model="keywords"
-                          @change="keywordsChange"
-                ></el-input>
-                <el-button @click="searchJa" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
-                <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
-                           @click="showSearchView">
-                    <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
-                </el-button>
+                <form @submit.native.prevent>
+                    <el-input size="mini" placeholder="通过产品编码、产品名称搜索，记得回车呦..."
+                              clearable
+                              style="width: 350px;margin: 0px;padding: 0px;"
+                              prefix-icon="el-icon-search"
+                              :disabled="searchViewVisible"
+                              @keyup.enter.native="searchJa"
+                              v-model="keywords"
+                              @change="keywordsChange"
+                    ></el-input>
+                    <el-button @click="searchJa" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                    <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
+                               @click="showSearchView">
+                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
+                    </el-button>
+                </form>
             </div>
         </el-header>
         <el-container>
@@ -64,7 +66,10 @@
                         </el-row>
                     </div>
                 </transition>
-                <el-table @sort-change="sortChange" :data="journalAccounts" v-loading="tableLoading" size="mini" style="width:100%">
+                <div class="export" style="float: right">
+                    <el-button @click="exportExcel" style="margin-top: 2px;" size="mini" type="primary" icon="el-icon-download">导出</el-button>
+                </div>
+                <el-table @sort-change="sortChange" :data="journalAccounts" tooltip-effect="dark" v-loading="tableLoading" size="mini" style="width:100%">
                     <el-table-column type="index" width="80">
                         <template scope="scope">
                             <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
@@ -136,15 +141,76 @@
                 </div>
             </el-main>
         </el-container>
+        <el-table :data="exports" tooltip-effect="dark" size="mini" ref="multipleTable" id="table" style="width:100%" v-show="false">
+            <el-table-column type="index" width="80">
+                <template scope="scope">
+                    <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column prop="type" align="left"  label="类型" width="120px">
+                <template slot-scope="scope">
+                    <el-tag v-if="scope.row.type=='QC'" type="info" size="mini" effect="dark">期初</el-tag>
+                    <el-tag v-if="scope.row.type=='PURCHASE'"  color="#7b1fa2" size="mini" effect="dark">采购</el-tag>
+                    <el-tag v-if="scope.row.type=='SELL'" type="warning" size="mini" effect="dark">销售</el-tag>
+                    <el-tag v-if="scope.row.type=='LOSSES'" type="success" size="mini" effect="dark">盘亏</el-tag>
+                    <el-tag v-if="scope.row.type=='QCDESTROY'" type="info" size="mini" effect="dark">期初作废</el-tag>
+                    <el-tag v-if="scope.row.type=='PURCHASEDESTROY'" type="info" size="mini" effect="dark">采购作废</el-tag>
+                    <el-tag v-if="scope.row.type=='SPLITCK'" type="warning" size="mini" effect="dark">拆分出库</el-tag>
+                    <el-tag v-if="scope.row.type=='SPLITRK'" type="warning" size="mini" effect="dark">拆分入库</el-tag>
+                    <el-tag v-if="scope.row.type=='CFCANCELRK'" type="warning" size="mini" effect="dark">拆分取消入库</el-tag>
+                    <el-tag v-if="scope.row.type=='SPLITCKDELETE'" type="warning" size="mini" effect="dark">拆分出库删除</el-tag>
+                    <el-tag v-if="scope.row.type=='SPLITRKDELETE'" type="warning" size="mini" effect="dark">拆分入库删除</el-tag>
+                    <el-tag v-if="scope.row.type=='CFDESTROY'" type="danger" size="mini" effect="dark">拆分单作废</el-tag>
+                    <el-tag v-if="scope.row.type=='ASSEMBLEDCK'" type="success" size="mini" effect="dark">组装出库</el-tag>
+                    <el-tag v-if="scope.row.type=='ASSEMBLEDCKDELETE'" type="success" size="mini" effect="dark">组装出库删除</el-tag>
+                    <el-tag v-if="scope.row.type=='ZZCANCELRK'" type="success" size="mini" effect="dark">组装取消入库</el-tag>
+                    <el-tag v-if="scope.row.type=='ASSEMBLEDDESTROY'" type="success" size="mini" effect="dark">组装单作废</el-tag>
+                    <el-tag v-if="scope.row.type=='ASSEMBLEDRK'" type="success" size="mini" effect="dark">组装单入库</el-tag>
+                    <el-tag v-if="scope.row.type=='ASSEMBLEDRKDELETE'" type="success" size="mini" effect="dark">组装入库删除</el-tag>
+                    <el-tag v-if="scope.row.type=='HJ'" type="success" size="mini" effect="dark">合计</el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column prop="orderCode" align="left"  label="单号" width="180" ></el-table-column>
+            <el-table-column prop="stock.warehouse.name" align="left" label="仓库"></el-table-column>
+            <el-table-column prop="stock.product.imageUrl" label="图片">
+                <template slot-scope="scope">
+                    <el-image v-if="scope.row.stock.product.imageUrl" :src="scope.row.stock.product.imageUrl" :preview-src-list="[scope.row.stock.product.imageUrl]"></el-image>
+                </template>
+            </el-table-column>
+            <el-table-column label="产品编号" prop="stock.product.code" width="180"></el-table-column>
+            <el-table-column label="产品名称" prop="stock.product.name" ></el-table-column>
+            <el-table-column prop="stock.product.typeName" align="left" width="100" label="分类"></el-table-column>
+            <el-table-column prop="stock.product.productBrand.name" align="left"  label="品牌" ></el-table-column>
 
+            <el-table-column prop="stock.product.spec" align="left" label="规格"></el-table-column>
+            <el-table-column prop="stock.product.unit.name" align="left" label="单位"></el-table-column>
+            <el-table-column prop="stock.product.weight" align="left" label="重量"></el-table-column>
+            <el-table-column prop="stock.product.color" align="left" label="颜色"></el-table-column>
+            <el-table-column prop="stock.product.puse" align="left" label="用途"></el-table-column>
+            <el-table-column prop="stock.product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
+            <el-table-column prop="rkNumber" align="left" label="入库数量"></el-table-column>
+            <el-table-column prop="rkPrice" align="left" label="入库单价"></el-table-column>
+            <el-table-column prop="rkTotalMoney" align="left" label="入库总额"></el-table-column>
+            <el-table-column prop="ckNumber" align="left" label="出库数量"></el-table-column>
+            <el-table-column prop="ckPrice" align="left" label="出库单价"></el-table-column>
+            <el-table-column prop="ckTotalMoney" align="left" label="出库总额"></el-table-column>
+            <el-table-column prop="totalNumber" align="left" label="结存数量"></el-table-column>
+            <el-table-column prop="costPrice" align="left" label="结存单价"></el-table-column>
+            <el-table-column prop="totalMoney" align="left" label="结存总额"></el-table-column>
+            <el-table-column prop="ctime" align="left" label="创建时间" width="300" sortable></el-table-column>
+        </el-table>
     </div>
 </template>
 
 <script>
+    import FileSaver from 'file-saver'
+    import XLSX from 'xlsx'
     export default {
         name: "List",
+        components:{FileSaver, XLSX},
         data(){
             return{
+                exports:[],
                 warehouses:[],
                 keywords:'',
                 searchViewVisible:false,
@@ -197,8 +263,75 @@
         mounted() {
             this.loadData();
             this.loadWarehouse();
+            this.getAccountsOfExport();
         },
         methods:{
+            getAccountsOfExport() {
+                let start_ctime='',
+                    end_ctime='';
+
+                if(this.searchData.ctime&&this.searchData.ctime.length>0){
+                    start_ctime = this.searchData.ctime[0];
+                    end_ctime = this.searchData.ctime[1];
+                }
+                this.getRequest("/erp/ja/getAccountsOfExport?keywords=" + this.keywords +
+                "&sort="+this.sort+
+                "&order="+this.order+
+                "&code="+this.searchData.code+
+                "&productCode="+this.searchData.productCode+
+                "&productName="+this.searchData.productName+
+                "&warehouseId="+this.searchData.warehouseId+
+                "&start_ctime="+start_ctime+"&end_ctime="+end_ctime).then(resp => {
+                    if (resp && resp.data) {
+                        this.exports = resp.data;
+                    }
+                })
+            },
+            exportExcel() {
+                // 导出的内容只做解析，不进行格式转换
+                let xlsxParam = { raw: true }
+                let wb = null
+                let tableName = ''
+                let randomString = this.randomString(6)
+                wb = XLSX.utils.table_to_book(
+                    document.querySelector('#table'),
+                    xlsxParam
+                )
+                // 这里的randomString非必须，只是生成一串随机码
+                // 便于下载多个文件而不重名
+                tableName = `库存变动明细-${randomString}.xlsx`
+
+                /* get binary string as output */
+                let wbout = XLSX.write(wb, {
+                    bookType: 'xlsx',
+                    bookSST: true,
+                    type: 'array'
+                })
+                try {
+                    // eslint-disable-next-line no-undef
+                    FileSaver.saveAs(new Blob([wbout], {
+                        type: 'application/octet-stream'
+                    }), tableName)
+                } catch (e) {
+                    if (typeof console !== 'undefined') {
+                        console.log(e, wbout)
+                    }
+                }
+                this.$message.success('导出成功')
+                return wbout
+            },
+            // 生成len位随机码
+            randomString (len) {
+                len = len || 32
+                // 屏蔽了容易让人混淆的字符，比如数字1和字母l,，数字0和字母o……
+                var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+                var maxPos = chars.length
+                var str = ''
+                for (let i = 0; i < len; i++) {
+                    str += chars.charAt(Math.floor(Math.random() * maxPos))
+                }
+                return str
+            },
             sortChange(column){
                 this.sort=column.prop;
                 if(column.order==='descending'){
@@ -207,11 +340,12 @@
                     this.order = "asc";
                 }
                 this.loadData();
+                this.getAccountsOfExport();
             },
             cancelSearch(){
                 this.searchViewVisible = false;
                 this.emptySearchData();
-                this.loadData()
+                this.loadData();
             },
             showSearchView(){
                 this.searchViewVisible = !this.searchViewVisible;
@@ -232,10 +366,12 @@
             keywordsChange(val){
                 if(val==''){
                     this.loadData();
+                    this.getAccountsOfExport();
                 }
             },
             searchJa(){
                 this.loadData();
+                this.getAccountsOfExport();
             },
             sizeChange(size){
                 this.pageSize = size;

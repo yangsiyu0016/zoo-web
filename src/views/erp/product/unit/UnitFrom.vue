@@ -47,7 +47,7 @@
                                     this.$message.success("更新成功");
                                     this.$emit("callback");
                                 }else{
-                                    this.$message.error("更新失败");
+                                    this.$message.error(resp.data.msg);
                                 }
                             })
                         }else{
@@ -56,7 +56,7 @@
                                     this.$message.success("保存成功");
                                     this.$emit("callback");
                                 }else{
-                                    this.$message.error("保存失败");
+                                    this.$message.error(resp.data.msg);
                                 }
                             });
                         }
