@@ -3,8 +3,8 @@
         <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
             <div style="display: inline">
             </div>
-            <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                <form @submit.native.prevent>
+            <el-form @submit.native.prevent>
+                <div style="margin-left: 5px;margin-right: 20px;display: inline">
                     <el-input size="mini" placeholder="通过采购单号、产品名称搜索、供应商名称进行搜索，记得回车呦..."
                               clearable
                               style="width: 350px;margin: 0px;padding: 0px;"
@@ -17,10 +17,10 @@
                     <el-button @click="searchPs" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
                     <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
                                @click="showSearchView">
-                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
+                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索/导出
                     </el-button>
-                </form>
-            </div>
+                </div>
+            </el-form>
         </el-header>
         <el-container>
             <el-main>
@@ -61,7 +61,7 @@
                                             start-placeholder="开始日期"
                                             end-placeholder="结束日期"
                                             size="mini"
-                                            v-model="searchDate"
+                                            v-model="searchData.initDate"
                                             value-format="yyyy-MM-dd"
                                             format="yyyy 年 MM 月 dd 日"
                                             :picker-options="pickerOptions">
@@ -94,6 +94,7 @@
                         <el-row :gutter="20" style="margin-top: 20px">
                             <el-button icon="el-icon-zoom-out" size="mini" @click="cancelSearch">取消</el-button>
                             <el-button @click="searchPs" icon="el-icon-search" type="primary" size="mini" >搜索</el-button>
+                            <el-button @click="exportExcel" style="margin-top: 2px;" size="mini" icon="el-icon-download" type="primary">导出</el-button>
                         </el-row>
                     </div>
                 </transition>
@@ -102,10 +103,10 @@
 
         <el-card shadow="hover">
             <el-main style="padding-left: 0px;padding-top: 0px">
-                <div class="export" style="float: right">
+                <!--<div class="export" style="float: right">
                     <el-button @click="exportExcel" style="margin-top: 2px;" size="mini" icon="el-icon-download" type="primary">导出</el-button>
-                </div>
-                <el-table v-loading="loading" :data="purchaseStatisticses" tooltip-effect="dark" ref="multipleTable" style="width: 100%" id="table" @selection-change="handleSelectionChange">
+                </div>-->
+                <el-table v-loading="loading" :data="purchaseStatisticses" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
                     <el-table-column
                             type="selection"
                             width="55">
@@ -130,7 +131,7 @@
                             <span v-html="showData(scope.row.code)"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="initDate" label="下单日期"></el-table-column>
+                    <el-table-column prop="initDate" label="下单日期" sortable></el-table-column>
                     <el-table-column prop="supplierName" label="供应商">
                         <template slot-scope="scope">
                             <span v-html="showData(scope.row.supplierName)"></span>
@@ -146,7 +147,7 @@
                             <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="ctime" label="创建时间"></el-table-column>
+                    <el-table-column prop="ctime" label="创建时间" sortable></el-table-column>
 
                 </el-table>
                 <el-pagination
@@ -166,6 +167,40 @@
         <el-dialog :visible.sync="dialogVisible" :title="dialogTitle" :close-on-click-modal="false" :append-to-body="true">
             <search-product-form></search-product-form>
         </el-dialog>-->
+        <div v-show="false">
+            <el-table v-loading="loading" :data="exportPurchaseStatistics" tooltip-effect="dark" ref="multipleTable" style="width: 100%" id="table">
+                <el-table-column
+                        type="selection"
+                        width="55">
+                </el-table-column>
+                <el-table-column type="index" width="60px">
+                    <template slot-scope="scope" >
+                        <span>{{(currentPage - 1) * 10 + scope.$index + 1}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="productType" label="产品类型"></el-table-column>
+                <el-table-column prop="productName" label="产品名称"></el-table-column>
+                <el-table-column prop="spec" label="规格"></el-table-column>
+                <el-table-column prop="number" label="采购数量"></el-table-column>
+                <el-table-column prop="notInNumber" label="未收货数量"></el-table-column>
+                <el-table-column prop="price" label="采购单价"></el-table-column>
+                <el-table-column prop="code" label="单号"></el-table-column>
+                <el-table-column prop="initDate" label="下单日期" sortable></el-table-column>
+                <el-table-column prop="supplierName" label="供应商"></el-table-column>
+                <el-table-column prop="status" label="状态">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.status=='WTJ'" type="info" size="mini" effect="dark">未提交</el-tag>
+                        <el-tag v-if="scope.row.status=='CGJLSH'" type="danger" size="mini" effect="dark">采购经理审核</el-tag>
+                        <el-tag v-if="scope.row.status=='CWSH'" type="warning" size="mini" effect="dark">财务审核</el-tag>
+                        <el-tag v-if="scope.row.status=='IN'"  color="#7b1fa2" size="mini" effect="dark">入库中...</el-tag>
+                        <el-tag v-if="scope.row.status=='DESTROY'"  type="info" size="mini" effect="dark">已作废</el-tag>
+                        <el-tag v-if="scope.row.status=='FINISHED'"  type="success" size="mini" effect="dark">订单完成</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="ctime" label="创建时间" sortable></el-table-column>
+
+            </el-table>
+        </div>
     </div>
 </template>
 
@@ -180,6 +215,7 @@
         components: {SearchProductForm, FileSaver, XLSX, ProductDialog},
         data() {
             return {
+                exportPurchaseStatistics: [],
                 loading: false,
                 keywords: '',
                 sort:'ctime',
@@ -277,9 +313,10 @@
             emptySearchData() {
                 this.searchData={
                     code:'',
-                    productCode:'',
                     productName:'',
-                    warehouseId:''
+                    warehouseId:'',
+                    supplierName: '',
+                    status: ''
                 }
             },
             keywordsChange(val){
@@ -298,15 +335,7 @@
                 this.currentPage= page;
                 this.search();
             },
-            reset() {
-                this.searchData = {
-                    productId:'',
-                        code:'',
-                        status: '',
-                        productName: '',
-                };
-                this.searchDate = [];
-            },
+
             dblclick(row) {
                 //this.searchData.productName = row.name + ' | 规格：' + row.spec + ' | 重量：' + row.weight + ' | 颜色：' + row.color;
                 this.searchData.productName = row.name;
@@ -340,6 +369,7 @@
                     "&start_ctime="+start_ctime+
                     "&end_ctime="+end_ctime+"&status="+this.searchData.status).then(resp => {
                         this.purchaseStatisticses = resp.data.purchaseStatisticses;
+                        this.exportPurchaseStatistics = resp.data.exportPurchaseStatistics;
                         this.totalCount = resp.data.count;
                         this.loading = false;
                 })
