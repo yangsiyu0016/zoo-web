@@ -194,7 +194,7 @@
                         <el-table-column label="办理人" prop="assigneeName"></el-table-column>
                         <el-table-column label="开始时间" prop="stime"></el-table-column>
                         <el-table-column label="结束时间" prop="etime"></el-table-column>
-                        <el-table-column label="用时" prop="duration"></el-table-column>
+                        <el-table-column label="用时" prop="duration" :formatter="getDuration"></el-table-column>
                     </el-table>
                 </div>
             </el-card>
@@ -219,9 +219,11 @@
 <script>
     import vueEasyPrint from "vue-easy-print";
     import SellPrintFormwork from "@/views/erp/order/SellPrintFormwork";
+    import {DateTimeFormatUtil} from "@/components/format/DateTimeFormaterUtil";
     export default {
         name: "SellDetails",
         components:{vueEasyPrint, SellPrintFormwork },
+        mixins:[DateTimeFormatUtil],
         props:{
             sell:{
                 type:Object,
@@ -259,6 +261,9 @@
 
         },
         methods: {
+            getDuration(row){
+                return this.getDurationTime(row.duration);
+            },
             downloadAnnex(row) {
 
                 window.open(row.url + "?fileName=" + row.fileName);

@@ -19,8 +19,8 @@
                                   v-model="keywords"
                                   @change="keywordsChange"
                         ></el-input>
-                        <el-button @click="searchSell" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
-                        <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
+                        <el-button @click="searchSell" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search" :disabled="searchViewVisible">搜索</el-button>
+                        <el-button  type="primary" size="mini" style="margin-left: 5px"
                                    @click="showSearchView">
                             <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
                         </el-button>
@@ -370,7 +370,7 @@
             },
             keywordsChange(val){
                 if(val==''){
-                    this.loadData();
+                    this.loadSells();
                 }
             },
             sizeChange(size){

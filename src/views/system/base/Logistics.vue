@@ -9,20 +9,22 @@
                     </el-button>
                 </div>
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                    <el-input size="mini" placeholder="通过名称、始发地，记得回车呦..."
-                              clearable
-                              style="width: 350px;margin: 0px;padding: 0px;"
-                              prefix-icon="el-icon-search"
-                              :disabled="searchViewVisible"
-                              @keyup.enter.native="searchExpress"
-                              v-model="keywords"
-                              @change="keywordsChange"
-                    ></el-input>
-                    <el-button @click="searchExpress" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
-                    <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
-                               @click="showSearchView">
-                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
-                    </el-button>
+                    <el-form @submit.native.prevent>
+                        <el-input size="mini" placeholder="通过名称、始发地，记得回车呦..."
+                                  clearable
+                                  style="width: 350px;margin: 0px;padding: 0px;"
+                                  prefix-icon="el-icon-search"
+                                  :disabled="searchViewVisible"
+                                  @keyup.enter.native="searchExpress"
+                                  v-model="keywords"
+                                  @change="keywordsChange"
+                        ></el-input>
+                        <el-button @click="searchExpress" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                        <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
+                                   @click="showSearchView">
+                            <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
+                        </el-button>
+                    </el-form>
                 </div>
             </el-header>
             <el-main style="padding-left: 0px;padding-top: 0px">
@@ -54,20 +56,17 @@
             <el-main style="padding-left: 0px;padding-top: 0px">
                 <div>
                     <el-table :data="expresses" size="mini" @selection-change="handleSelectionChange">
-                        <el-table-column
-                                type="selection"
-                                width="55">
-                        </el-table-column>
+
                         <el-table-column type="index" width="50px">
                             <template scope="scope">
                                 <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column
-                                label="操作" width="100px">
+                                label="操作" width="150px">
                             <template slot-scope="scope">
-                                <el-button @click="showEditExpressView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                                <el-button @click="deleteExpress(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button @click="showEditExpressView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-edit">编辑</el-button>
+                                <el-button @click="deleteExpress(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">删除</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column label="名称" prop="name">
@@ -90,10 +89,7 @@
                         <el-table-column label="备注" prop="description"></el-table-column>
                     </el-table>
                     <div style="display: flex;justify-content: space-between;margin: 2px">
-                        <el-button
-                                type="danger"
-                                size="mini"
-                                v-if="expresses.length>0" @click="deleteExpresses">批量删除</el-button>
+
                         <el-pagination
                                 background
                                 :page-sizes="[10,20,50,100,200]"
@@ -101,7 +97,7 @@
                                 :current-page="currentPage"
                                 @size-change="sizeChange"
                                 @current-change="currentChange"
-                                layout="prev,pager,next"
+                                layout="total,sizes,prev,pager,next,jumper"
                                 :total="totalCount">
                         </el-pagination>
                     </div>
@@ -164,7 +160,7 @@
                 if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
                     return val.replace(this.keywords,'<font color="red">' + this.keywords + '</font>')
                 }else{
-                    return val;
+                    return val=='undefined'?'':val;
                 }
             },
             currentChange(page) {
@@ -271,6 +267,8 @@
                 loading:false,
                 keywords:'',
                 searchViewVisible:false,
+                faangledoubleup: 'fa-angle-double-up',
+                faangledoubledown: 'fa-angle-double-down',
                 multipleSelection:[],
                 dialogVisible:false,
                 dialogTitle:'',

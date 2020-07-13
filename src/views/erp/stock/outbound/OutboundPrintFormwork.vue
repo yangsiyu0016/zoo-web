@@ -20,6 +20,7 @@
                             <el-col :span="12">
                                 <el-form-item>
                                     来自：<span v-if="outbound.type=='CF'">拆分单</span>
+                                    <span v-if="outbound.type=='SELL'">销售单</span>
                                 </el-form-item>
 
                             </el-col>
@@ -29,6 +30,27 @@
                             <el-col :span="12">
                                 <el-form-item>
                                     仓库：<span >{{outbound.warehouse.name}}</span>
+                                </el-form-item>
+
+                            </el-col>
+                        </el-row>
+                    </div>
+                </el-card>
+                <el-card shadow="hover">
+                    <div slot="header" class="clearfix">
+                        <span style="float: left;">物流信息</span>
+                    </div>
+                    <div>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <el-form-item>
+                                    物流/快递：<span>{{outbound.cost.express.name}}</span>
+                                </el-form-item>
+
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item>
+                                    费用：<span>{{outbound.cost.money}}</span>
                                 </el-form-item>
 
                             </el-col>

@@ -48,6 +48,7 @@
                                 来自：
                                 <el-select clearable  size="mini" v-model="searchData.type" style="width: 400px">
                                     <el-option label="拆分单" value="CF"></el-option>
+                                    <el-option label="销售单" value="SELL"></el-option>
                                 </el-select>
                             </el-col>
                             <el-col :span="8">
@@ -88,7 +89,7 @@
                     </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
-                            <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
+                            <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px" icon="fa fa-eye">查看</el-button>
                         </template>
 
                     </el-table-column>
@@ -96,6 +97,7 @@
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.type=='CF'" size="mini" type="warning" effect="dark">拆分单</el-tag>
                             <el-tag v-if="scope.row.type=='ZZ'" size="mini" type="success" effect="dark">组装单</el-tag>
+                            <el-tag v-if="scope.row.type=='SELL'" size="mini" type="success" effect="dark">销售单</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="code" label="出库单号">
