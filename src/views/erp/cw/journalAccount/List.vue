@@ -3,8 +3,8 @@
         <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
             <div style="display: inline">
             </div>
-            <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                <form @submit.native.prevent>
+            <el-form @submit.native.prevent>
+                <div style="margin-left: 5px;margin-right: 20px;display: inline">
                     <el-input size="mini" placeholder="通过产品编码、产品名称搜索，记得回车呦..."
                               clearable
                               style="width: 350px;margin: 0px;padding: 0px;"
@@ -17,10 +17,10 @@
                     <el-button @click="searchJa" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
                     <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
                                @click="showSearchView">
-                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
+                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索/导出
                     </el-button>
-                </form>
-            </div>
+                </div>
+            </el-form>
         </el-header>
         <el-container>
             <el-main>
@@ -63,12 +63,13 @@
                         <el-row :gutter="20" style="margin-top: 20px">
                             <el-button icon="el-icon-zoom-out" size="mini" @click="cancelSearch">取消</el-button>
                             <el-button @click="searchJa" icon="el-icon-search" type="primary" size="mini" >搜索</el-button>
+                            <el-button @click="exportExcel" style="margin-top: 2px;" size="mini" type="primary" icon="el-icon-download">导出</el-button>
                         </el-row>
                     </div>
                 </transition>
-                <div class="export" style="float: right">
+                <!--<div class="export" style="float: right">
                     <el-button @click="exportExcel" style="margin-top: 2px;" size="mini" type="primary" icon="el-icon-download">导出</el-button>
-                </div>
+                </div>-->
                 <el-table @sort-change="sortChange" :data="journalAccounts" tooltip-effect="dark" v-loading="tableLoading" size="mini" style="width:100%">
                     <el-table-column type="index" width="80">
                         <template scope="scope">
