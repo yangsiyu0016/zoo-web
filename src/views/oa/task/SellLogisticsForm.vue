@@ -3,7 +3,7 @@
         <el-form size="mini" :rules="rules" ref="logisticsForm" :model="cost" label-width="120px">
             <el-card shadow="hover">
                 <el-form-item label="物流:" prop="express.id">
-                    <el-select size="mini" value-key="id" style="float: left" v-model="cost.express"  filterable >
+                    <el-select size="mini" value-key="id" style="float: left" v-model="cost.express"  filterable ref="expressSelect" @visible-change="v=>expressVisibleChange(v,'expressSelect')">
                         <el-option v-for="(item,i) in expresses" :key="item.id" :label="item.name" :value="item"></el-option>
                     </el-select>
                 </el-form-item>
@@ -34,7 +34,7 @@
                                             label="操作" width="160">
                                         <template slot-scope="scope">
 
-                                            <el-button type="danger"  @click="deleteCdga(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                            <el-button type="danger"  @click="deleteCdga(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">删除</el-button>
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -46,12 +46,12 @@
                                 <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
                             </template>
                         </el-table-column>
-                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
-                        <el-table-column label="产品名称" prop="product.name" ></el-table-column>
+                        <el-table-column label="产品编号" prop="product.code" width="120px"></el-table-column>
+                        <el-table-column label="产品名称" prop="product.name" width="150px"></el-table-column>
                         <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
                         <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
 
-                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.spec" align="left" label="规格" width="250px"></el-table-column>
                         <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
@@ -63,32 +63,41 @@
                             </template>-->
                         </el-table-column>
                         <el-table-column
-                                label="操作" width="160">
+                                label="操作" width="200">
                             <template slot-scope="scope">
-                                <el-button type="primary"  @click="setGoodsAllocation(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">设置出库货位</el-button>
-                                <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                                <el-button type="primary"  @click="setGoodsAllocation(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-setting">设置货位</el-button>
+                                <el-button type="danger"  @click="deleteDetail(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
                 </div>
             </el-card>
-            <el-card shadow="hover">
-                <el-button size="mini" @click="saveLogistics" type="primary">保存</el-button>
-                <el-button size="mini" @click="close" type="info">关闭</el-button>
+            <el-card shadow="hover" style="text-align: center">
+                <el-button size="mini" @click="saveLogistics" type="primary" icon="el-icon-check">保存</el-button>
+                <el-button size="mini" @click="close" type="info" icon="el-icon-close">关闭</el-button>
             </el-card>
         </el-form>
-        <el-dialog :title="gaDialogTitle" :visible.sync="gaDialogVisible" :close-on-click-modal="false" :append-to-body="true">
+        <el-dialog :title="gaDialogTitle" :visible.sync="gaDialogVisible" :close-on-click-modal="false" :append-to-body="true" width="20%">
 
             <sell-goods-allocation-set-form :oldCdga="oldCdga" :costDetail="currentCostDetail"  @cancel="closeGoodsAllocationSetDialog" @callback="callback"></sell-goods-allocation-set-form>
+        </el-dialog>
+        <el-dialog :visible.sync="expressEditDialogVisible" :title="expressEditDialogTitle" :close-on-click-modal="false" :append-to-body="true">
+            <logistics-form :is-edit="expressEdit" :old-express="oldExpress" @close="closeExpressEditDialog" @callback="expressEditDialogCallback">
+
+            </logistics-form>
+            <!--<unit-from  :isEdit="unitEdit" :oldUnit="oldUnit" @close="closeUnitEditDialog" @callback="unitEditDialogCallback"></unit-from>-->
         </el-dialog>
     </div>
 </template>
 
 <script>
     import SellGoodsAllocationSetForm from "@/views/oa/task/SellGoodsAllocationSetForm";
+    import {selectBottomAction} from "@/components/select/SelectBottomAction";
+    import LogisticsForm from "@/views/system/base/LogisticsForm";
     export default {
         name: "SellLogisticsForm",
-        components: {SellGoodsAllocationSetForm},
+        components: {LogisticsForm, SellGoodsAllocationSetForm},
+        mixins:[selectBottomAction],
         props:{
             sell:{
                 type:Object,
@@ -126,6 +135,25 @@
             this.loadExpresses();
         },
         methods:{
+            expressEditDialogCallback(){
+                this.loadExpresses();
+                this.closeExpressEditDialog();
+            },
+            closeExpressEditDialog(){
+                this.expressEditDialogVisible = false;
+            },
+            expressVisibleChange(visible,ref){
+                let _this = this;
+                let clickHandler =()=>{
+                    this.expressEdit = false;
+                    _this.oldExpress={
+                        name:''
+                    };
+                    _this.expressEditDialogTitle="新增物流";
+                    _this.expressEditDialogVisible = true;
+                }
+                _this.selectBottomAction(visible,{ref,click:clickHandler,label:'添加物流',icon:'el-icon-plus',arrow:false});
+            },
             deleteCdga(row){
                this.cost.details.forEach((item)=>{
                    if(item.cdgas){
@@ -209,6 +237,10 @@
         },
         data(){
             return{
+                expressEdit:false,
+                oldExpress:{},
+                expressEditDialogTitle:'',
+                expressEditDialogVisible:false,
                 expresses:[],
                 cost:{
                     express:{},

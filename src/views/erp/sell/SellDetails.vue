@@ -88,19 +88,19 @@
                                 <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
                             </template>
                         </el-table-column>
-                        <el-table-column label="产品编号" prop="product.code" ></el-table-column>
+                        <el-table-column label="产品编号" prop="product.code"  width="150px"></el-table-column>
                         <el-table-column label="产品名称" prop="product.name" ></el-table-column>
                         <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
                         <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
 
-                        <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                        <el-table-column prop="product.spec" align="left" label="规格" width="250px"></el-table-column>
                         <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
                         <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
                         <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
                         <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
                         <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
 
-                        <el-table-column label="发货仓库" prop="warehouse.name"></el-table-column>
+                        <el-table-column label="发货仓库" prop="warehouse.name" width="120px"></el-table-column>
                         <el-table-column label="数量" prop="number"></el-table-column>
                         <el-table-column label="未发货数量" prop="notOutNumber"></el-table-column>
                         <el-table-column label="价格" prop="price"></el-table-column>
@@ -165,6 +165,7 @@
                             :data="sell.annexs"
                             size="mini"
                             style="width:100%">
+                        <el-table-column type="index"></el-table-column>
                         <el-table-column label="附件名称" prop="title" ></el-table-column>
                         <el-table-column label="附件格式" prop="suffix" ></el-table-column>
 
@@ -175,7 +176,7 @@
                         <el-table-column
                                 label="操作" width="120">
                             <template slot-scope="scope">
-                                <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px">下载</el-button>
+                                <el-button type="primary" @click="downloadAnnex(scope.row)" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-download">下载</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -199,9 +200,9 @@
             </el-card>
             <el-card shadow="hover">
 
-                <el-button @click="resetSellDetail" size="mini" type="danger" v-show="isReception">取回</el-button>
-                <el-button @click="destroySell" v-show="canDestroy&&sell.status!='DESTROY'"  size="mini" type="danger" >作废</el-button>
-                <el-button @click="close" size="mini" type="info">关闭</el-button>
+                <el-button @click="resetSellDetail" size="mini" type="danger" v-show="isReception" icon="el-icon-back">取回</el-button>
+                <el-button @click="destroySell" v-show="canDestroy&&sell.status!='DESTROY'"  size="mini" type="danger" icon="el-icon-delete-solid">作废</el-button>
+                <el-button @click="close" size="mini" type="info" icon="el-icon-close">关闭</el-button>
             </el-card>
 
         </el-form>
@@ -325,7 +326,7 @@
                 const sums =[];
                 columns.forEach((column,index)=>{
                     if(index===0){
-                        sums[index]='总额';
+                        sums[index]='合计';
                         //return;
                     }
                     if(column.property=='totalMoney'||column.property=='number'){

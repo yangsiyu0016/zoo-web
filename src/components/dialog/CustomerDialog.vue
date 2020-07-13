@@ -5,20 +5,22 @@
                 <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
                     <div></div>
                     <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                        <el-input size="mini" placeholder="通过客户名称、联系人搜索，记得回车呦..."
-                                  clearable
-                                  style="width: 350px;margin: 0px;padding: 0px;"
-                                  prefix-icon="el-icon-search"
-                                  :disabled="searchViewVisible"
-                                  @keyup.enter.native="searchCustomer"
-                                  v-model="keywords"
-                                  @change="keywordsChange"
-                        ></el-input>
-                        <el-button :disabled="searchViewVisible" @click="searchCustomer" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
-                        <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
-                                   @click="showSearchView">
-                            <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
-                        </el-button>
+                        <el-form @submit.native.prevent>
+                            <el-input size="mini" placeholder="通过客户名称、联系人搜索，记得回车呦..."
+                                      clearable
+                                      style="width: 350px;margin: 0px;padding: 0px;"
+                                      prefix-icon="el-icon-search"
+                                      :disabled="searchViewVisible"
+                                      @keyup.enter.native="searchCustomer"
+                                      v-model="keywords"
+                                      @change="keywordsChange"
+                            ></el-input>
+                            <el-button :disabled="searchViewVisible" @click="searchCustomer" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                            <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
+                                       @click="showSearchView">
+                                <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
+                            </el-button>
+                        </el-form>
                     </div>
                 </el-header>
                 <el-main style="padding-left: 0px;padding-top: 0px">

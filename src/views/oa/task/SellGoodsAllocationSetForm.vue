@@ -10,8 +10,8 @@
                 <el-input-number :min="0"   :precision="4" v-model="cdga.number"></el-input-number>
             </el-form-item>
             <el-form-item>
-                <el-button @click="save" type="primary">保存</el-button>
-                <el-button @click="cancel" type="info">取消</el-button>
+                <el-button @click="save" type="primary" icon="el-icon-check">保存</el-button>
+                <el-button @click="cancel" type="info" icon="el-icon-close">取消</el-button>
             </el-form-item>
         </el-form>
     </div>

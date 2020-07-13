@@ -1,5 +1,5 @@
 <template>
-    <el-form :model="express" ref="expressForm" :rules="rules"  label-width="80px" label-position="right">
+    <el-form :model="express" ref="expressForm" :rules="rules"  label-width="80px" label-position="right" @submit.native.prevent>
         <el-form-item label="名称" prop="name" >
             <el-input size="mini" v-model="express.name"></el-input>
         </el-form-item>
@@ -15,8 +15,11 @@
         <el-form-item label="始发地址" prop="startAddress">
             <el-input size="mini" v-model="express.startAddress"></el-input>
         </el-form-item>
-        <el-button size="mini" @click="saveExpress" type="primary">保存</el-button>
-        <el-button size="mini" @click="close" type="info">取消</el-button>
+        <el-form-item style="text-align: center">
+            <el-button size="mini" @click="saveExpress" type="primary" icon="el-icon-check">保存</el-button>
+            <el-button size="mini" @click="close" type="info" icon="el-icon-close">取消</el-button>
+        </el-form-item>
+
     </el-form>
 </template>
 

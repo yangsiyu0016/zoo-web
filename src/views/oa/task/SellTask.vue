@@ -4,16 +4,18 @@
             <el-header style="padding: 0px;display:flex;justify-content:space-between;align-items: center">
                 <div></div>
                 <div style="margin-left: 5px;margin-right: 20px;display: inline">
-                    <el-input size="mini" placeholder="通过单号搜索，记得回车呦..."
-                              clearable
-                              style="width: 350px;margin: 0px;padding: 0px;"
-                              prefix-icon="el-icon-search"
+                    <el-form @submit.native.prevent>
+                        <el-input size="mini" placeholder="通过单号搜索，记得回车呦..."
+                                  clearable
+                                  style="width: 350px;margin: 0px;padding: 0px;"
+                                  prefix-icon="el-icon-search"
 
-                              @keyup.enter.native="searchTask"
-                              v-model="keywords"
-                              @change="keywordsChange"
-                    ></el-input>
-                    <el-button @click="searchTask" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                                  @keyup.enter.native="searchTask"
+                                  v-model="keywords"
+                                  @change="keywordsChange"
+                        ></el-input>
+                        <el-button @click="searchTask" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
+                    </el-form>
                 </div>
             </el-header>
             <el-main>
@@ -28,8 +30,8 @@
                     </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
-                            <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看订单</el-button>
-                            <el-button @click="showFLowImage(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">查看流程图</el-button>
+                            <el-button @click="showDetailView(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="fa fa-eye">查看</el-button>
+                            <el-button @click="showFLowImage(scope.row)" type="primary" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="fa fa-eye">查看流程图</el-button>
                         </template>
                     </el-table-column>
                     <el-table-column  prop="code" align="left"  label="单号">

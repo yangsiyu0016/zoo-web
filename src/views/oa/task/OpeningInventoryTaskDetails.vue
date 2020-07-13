@@ -94,7 +94,7 @@
                     <el-table-column label="办理人" prop="assigneeName"></el-table-column>
                     <el-table-column label="开始时间" prop="stime"></el-table-column>
                     <el-table-column label="结束时间" prop="etime"></el-table-column>
-                    <el-table-column label="用时" prop="duration"></el-table-column>
+                    <el-table-column label="用时" prop="duration" :formatter="getDuration"></el-table-column>
                 </el-table>
             </div>
         </el-card>
@@ -130,9 +130,11 @@
     import vueEasyPrint from "vue-easy-print";
     import OpeningInventoryForm from "@/views/erp/stock/oi/OpeningInventoryForm";
     import OpengingInventoryPrintFormwork from "@/views/erp/order/OpeningInventoryPrintFormwork";
+    import {DateTimeFormatUtil} from "@/components/format/DateTimeFormaterUtil";
     export default {
         name: "OpeningInventoryTaskDetails",
         components: {OpengingInventoryPrintFormwork, OpeningInventoryForm,vueEasyPrint},
+        mixins:[DateTimeFormatUtil],
         props:{
             task:{
                 type:Object,
@@ -171,6 +173,9 @@
             }
         },
         methods:{
+            getDuration(row){
+                return this.getDurationTime(row.duration);
+            },
             //打印
             print(){
 
