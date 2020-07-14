@@ -102,13 +102,13 @@
                             <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column
+                    <el-table-column width="260px"
                             label="操作">
                         <template slot-scope="scope">
-                            <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px">查看</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px">启动流程</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" type="primary" @click="showEditPurchaseView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">编辑</el-button>
-                            <el-button v-show="scope.row.status=='WTJ'" @click="deletePurchase(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px">删除</el-button>
+                            <el-button @click="showDetails(scope.row)" size="mini" type="warning" style="padding: 3px 4px 3px 4px;margin: 2px" icon="fa fa-eye">查看</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'" @click="startFlow(scope.row)" size="mini" type="success" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-video-play">启动流程</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'" type="primary" @click="showEditPurchaseView(scope.row)" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-edit">编辑</el-button>
+                            <el-button v-show="scope.row.status=='WTJ'" @click="deletePurchase(scope.row)" type="danger" size="mini" style="padding: 3px 4px 3px 4px;margin: 2px" icon="el-icon-close">删除</el-button>
                         </template>
                     </el-table-column>
                     <el-table-column prop="code" label="单号">

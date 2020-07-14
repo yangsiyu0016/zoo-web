@@ -26,8 +26,8 @@
                 <el-input-number @change="totalMoneyChange" v-model="detail.totalMoney"  :min="0" :precision="4" style="float: left"></el-input-number>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="saveDetail">保存</el-button>
-                <el-button  type="info" @click="cancel">取消</el-button>
+                <el-button type="primary" @click="saveDetail" icon="el-icon-check">保存</el-button>
+                <el-button  type="info" @click="cancel" icon="el-icon-close">取消</el-button>
             </el-form-item>
 
         </el-form>
