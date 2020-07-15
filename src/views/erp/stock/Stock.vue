@@ -17,7 +17,7 @@
                     <el-button @click="searchStock" type="primary" size="mini" style="margin-left: 5px" icon="el-icon-search">搜索</el-button>
                     <el-button slot="reference" type="primary" size="mini" style="margin-left: 5px"
                                @click="showSearchView">
-                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索
+                        <i class="fa fa-lg" style="margin-right: 5px"  v-bind:class="[searchViewVisible ? faangledoubleup:faangledoubledown]"></i>高级搜索/导出
                     </el-button>
                 </div>
             </el-header>
@@ -41,6 +41,7 @@
                         <el-row :gutter="20" style="margin-top: 20px">
                             <el-button icon="el-icon-zoom-out" size="mini" @click="cancelSearch">取消</el-button>
                             <el-button @click="searchStock" icon="el-icon-search" type="primary" size="mini" >搜索</el-button>
+                            <el-button @click="exportExcel" style="margin-top: 2px;" size="mini" icon="el-icon-download" type="primary">导出</el-button>
                         </el-row>
                     </div>
                 </transition>
@@ -105,11 +106,63 @@
                 </div>
             </el-main>
         </el-container>
+        <div v-show="false">
+            <el-table :data="exportStocks"
+                      tooltip-effect="dark"
+                      size="mini"
+                      style="width:100%"
+                      ref="multipleTable"
+                      id="table">
+                <el-table-column type="index" align="left" width="80">
+                    <template scope="scope">
+                        <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column type="expand">
+                    <template slot-scope="props">
+                        <el-table :data="props.row.details">
+                            <el-table-column type="index" align="left" width="80"></el-table-column>
+                            <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
+                            <el-table-column label="可用数量" prop="usableNumber"></el-table-column>
+                        </el-table>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="warehouse.name" label="仓库" align="left"></el-table-column>
+                <el-table-column prop="product.imageUrl" label="图片">
+                    <template slot-scope="scope">
+                        <el-image v-if="scope.row.product.imageUrl" :src="scope.row.product.imageUrl" :preview-src-list="[scope.row.product.imageUrl]"></el-image>
+                    </template>
+                </el-table-column>
+                <el-table-column label="产品编号"  >
+                    <template slot-scope="scope">
+                        <span v-html="showData(scope.row.product.code)"></span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="产品名称"  >
+                    <template slot-scope="scope">
+                        <span v-html="showData(scope.row.product.name)"></span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="product.typeName" align="left" width="100" label="分类"></el-table-column>
+                <el-table-column prop="product.productBrand.name" align="left"  label="品牌" ></el-table-column>
 
+                <el-table-column prop="product.spec" align="left" label="规格"></el-table-column>
+                <el-table-column prop="product.unit.name" align="left" label="单位"></el-table-column>
+                <el-table-column prop="product.weight" align="left" label="重量"></el-table-column>
+                <el-table-column prop="product.color" align="left" label="颜色"></el-table-column>
+                <el-table-column prop="product.puse" align="left" label="用途"></el-table-column>
+                <el-table-column prop="product.description" align="left" label="备注" show-tooltip-when-overflow></el-table-column>
+                <el-table-column prop="usableNumber" label="可用数量" align="left"></el-table-column>
+                <el-table-column prop="lockedNumber" label="锁定数量" align="left"></el-table-column>
+            </el-table>
+        </div>
     </div>
 </template>
 
 <script>
+    import FileSaver from "file-saver";
+    import XLSX from "xlsx";
+
     export default {
         name: "Stock",
         mounted(){
@@ -117,6 +170,9 @@
             this.loadWarehouse();
         },
         methods:{
+            exportExcel() {
+
+            },
             showData(val){
                 val = val+'';
                 if(val.indexOf(this.keywords)!==-1&&this.keywords!==''){
@@ -169,6 +225,7 @@
                     "&productName="+this.searchData.productName+
                     "&warehouseId="+this.searchData.warehouseId).then((resp)=>{
                     this.stocks = resp.data.stocks;
+                    this.exportStocks = resp.data.exportStocks;
                     this.totalCount = resp.data.count;
                     this.loading = false;
                 })
@@ -179,10 +236,56 @@
                         this.warehouses = resp.data;
                     }
                 })
+            },
+            exportExcel() {
+                // 导出的内容只做解析，不进行格式转换
+                let xlsxParam = { raw: true }
+                let wb = null
+                let tableName = ''
+                let randomString = this.randomString(6)
+                wb = XLSX.utils.table_to_book(
+                    document.querySelector('#table'),
+                    xlsxParam
+                )
+                // 这里的randomString非必须，只是生成一串随机码
+                // 便于下载多个文件而不重名
+                tableName = `库存明细表-${randomString}.xlsx`
+
+                /* get binary string as output */
+                let wbout = XLSX.write(wb, {
+                    bookType: 'xlsx',
+                    bookSST: true,
+                    type: 'array'
+                })
+                try {
+                    // eslint-disable-next-line no-undef
+                    FileSaver.saveAs(new Blob([wbout], {
+                        type: 'application/octet-stream'
+                    }), tableName)
+                } catch (e) {
+                    if (typeof console !== 'undefined') {
+                        console.log(e, wbout)
+                    }
+                }
+                this.$message.success('导出成功')
+                return wbout
+            },
+            // 生成len位随机码
+            randomString (len) {
+                len = len || 32
+                // 屏蔽了容易让人混淆的字符，比如数字1和字母l,，数字0和字母o……
+                var chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+                var maxPos = chars.length
+                var str = ''
+                for (let i = 0; i < len; i++) {
+                    str += chars.charAt(Math.floor(Math.random() * maxPos))
+                }
+                return str
             }
         },
         data(){
             return{
+                exportStocks: [],
                 loading:false,
                 faangledoubleup: 'fa-angle-double-up',
                 faangledoubledown: 'fa-angle-double-down',
