@@ -53,6 +53,15 @@
                             <span>{{(currentPage - 1) * pageSize + scope.$index + 1}}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-table :data="props.row.details">
+                                <el-table-column type="index" align="left" width="80"></el-table-column>
+                                <el-table-column label="货位" prop="goodsAllocation.name"></el-table-column>
+                                <el-table-column label="可用数量" prop="usableNumber"></el-table-column>
+                            </el-table>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="warehouse.name" label="仓库" align="left"></el-table-column>
                     <el-table-column prop="product.imageUrl" label="图片">
                         <template slot-scope="scope">
